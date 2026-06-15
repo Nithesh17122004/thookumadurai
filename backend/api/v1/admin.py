@@ -372,8 +372,7 @@ def update_rider(rider_id):
     allowed = ["name", "phone", "vehicle_type", "vehicle_number", "approval_status", "is_online", "username"]
     update_fields = {k: data[k] for k in allowed if k in data}
     if data.get("password"):
-        from werkzeug.security import generate_password_hash
-        update_fields["password_hash"] = generate_password_hash(data["password"])
+        update_fields["password_hash"] = _hash_password(data["password"])
 
     if not update_fields:
         return jsonify({"success": False, "message": "No valid fields to update"}), 400
