@@ -15,6 +15,6 @@ flask-socketio==5.3.6
 simple-websocket==1.0.0
 APScheduler==3.10.4
 eventlet==0.36.1
-pywebpush==2.3.0
+pywebpush==1.14.1
 python-engineio==4.13.2
 python-socketio==5.16.2
