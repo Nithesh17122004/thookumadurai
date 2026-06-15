@@ -1,0 +1,1562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Admin Panel — Thooku Madurai</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root {
+      --bg: #060f08; --card: #0f2016; --primary: #1b6b3a; --accent: #4caf50;
+      --gold: #ffc107; --text-muted: #81c784; --text-dim: #4a7c59;
+      --border: rgba(76,175,80,0.18); --surface-mid: #122019;
+      --radius: 14px; --radius-sm: 8px;
+      --sidebar-w: 240px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: #e8f5e9; min-height: 100vh; display: flex; }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: var(--sidebar-w); background: var(--card);
+      border-right: 1px solid var(--border);
+      height: 100vh; position: fixed; top: 0; left: 0;
+      display: flex; flex-direction: column; z-index: 100; overflow-y: auto;
+    }
+    .sidebar-brand {
+      padding: 24px 20px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 12px;
+    }
+    .sidebar-brand .emoji { font-size: 28px; }
+    .sidebar-brand .name { font-family: 'Poppins',sans-serif; font-weight: 800; font-size: 15px; color: var(--accent); }
+    .sidebar-brand .sub { font-size: 10px; color: var(--text-dim); letter-spacing: 1px; }
+
+    .sidebar-nav { flex: 1; padding: 16px 12px; }
+    .nav-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 14px; border-radius: var(--radius-sm);
+      cursor: pointer; font-size: 14px; font-weight: 500;
+      color: var(--text-muted); transition: all 0.2s; margin-bottom: 2px;
+    }
+    .nav-item i { width: 18px; text-align: center; font-size: 15px; }
+    .nav-item:hover { background: rgba(76,175,80,0.08); color: #e8f5e9; }
+    .nav-item.active { background: rgba(76,175,80,0.15); color: var(--accent); }
+
+    .sidebar-footer {
+      padding: 16px; border-top: 1px solid var(--border);
+    }
+    .logout-btn {
+      width: 100%; padding: 10px; border: 1px solid var(--border);
+      background: transparent; color: var(--text-muted); border-radius: var(--radius-sm);
+      cursor: pointer; font-size: 13px; font-family: 'Inter',sans-serif;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: all 0.2s;
+    }
+    .logout-btn:hover { border-color: #ef5350; color: #ef5350; background: rgba(239,83,80,0.06); }
+
+    /* ── Main ── */
+    .main { margin-left: var(--sidebar-w); flex: 1; padding: 28px; min-height: 100vh; }
+
+    /* ── Top Bar ── */
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 28px;
+    }
+    .page-title { font-family: 'Poppins',sans-serif; font-size: 22px; font-weight: 700; }
+    .admin-badge {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 100px; padding: 8px 16px; font-size: 13px;
+    }
+    .admin-badge .dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; animation: pulse 2s infinite; }
+
+    /* ── KPI Cards ── */
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-bottom: 28px; }
+    .kpi-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px; position: relative; overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .kpi-card::after {
+      content: ''; position: absolute; top: 0; right: 0;
+      width: 80px; height: 80px;
+      background: radial-gradient(circle, rgba(76,175,80,0.1), transparent);
+      border-radius: 50%; transform: translate(20px,-20px);
+    }
+    .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+    .kpi-icon { font-size: 28px; margin-bottom: 12px; }
+    .kpi-value { font-family: 'Poppins',sans-serif; font-size: 28px; font-weight: 800; color: var(--accent); }
+    .kpi-label { font-size: 12px; color: var(--text-dim); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* ── Tab Panels ── */
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── Section Header ── */
+    .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+    .section-title { font-family: 'Poppins',sans-serif; font-size: 18px; font-weight: 700; }
+
+    /* ── Buttons ── */
+    .btn {
+      padding: 10px 18px; border: none; border-radius: var(--radius-sm);
+      font-size: 13px; font-weight: 700; font-family: 'Inter',sans-serif;
+      cursor: pointer; transition: all 0.2s;
+      display: inline-flex; align-items: center; gap: 8px; white-space: nowrap;
+    }
+    .btn-accent { background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff; }
+    .btn-accent:hover:not(:disabled) { filter: brightness(1.1); transform: translateY(-1px); }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-muted); }
+    .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-danger { background: rgba(239,83,80,0.15); border: 1px solid rgba(239,83,80,0.3); color: #ef5350; }
+    .btn-danger:hover { background: rgba(239,83,80,0.25); }
+    .btn-sm { padding: 6px 12px; font-size: 12px; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+
+    /* ── Table ── */
+    .table-wrap { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+    .table-filter { padding: 16px; border-bottom: 1px solid var(--border); display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    table { width: 100%; border-collapse: collapse; }
+    thead tr { background: var(--surface-mid); }
+    th { padding: 12px 16px; font-size: 11px; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; text-align: left; }
+    tbody tr { border-top: 1px solid var(--border); transition: background 0.15s; }
+    tbody tr:hover { background: rgba(76,175,80,0.04); }
+    td { padding: 12px 16px; font-size: 13px; vertical-align: middle; }
+    .empty-state { padding: 60px 20px; text-align: center; color: var(--text-muted); }
+    .empty-state .es-icon { font-size: 48px; margin-bottom: 12px; }
+    .empty-state .es-msg { font-size: 14px; }
+
+    /* ── Badges ── */
+    .badge { padding: 3px 10px; border-radius: 100px; font-size: 11px; font-weight: 700; }
+    .badge-green { background: rgba(76,175,80,0.15); color: var(--accent); }
+    .badge-red   { background: rgba(239,83,80,0.15); color: #ef5350; }
+    .badge-yellow { background: rgba(255,193,7,0.15); color: var(--gold); }
+    .badge-blue  { background: rgba(100,181,246,0.15); color: #64b5f6; }
+    .badge-gray  { background: rgba(255,255,255,0.06); color: #aaa; }
+
+    /* ── Toggle switch ── */
+    .toggle-wrap { display: inline-flex; align-items: center; gap: 8px; }
+    .toggle {
+      width: 44px; height: 24px; background: var(--surface-mid);
+      border: 1px solid var(--border); border-radius: 100px; cursor: pointer;
+      position: relative; transition: background 0.2s;
+    }
+    .toggle.on { background: var(--primary); border-color: var(--accent); }
+    .toggle::after {
+      content: ''; position: absolute; top: 2px; left: 2px;
+      width: 18px; height: 18px; background: #fff;
+      border-radius: 50%; transition: transform 0.2s;
+    }
+    .toggle.on::after { transform: translateX(20px); }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.6); z-index: 1000;
+      align-items: center; justify-content: center; padding: 20px;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-box {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); width: 100%; max-width: 560px;
+      max-height: 90vh; overflow-y: auto;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.6);
+      animation: slideUp 0.25s ease;
+    }
+    .modal-header {
+      padding: 20px 24px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: var(--card); z-index: 2;
+    }
+    .modal-title { font-family: 'Poppins',sans-serif; font-size: 18px; font-weight: 700; }
+    .modal-close {
+      background: none; border: none; color: var(--text-muted); cursor: pointer;
+      font-size: 20px; line-height: 1; transition: color 0.2s;
+    }
+    .modal-close:hover { color: #ef5350; }
+    .modal-body { padding: 24px; }
+    .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; gap: 10px; justify-content: flex-end; }
+
+    /* ── Form ── */
+    .form-group { margin-bottom: 16px; }
+    .form-label { display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; letter-spacing: 0.5px; text-transform: uppercase; }
+    .form-control {
+      width: 100%; background: #0a1a0e; border: 1px solid var(--border);
+      border-radius: var(--radius-sm); color: #e8f5e9; font-size: 14px;
+      font-family: 'Inter',sans-serif; padding: 10px 14px; outline: none;
+      transition: border-color 0.2s;
+    }
+    .form-control:focus { border-color: var(--accent); }
+    .form-control::placeholder { color: var(--text-dim); }
+    select.form-control { cursor: pointer; }
+    select.form-control option { background: #0f2016; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .required::after { content: ' *'; color: #ef5350; }
+
+    .password-wrapper { position: relative; }
+    .password-wrapper .form-control { padding-right: 44px; }
+    .pw-toggle {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; color: var(--text-dim); cursor: pointer;
+      font-size: 14px; transition: color 0.2s;
+    }
+    .pw-toggle:hover { color: var(--accent); }
+
+    .gen-row { display: flex; gap: 8px; align-items: flex-end; }
+    .gen-row .form-control { flex: 1; }
+
+    /* ── Credentials card ── */
+    .cred-box {
+      background: var(--surface-mid); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 20px; text-align: center; margin-bottom: 16px;
+    }
+    .cred-item { margin-bottom: 10px; }
+    .cred-label { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
+    .cred-value { font-size: 20px; font-weight: 800; font-family: 'Poppins',sans-serif; color: var(--accent); letter-spacing: 1px; }
+
+    /* ── Filter select ── */
+    .filter-select {
+      background: var(--surface-mid); border: 1px solid var(--border);
+      color: #e8f5e9; border-radius: var(--radius-sm); padding: 8px 12px;
+      font-size: 13px; font-family: 'Inter',sans-serif; outline: none; cursor: pointer;
+    }
+    .filter-select option { background: #0f2016; }
+
+    /* ── Settings ── */
+    .settings-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 20px; }
+    .settings-card h3 { font-family: 'Poppins',sans-serif; font-size: 16px; font-weight: 700; margin-bottom: 16px; }
+    .danger-zone { border-color: rgba(239,83,80,0.3); background: rgba(239,83,80,0.04); }
+    .danger-zone h3 { color: #ef5350; }
+
+    /* ── Coupon table ── */
+    .coupon-grid { display: grid; gap: 12px; }
+    .coupon-row {
+      background: var(--surface-mid); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 14px 18px;
+      display: flex; align-items: center; gap: 16px;
+    }
+    .coupon-code { font-family: 'Poppins',sans-serif; font-size: 16px; font-weight: 700; color: var(--gold); }
+    .coupon-meta { flex: 1; font-size: 12px; color: var(--text-muted); }
+
+    /* ── Toast ── */
+    .toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+    .toast {
+      background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+      padding: 12px 18px; display: flex; align-items: center; gap: 10px;
+      font-size: 14px; font-weight: 500; min-width: 260px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      animation: slideIn 0.35s cubic-bezier(0.34,1.56,0.64,1) both; pointer-events: auto;
+    }
+    .toast.success { border-left: 4px solid var(--accent); }
+    .toast.error   { border-left: 4px solid #ef5350; }
+    .toast.warning { border-left: 4px solid var(--gold); }
+
+    /* ── Loader ── */
+    .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+    @media (max-width: 900px) {
+      .sidebar { width: 60px; }
+      .sidebar-brand .name, .sidebar-brand .sub, .nav-item span { display: none; }
+      .main { margin-left: 60px; }
+      .nav-item { justify-content: center; padding: 14px; }
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 600px) {
+      .main { padding: 16px; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===== SIDEBAR ===== -->
+<aside class="sidebar" role="navigation" aria-label="Admin navigation">
+  <div class="sidebar-brand">
+    <img src="img/logo.png" alt="Thooku Madurai" style="width:36px;height:36px;object-fit:contain;border-radius:8px;flex-shrink:0;">
+    <div>
+      <div class="name">THOOKU</div>
+      <div class="sub">ADMIN PANEL</div>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-item active" id="nav-dashboard" onclick="showTab('dashboard')" title="Dashboard">
+      <i class="fas fa-chart-line"></i> <span>Dashboard</span>
+    </div>
+    <div class="nav-item" id="nav-restaurants" onclick="showTab('restaurants')" title="Restaurants">
+      <i class="fas fa-store"></i> <span>Restaurants</span>
+    </div>
+    <div class="nav-item" id="nav-riders" onclick="showTab('riders')" title="Riders">
+      <i class="fas fa-motorcycle"></i> <span>Riders</span>
+    </div>
+    <div class="nav-item" id="nav-customers" onclick="showTab('customers')" title="Customers">
+      <i class="fas fa-users"></i> <span>Customers</span>
+    </div>
+    <div class="nav-item" id="nav-orders" onclick="showTab('orders')" title="Orders">
+      <i class="fas fa-receipt"></i> <span>Orders</span>
+    </div>
+    <div class="nav-item" id="nav-coupons" onclick="showTab('coupons')" title="Coupons">
+      <i class="fas fa-tag"></i> <span>Coupons</span>
+    </div>
+    <div class="nav-item" id="nav-settings" onclick="showTab('settings')" title="Settings">
+      <i class="fas fa-gear"></i> <span>Settings</span>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="logout-btn" onclick="logout()">
+      <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
+    </button>
+  </div>
+</aside>
+
+<!-- ===== MAIN ===== -->
+<main class="main">
+  <div class="topbar">
+    <div class="page-title" id="pageTitle">Dashboard</div>
+    <div class="admin-badge">
+      <div class="dot"></div>
+      <span id="adminName">Admin</span>
+    </div>
+  </div>
+
+  <!-- ── DASHBOARD ── -->
+  <div class="tab-panel active" id="tab-dashboard">
+    <div class="kpi-grid" id="kpiGrid">
+      <div class="kpi-card"><div class="kpi-icon">🏪</div><div class="kpi-value" id="kpi-restaurants">—</div><div class="kpi-label">Restaurants</div></div>
+      <div class="kpi-card"><div class="kpi-icon">🏍️</div><div class="kpi-value" id="kpi-riders">—</div><div class="kpi-label">Riders</div></div>
+      <div class="kpi-card"><div class="kpi-icon">👥</div><div class="kpi-value" id="kpi-customers">—</div><div class="kpi-label">Customers</div></div>
+      <div class="kpi-card"><div class="kpi-icon">📦</div><div class="kpi-value" id="kpi-orders-today">—</div><div class="kpi-label">Today's Orders</div></div>
+      <div class="kpi-card"><div class="kpi-icon">💰</div><div class="kpi-value" id="kpi-revenue">—</div><div class="kpi-label">Today's Revenue</div></div>
+      <div class="kpi-card"><div class="kpi-icon">📱</div><div class="kpi-value" id="kpi-earnings">—</div><div class="kpi-label">Platform Earnings</div></div>
+    </div>
+    <div style="text-align:center;padding:40px;color:var(--text-muted)">
+      <p style="font-size:14px">Welcome to Thooku Madurai Admin Panel 🎉</p>
+      <p style="font-size:13px;color:var(--text-dim);margin-top:6px">Use the sidebar to manage your platform.</p>
+    </div>
+  </div>
+
+  <!-- ── RESTAURANTS ── -->
+  <div class="tab-panel" id="tab-restaurants">
+    <div class="section-header">
+      <div class="section-title">Restaurants</div>
+      <button class="btn btn-accent" id="addRestBtn" onclick="openAddRestaurantModal()">
+        <i class="fas fa-plus"></i> Add Restaurant
+      </button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th><th>Username</th><th>Area</th><th>Cuisine</th>
+            <th>Status</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="restaurantsTbody">
+          <tr><td colspan="6"><div class="empty-state"><div class="spinner"></div><div class="es-msg" style="margin-top:12px">Loading...</div></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── RIDERS ── -->
+  <div class="tab-panel" id="tab-riders">
+    <div class="section-header">
+      <div class="section-title">Riders</div>
+      <button class="btn btn-accent" onclick="openAddRiderModal()">
+        <i class="fas fa-plus"></i> Add Rider
+      </button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Name</th><th>Username</th><th>Phone</th><th>Vehicle</th><th>Status</th><th>Actions</th></tr>
+        </thead>
+        <tbody id="ridersTbody">
+          <tr><td colspan="6"><div class="empty-state"><div class="spinner"></div><div class="es-msg" style="margin-top:12px">Loading...</div></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── CUSTOMERS ── -->
+  <div class="tab-panel" id="tab-customers">
+    <div class="section-header"><div class="section-title">Customers</div></div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Phone</th><th>Name</th><th>Orders</th><th>Joined</th><th>Actions</th></tr>
+        </thead>
+        <tbody id="customersTbody">
+          <tr><td colspan="5"><div class="empty-state"><div class="spinner"></div><div class="es-msg" style="margin-top:12px">Loading...</div></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── ORDERS ── -->
+  <div class="tab-panel" id="tab-orders">
+    <div class="section-header">
+      <div class="section-title">Orders</div>
+      <select class="filter-select" id="orderStatusFilter" onchange="filterOrders()">
+        <option value="all">All</option>
+        <option value="pending">Pending</option>
+        <option value="confirmed">Confirmed</option>
+        <option value="preparing">Preparing</option>
+        <option value="out_for_delivery">Out for Delivery</option>
+        <option value="delivered">Delivered</option>
+        <option value="cancelled">Cancelled</option>
+      </select>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Order ID</th><th>Customer</th><th>Restaurant</th><th>Rider</th><th>Amount</th><th>Status</th><th>Time</th><th>Actions</th></tr>
+        </thead>
+        <tbody id="ordersTbody">
+          <tr><td colspan="8"><div class="empty-state"><div class="spinner"></div><div class="es-msg" style="margin-top:12px">Loading...</div></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── COUPONS ── -->
+  <div class="tab-panel" id="tab-coupons">
+    <div class="section-header">
+      <div class="section-title">Coupons</div>
+      <button class="btn btn-accent" onclick="openAddCouponModal()">
+        <i class="fas fa-plus"></i> Create Coupon
+      </button>
+    </div>
+    <div class="coupon-grid" id="couponGrid">
+      <div style="text-align:center;padding:40px;color:var(--text-muted)">
+        <div class="spinner" style="margin:0 auto 12px"></div>
+        <div style="font-size:14px">Loading coupons...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SETTINGS ── -->
+  <div class="tab-panel" id="tab-settings">
+    <div class="settings-card">
+      <h3><i class="fas fa-sliders" style="color:var(--accent)"></i> Platform Settings</h3>
+      <div class="form-group">
+        <label class="form-label">Platform Fee (₹)</label>
+        <input type="number" class="form-control" id="settingPlatformFee" value="20">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Support Phone Number</label>
+        <input type="text" class="form-control" id="settingPhone" placeholder="+91-XXXXXXXXXX">
+      </div>
+      <button class="btn btn-accent" id="saveSettingsBtn" onclick="saveSettings()">
+        <i class="fas fa-save"></i> Save Settings
+      </button>
+      <div style="margin-top:16px;padding:12px;background:var(--surface-alt);border-radius:var(--radius);font-size:13px">
+        <strong style="color:var(--accent)">Delivery Fee Slabs</strong>
+        <table style="width:100%;margin-top:8px;border-collapse:collapse">
+          <tr><td style="padding:3px 6px">0 – 2 km</td><td style="padding:3px 6px;text-align:right;font-weight:600">₹30</td></tr>
+          <tr><td style="padding:3px 6px">2 – 4 km</td><td style="padding:3px 6px;text-align:right;font-weight:600">₹40</td></tr>
+          <tr><td style="padding:3px 6px">4 – 6 km</td><td style="padding:3px 6px;text-align:right;font-weight:600">₹50</td></tr>
+          <tr><td style="padding:3px 6px">6 – 8 km</td><td style="padding:3px 6px;text-align:right;font-weight:600">₹60</td></tr>
+          <tr><td style="padding:3px 6px">8+ km</td><td style="padding:3px 6px;text-align:right;font-weight:600">₹70</td></tr>
+        </table>
+        <div style="font-size:11px;color:var(--text-dim);margin-top:6px">Rider gets 100% of delivery fee · Platform keeps ₹20 flat</div>
+      </div>
+    </div>
+
+    <div class="settings-card danger-zone">
+      <h3><i class="fas fa-triangle-exclamation"></i> Danger Zone</h3>
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px">
+        These actions are irreversible. Please proceed with extreme caution.
+      </p>
+      <button class="btn btn-danger" onclick="confirmResetDB()">
+        <i class="fas fa-database"></i> Reset Database
+      </button>
+    </div>
+  </div>
+
+</main>
+
+<!-- ===== TOAST ===== -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ===== ADD / EDIT RESTAURANT MODAL ===== -->
+<div class="modal-overlay" id="addRestaurantModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title" id="restModalTitle">Add Restaurant</div>
+      <button class="modal-close" onclick="closeRestaurantModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="rest-edit-id">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label required">Restaurant Name</label>
+          <input type="text" class="form-control" id="rest-name" placeholder="e.g. Royal Biriyani"
+            oninput="if(!document.getElementById('rest-edit-id').value) autoUsername('rest-name','rest-username')">
+        </div>
+        <div class="form-group">
+          <label class="form-label required">Owner Name</label>
+          <input type="text" class="form-control" id="rest-owner" placeholder="Owner full name">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label required">Owner Phone</label>
+          <input type="tel" class="form-control" id="rest-phone" placeholder="9876543210" maxlength="10">
+        </div>
+        <div class="form-group">
+          <label class="form-label required">Cuisine Type</label>
+          <input type="text" class="form-control" id="rest-cuisine" placeholder="e.g. Biryani, South Indian">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label required" style="display:flex;align-items:center;justify-content:space-between">
+            <span>Area</span>
+            <button type="button" onclick="adminAutoDetectLocation()" id="adminDetectBtn"
+              style="background:rgba(76,175,80,.1);border:1px solid rgba(76,175,80,.3);color:var(--accent);padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">
+              📍 Auto-Detect
+            </button>
+          </label>
+          <input type="text" class="form-control" id="rest-area" placeholder="Auto-detect or type area">
+          <div id="adminLocStatus" style="font-size:11px;color:var(--text-muted);margin-top:4px"></div>
+          <div style="display:flex;gap:8px;margin-top:6px">
+            <input type="text" class="form-control" id="rest-lat" placeholder="Latitude" readonly style="font-size:11px;background:rgba(255,255,255,.03);color:var(--muted)">
+            <input type="text" class="form-control" id="rest-lng" placeholder="Longitude" readonly style="font-size:11px;background:rgba(255,255,255,.03);color:var(--muted)">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">FSSAI Number</label>
+          <input type="text" class="form-control" id="rest-fssai" placeholder="FSSAI License No.">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label required">Full Address</label>
+        <input type="text" class="form-control" id="rest-address" placeholder="Auto-filled or type: Shop No, Street, Landmark">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">UPI ID</label>
+        <input type="text" class="form-control" id="rest-upi" placeholder="owner@upi">
+      </div>
+      <!-- ADD MODE: username + password required -->
+      <div class="form-row" id="rest-cred-row">
+        <div class="form-group">
+          <label class="form-label required">Username</label>
+          <input type="text" class="form-control" id="rest-username" placeholder="auto-generated">
+        </div>
+        <div class="form-group">
+          <label class="form-label required">Password</label>
+          <div class="gen-row">
+            <div class="password-wrapper" style="flex:1">
+              <input type="text" class="form-control" id="rest-password" placeholder="auto-generated">
+              <button class="pw-toggle" onclick="togglePW('rest-password',this)"><i class="fas fa-eye"></i></button>
+            </div>
+            <button class="btn btn-outline btn-sm" onclick="document.getElementById('rest-password').value=generatePassword()">
+              <i class="fas fa-rotate"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      <!-- EDIT MODE: new password optional -->
+      <div class="form-group" id="rest-newpw-row" style="display:none">
+        <label class="form-label">New Password <span style="color:var(--text-dim);font-weight:400;font-size:11px">(leave blank to keep current)</span></label>
+        <div class="gen-row">
+          <div class="password-wrapper" style="flex:1">
+            <input type="text" class="form-control" id="rest-new-password" placeholder="Leave blank to keep existing">
+            <button class="pw-toggle" onclick="togglePW('rest-new-password',this)"><i class="fas fa-eye"></i></button>
+          </div>
+          <button class="btn btn-outline btn-sm" onclick="document.getElementById('rest-new-password').value=generatePassword()">
+            <i class="fas fa-rotate"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeRestaurantModal()">Cancel</button>
+      <button class="btn btn-accent" id="createRestBtn" onclick="saveRestaurant()">
+        <i class="fas fa-plus"></i> Create Restaurant
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ADD RIDER MODAL ===== -->
+<div class="modal-overlay" id="addRiderModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">Add Rider</div>
+      <button class="modal-close" onclick="closeModal('addRiderModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label required">Full Name</label>
+          <input type="text" class="form-control" id="rider-name" placeholder="Rider full name"
+            oninput="autoUsername('rider-name','rider-username')">
+        </div>
+        <div class="form-group">
+          <label class="form-label required">Phone Number</label>
+          <input type="tel" class="form-control" id="rider-phone" placeholder="9876543210" maxlength="10">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label required">Vehicle Type</label>
+          <select class="form-control" id="rider-vehicle">
+            <option value="bike">Bike</option>
+            <option value="scooter">Scooter</option>
+            <option value="bicycle">Bicycle</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label required">Vehicle Number</label>
+          <input type="text" class="form-control" id="rider-vehicle-no" placeholder="TN58 AB 1234">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label required">Username</label>
+          <input type="text" class="form-control" id="rider-username" placeholder="auto-generated">
+        </div>
+        <div class="form-group">
+          <label class="form-label required">Password</label>
+          <div class="gen-row">
+            <div class="password-wrapper" style="flex:1">
+              <input type="text" class="form-control" id="rider-password" placeholder="auto-generated">
+            </div>
+            <button class="btn btn-outline btn-sm" onclick="document.getElementById('rider-password').value=generatePassword()">
+              <i class="fas fa-rotate"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('addRiderModal')">Cancel</button>
+      <button class="btn btn-accent" id="createRiderBtn" onclick="createRider()">
+        <i class="fas fa-plus"></i> Create Rider
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== EDIT RIDER MODAL ===== -->
+<div class="modal-overlay" id="editRiderModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">Edit Rider</div>
+      <button class="modal-close" onclick="closeModal('editRiderModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label required">Full Name</label>
+        <input type="text" class="form-control" id="edit-rider-name" placeholder="Rider full name">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label required">Phone Number</label>
+          <input type="tel" class="form-control" id="edit-rider-phone" placeholder="9876543210" maxlength="10">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Vehicle Number</label>
+          <input type="text" class="form-control" id="edit-rider-vehicle-no" placeholder="TN58 AB 1234">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Username</label>
+        <input type="text" class="form-control" id="edit-rider-username" placeholder="New username (leave blank to keep)">
+      </div>
+      <div class="form-group">
+        <label class="form-label">New Password <span style="color:var(--text-dim);font-weight:400;font-size:11px">(leave blank to keep current)</span></label>
+        <div class="gen-row">
+          <div class="password-wrapper" style="flex:1">
+            <input type="text" class="form-control" id="edit-rider-password" placeholder="Leave blank to keep existing">
+            <button class="pw-toggle" onclick="togglePW('edit-rider-password',this)"><i class="fas fa-eye"></i></button>
+          </div>
+          <button class="btn btn-outline btn-sm" onclick="document.getElementById('edit-rider-password').value=generatePassword()">
+            <i class="fas fa-rotate"></i>
+          </button>
+        </div>
+      </div>
+      <input type="hidden" id="edit-rider-id">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('editRiderModal')">Cancel</button>
+      <button class="btn btn-accent" id="editRiderBtn" onclick="saveEditRider()">
+        <i class="fas fa-save"></i> Save Changes
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CREDENTIALS MODAL ===== -->
+<div class="modal-overlay" id="credentialsModal">
+  <div class="modal-box" style="max-width:420px">
+    <div class="modal-header">
+      <div class="modal-title">✅ Created Successfully!</div>
+      <button class="modal-close" onclick="closeModal('credentialsModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="cred-box">
+        <div style="font-size:36px;margin-bottom:16px">🎉</div>
+        <div class="cred-item">
+          <div class="cred-label">Username</div>
+          <div class="cred-value" id="credUsername">—</div>
+        </div>
+        <div class="cred-item" style="margin-top:12px">
+          <div class="cred-label">Password</div>
+          <div class="cred-value" id="credPassword">—</div>
+        </div>
+      </div>
+      <p style="font-size:13px;color:var(--text-muted);text-align:center;margin-bottom:16px">
+        Share these credentials with the owner. Store them safely.
+      </p>
+      <button class="btn btn-accent" style="width:100%" onclick="copyCredentials()">
+        <i class="fas fa-copy"></i> Copy Credentials
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ADD COUPON MODAL ===== -->
+<div class="modal-overlay" id="addCouponModal">
+  <div class="modal-box" style="max-width:440px">
+    <div class="modal-header">
+      <div class="modal-title">Create Coupon</div>
+      <button class="modal-close" onclick="closeModal('addCouponModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label required">Coupon Code</label>
+        <input type="text" class="form-control" id="coup-code" placeholder="e.g. FIRST50"
+          oninput="this.value=this.value.toUpperCase()">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label required">Discount Type</label>
+          <select class="form-control" id="coup-type">
+            <option value="flat">Flat (₹)</option>
+            <option value="percent">Percentage (%)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label required">Value</label>
+          <input type="number" class="form-control" id="coup-value" placeholder="50">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Min Order (₹)</label>
+          <input type="number" class="form-control" id="coup-min" placeholder="100">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Max Uses</label>
+          <input type="number" class="form-control" id="coup-max" placeholder="100">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Expiry Date</label>
+        <input type="date" class="form-control" id="coup-expiry">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('addCouponModal')">Cancel</button>
+      <button class="btn btn-accent" id="createCouponBtn" onclick="createCoupon()">
+        <i class="fas fa-plus"></i> Create Coupon
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ASSIGN RIDER MODAL ===== -->
+<div class="modal-overlay" id="assignRiderModal">
+  <div class="modal-box" style="max-width:380px">
+    <div class="modal-header">
+      <div class="modal-title">Assign Rider</div>
+      <button class="modal-close" onclick="closeModal('assignRiderModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px">
+        Order: <strong id="assignOrderId" style="color:var(--accent)">—</strong>
+      </p>
+      <div class="form-group">
+        <label class="form-label">Select Rider</label>
+        <select class="form-control" id="assignRiderSelect"></select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('assignRiderModal')">Cancel</button>
+      <button class="btn btn-accent" id="doAssignBtn" onclick="doAssignRider()">
+        <i class="fas fa-check"></i> Assign
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════
+const API_BASE = 'http://127.0.0.1:5000/api/v1';
+const auth = JSON.parse(localStorage.getItem('tm_auth') || '{}');
+if (!auth.token || auth.role !== 'superadmin') {
+  window.location.href = 'login.html';
+}
+const token = auth.token;
+const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+document.getElementById('adminName').textContent = auth.name || 'Admin';
+
+// ═══════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════
+let allOrders = [];
+let allRiders = [];
+let couponsData = [];
+let currentAssignOrderId = null;
+
+// ═══════════════════════════════════════
+// TAB NAVIGATION
+// ═══════════════════════════════════════
+const tabTitles = {
+  dashboard: 'Dashboard', restaurants: 'Restaurants', riders: 'Riders',
+  customers: 'Customers', orders: 'Orders', coupons: 'Coupons', settings: 'Settings'
+};
+const tabLoaders = {
+  dashboard: loadDashboard,
+  restaurants: loadRestaurants,
+  riders: loadRiders,
+  customers: loadCustomers,
+  orders: loadOrders,
+  coupons: loadCoupons,
+  settings: loadSettings
+};
+
+function showTab(name) {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('nav-' + name).classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+  document.getElementById('pageTitle').textContent = tabTitles[name] || name;
+  if (tabLoaders[name]) tabLoaders[name]();
+}
+
+// ═══════════════════════════════════════
+// API HELPERS
+// ═══════════════════════════════════════
+async function apiFetch(path, opts = {}) {
+  const res = await fetch(API_BASE + path, { headers, ...opts });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.message || 'API Error');
+  return data;
+}
+
+// ═══════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════
+async function loadDashboard() {
+  try {
+    const data = await apiFetch('/admin/dashboard');
+    const d = data.data || {};
+    const set = (id, val) => document.getElementById(id).textContent = val ?? '—';
+    set('kpi-restaurants', d.total_restaurants ?? d.restaurants);
+    set('kpi-riders', d.total_riders ?? d.riders);
+    set('kpi-customers', d.total_customers ?? d.customers);
+    set('kpi-orders-today', d.todays_orders ?? d.orders_today);
+    set('kpi-revenue', d.todays_revenue ? '₹' + d.todays_revenue : '—');
+    set('kpi-earnings', d.platform_earnings ? '₹' + d.platform_earnings : '—');
+  } catch (e) {
+    showToast('Dashboard: ' + e.message, 'error');
+  }
+}
+
+// ═══════════════════════════════════════
+// RESTAURANTS
+// ═══════════════════════════════════════
+async function loadRestaurants() {
+  const tbody = document.getElementById('restaurantsTbody');
+  tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="spinner" style="margin:0 auto"></div></div></td></tr>';
+  try {
+    const data = await apiFetch('/admin/restaurants');
+    const list = data.data?.restaurants || data.data || [];
+    if (!list.length) {
+      tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="es-icon">🏪</div><div class="es-msg">No restaurants yet. Add one!</div></div></td></tr>';
+      return;
+    }
+    tbody.innerHTML = list.map(r => `
+      <tr>
+        <td><strong>${escHtml(r.name)}</strong></td>
+        <td><span style="font-family:monospace;color:var(--text-muted)">${escHtml(r.username || '—')}</span></td>
+        <td>${escHtml(r.area || '—')}</td>
+        <td>${escHtml(r.cuisine || '—')}</td>
+        <td>
+          <div class="toggle-wrap">
+            <div class="toggle ${r.is_open ? 'on' : ''}" id="rtoggle-${r._id}" onclick="toggleRestaurantStatus('${r._id}', ${r.is_open})"></div>
+            <span style="font-size:12px;color:var(--text-muted)">${r.is_open ? 'Open' : 'Closed'}</span>
+          </div>
+        </td>
+        <td style="display:flex;gap:6px">
+          <button class="btn btn-outline btn-sm" onclick="editRestaurant('${r._id}')"><i class="fas fa-pen"></i></button>
+          <button class="btn btn-danger btn-sm" onclick="deleteRestaurant('${r._id}', '${escHtml(r.name)}')"><i class="fas fa-trash"></i></button>
+        </td>
+      </tr>
+    `).join('');
+  } catch (e) {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="es-icon">⚠️</div><div class="es-msg">${e.message}</div></div></td></tr>`;
+  }
+}
+
+// ── Restaurant modal helpers ──
+function closeRestaurantModal() { closeModal('addRestaurantModal'); }
+
+// ── Admin Auto-Detect Location (Geolocation + Nominatim) ──
+function adminAutoDetectLocation() {
+  var btn = document.getElementById('adminDetectBtn');
+  var status = document.getElementById('adminLocStatus');
+  if (!navigator.geolocation) { showToast('Geolocation not supported','error'); return; }
+  if (btn) { btn.textContent = '⏳ Detecting...'; btn.disabled = true; }
+  if (status) status.textContent = 'Requesting GPS...';
+  navigator.geolocation.getCurrentPosition(
+    function(pos) {
+      var lat = pos.coords.latitude, lng = pos.coords.longitude;
+      document.getElementById('rest-lat').value = lat;
+      document.getElementById('rest-lng').value = lng;
+      if (status) status.textContent = 'GPS: ' + lat.toFixed(5) + ', ' + lng.toFixed(5) + ' — fetching address...';
+      // Try backend geocode first
+      fetch('http://127.0.0.1:5000/api/v1/tracking/geocode',
+        {method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+         body:JSON.stringify({lat:lat,lng:lng})})
+        .then(function(r){return r.json();})
+        .then(function(d){
+          if (d.success && d.data) {
+            var a = d.data;
+            document.getElementById('rest-area').value = a.area || '';
+            var full = [a.house, a.street, a.area].filter(Boolean).join(', ');
+            document.getElementById('rest-address').value = full || a.full_address || '';
+            if (status) { status.textContent = '✅ ' + a.area + ', ' + a.city; status.style.color='var(--accent)'; }
+            showToast('Location detected: ' + a.area,'success');
+          }
+        })
+        .catch(function(){
+          // Fallback: direct Nominatim
+          fetch('https://nominatim.openstreetmap.org/reverse?lat='+lat+'&lon='+lng+'&format=json',
+            {headers:{'User-Agent':'ThookuMadurai/1.0'}})
+            .then(function(r){return r.json();})
+            .then(function(nom){
+              var addr = nom.address || {};
+              var area = addr.suburb || addr.neighbourhood || addr.village || addr.county || 'Madurai';
+              var city = addr.city || addr.town || 'Madurai';
+              var street = addr.road || addr.pedestrian || '';
+              document.getElementById('rest-area').value = area;
+              document.getElementById('rest-address').value = [addr.house_number, street, area].filter(Boolean).join(', ');
+              if (status) { status.textContent = '✅ ' + area + ', ' + city; status.style.color='var(--accent)'; }
+            }).catch(function(){
+              if (status) { status.textContent = '⚠️ Address lookup failed'; status.style.color='var(--gold)'; }
+            });
+        })
+        .finally(function(){ if (btn) { btn.textContent = '📍 Auto-Detect'; btn.disabled = false; } });
+    },
+    function(err) {
+      if (btn) { btn.textContent = '📍 Auto-Detect'; btn.disabled = false; }
+      var msg = err.code === 1 ? 'Permission denied — allow location in browser' : 'GPS error: ' + err.message;
+      if (status) { status.textContent = '❌ ' + msg; status.style.color='#ef5350'; }
+      showToast(msg, 'error');
+    },
+    {enableHighAccuracy:true, timeout:10000, maximumAge:0}
+  );
+}
+
+function openAddRestaurantModal() {
+  // Reset to ADD mode
+  document.getElementById('rest-edit-id').value = '';
+  document.getElementById('restModalTitle').textContent = 'Add Restaurant';
+  document.getElementById('rest-cred-row').style.display = '';
+  document.getElementById('rest-newpw-row').style.display = 'none';
+  const btn = document.getElementById('createRestBtn');
+  btn.innerHTML = '<i class="fas fa-plus"></i> Create Restaurant';
+  // Clear all fields
+  ['rest-name','rest-owner','rest-phone','rest-cuisine','rest-address','rest-area','rest-fssai','rest-upi','rest-username'].forEach(id => document.getElementById(id).value = '');
+  var ls = document.getElementById('adminLocStatus'); if (ls) { ls.textContent=''; }
+  document.getElementById('rest-password').value = generatePassword();
+  openModal('addRestaurantModal');
+}
+
+async function editRestaurant(id) {
+  try {
+    // Fetch latest restaurant data
+    const data = await apiFetch(`/admin/restaurants`);
+    const list = data.data?.restaurants || data.data || [];
+    const r = list.find(x => x._id === id);
+    if (!r) { showToast('Restaurant not found', 'error'); return; }
+
+    // Switch to EDIT mode
+    document.getElementById('rest-edit-id').value = id;
+    document.getElementById('restModalTitle').textContent = 'Edit Restaurant';
+    document.getElementById('rest-cred-row').style.display = 'none';
+    document.getElementById('rest-newpw-row').style.display = '';
+    document.getElementById('rest-new-password').value = '';
+    const btn = document.getElementById('createRestBtn');
+    btn.innerHTML = '<i class="fas fa-save"></i> Save Changes';
+
+    // Pre-fill fields
+    document.getElementById('rest-name').value    = r.name || '';
+    document.getElementById('rest-owner').value   = r.owner_name || '';
+    document.getElementById('rest-phone').value   = r.owner_phone || '';
+    document.getElementById('rest-cuisine').value = r.cuisine || '';
+    document.getElementById('rest-address').value = r.address || '';
+    document.getElementById('rest-area').value    = r.area || '';
+    document.getElementById('rest-lat').value     = r.lat || '';
+    document.getElementById('rest-lng').value     = r.lng || '';
+    document.getElementById('rest-fssai').value   = r.fssai || r.fssai_no || '';
+    document.getElementById('rest-upi').value     = r.upi_id || '';
+    var ls = document.getElementById('adminLocStatus');
+    if (ls && r.lat) { ls.textContent = '✅ Saved: ' + (r.area||'') + ' (' + (+r.lat).toFixed(4) + ', ' + (+r.lng).toFixed(4) + ')'; ls.style.color='var(--accent)'; }
+
+    openModal('addRestaurantModal');
+  } catch (e) {
+    showToast('Failed to load restaurant: ' + e.message, 'error');
+  }
+}
+
+async function saveRestaurant() {
+  const editId   = document.getElementById('rest-edit-id').value.trim();
+  const name     = document.getElementById('rest-name').value.trim();
+  const owner    = document.getElementById('rest-owner').value.trim();
+  const phone    = document.getElementById('rest-phone').value.trim();
+  const cuisine  = document.getElementById('rest-cuisine').value.trim();
+  const area     = document.getElementById('rest-area').value;
+  const address  = document.getElementById('rest-address').value.trim();
+  const fssai    = document.getElementById('rest-fssai').value.trim();
+  const upi      = document.getElementById('rest-upi').value.trim();
+
+  if (!name || !owner || !phone || !cuisine || !area || !address) {
+    showToast('Fill all required fields', 'error'); return;
+  }
+
+  const btn = document.getElementById('createRestBtn');
+  setLoading(btn, true);
+
+  const lat = parseFloat(document.getElementById('rest-lat').value) || null;
+  const lng = parseFloat(document.getElementById('rest-lng').value) || null;
+  try {
+    if (editId) {
+      // ── EDIT ──
+      const body = { name, owner_name: owner, owner_phone: phone, cuisine, area, address, fssai_no: fssai, upi_id: upi, lat, lng };
+      const newPw = document.getElementById('rest-new-password').value.trim();
+      if (newPw) body.password = newPw;
+      await apiFetch(`/admin/restaurants/${editId}`, { method: 'PUT', body: JSON.stringify(body) });
+      closeRestaurantModal();
+      loadRestaurants();
+      showToast('Restaurant updated successfully!', 'success');
+    } else {
+      // ── CREATE ──
+      const username = document.getElementById('rest-username').value.trim();
+      const password = document.getElementById('rest-password').value.trim();
+      if (!username || !password) { showToast('Username and password are required', 'error'); setLoading(btn, false, '<i class="fas fa-plus"></i> Create Restaurant'); return; }
+      await apiFetch('/admin/restaurants', {
+        method: 'POST',
+        body: JSON.stringify({ name, owner_name: owner, owner_phone: phone, cuisine, area, address, fssai_no: fssai, upi_id: upi, username, password, lat, lng })
+      });
+      closeRestaurantModal();
+      showCredentials(username, password);
+      loadRestaurants();
+      showToast('Restaurant created!', 'success');
+    }
+  } catch (e) {
+    showToast(e.message, 'error');
+  } finally {
+    setLoading(btn, false, editId ? '<i class="fas fa-save"></i> Save Changes' : '<i class="fas fa-plus"></i> Create Restaurant');
+  }
+}
+
+async function toggleRestaurantStatus(id, currentState) {
+  try {
+    await apiFetch(`/admin/restaurants/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ is_open: !currentState })
+    });
+    loadRestaurants();
+    showToast('Status updated', 'success');
+  } catch (e) { showToast(e.message, 'error'); }
+}
+
+async function deleteRestaurant(id, name) {
+  if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
+  try {
+    await apiFetch(`/admin/restaurants/${id}`, { method: 'DELETE' });
+    showToast('Restaurant deleted', 'success');
+    loadRestaurants();
+  } catch (e) { showToast(e.message, 'error'); }
+}
+
+// ═══════════════════════════════════════
+// RIDERS
+// ═══════════════════════════════════════
+async function loadRiders() {
+  const tbody = document.getElementById('ridersTbody');
+  tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="spinner" style="margin:0 auto"></div></div></td></tr>';
+  try {
+    const data = await apiFetch('/admin/riders');
+    allRiders = data.data?.riders || data.data || [];
+    if (!allRiders.length) {
+      tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="es-icon">🏍️</div><div class="es-msg">No riders yet. Add one!</div></div></td></tr>';
+      return;
+    }
+    tbody.innerHTML = allRiders.map(r => `
+      <tr>
+        <td><strong>${escHtml(r.name)}</strong></td>
+        <td><span style="font-family:monospace;color:var(--text-muted)">${escHtml(r.username || '—')}</span></td>
+        <td>${escHtml(r.phone || '—')}</td>
+        <td>${escHtml(r.vehicle_type || r.vehicle || '—')}</td>
+        <td><span class="badge ${r.is_online ? 'badge-green' : 'badge-gray'}">${r.is_online ? 'Online' : 'Offline'}</span></td>
+        <td style="display:flex;gap:6px">
+          <button class="btn btn-outline btn-sm" onclick="openEditRiderModal('${r._id}')"><i class="fas fa-edit"></i></button>
+          <button class="btn btn-danger btn-sm" onclick="deleteRider('${r._id}','${escHtml(r.name)}')"><i class="fas fa-trash"></i></button>
+        </td>
+      </tr>
+    `).join('');
+  } catch (e) {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="es-icon">⚠️</div><div class="es-msg">${e.message}</div></div></td></tr>`;
+  }
+}
+
+function openAddRiderModal() {
+  ['rider-name','rider-phone','rider-vehicle-no'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('rider-username').value = '';
+  document.getElementById('rider-password').value = generatePassword();
+  openModal('addRiderModal');
+}
+
+async function createRider() {
+  const name      = document.getElementById('rider-name').value.trim();
+  const phone     = document.getElementById('rider-phone').value.trim();
+  const vehicle   = document.getElementById('rider-vehicle').value;
+  const vehicleNo = document.getElementById('rider-vehicle-no').value.trim();
+  const username  = document.getElementById('rider-username').value.trim();
+  const password  = document.getElementById('rider-password').value.trim();
+
+  if (!name||!phone||!vehicleNo||!username||!password) {
+    showToast('Fill all required fields', 'error'); return;
+  }
+  const btn = document.getElementById('createRiderBtn');
+  setLoading(btn, true);
+  try {
+    await apiFetch('/admin/riders', {
+      method: 'POST',
+      body: JSON.stringify({ name, phone, vehicle_type: vehicle, vehicle_number: vehicleNo, username, password })
+    });
+    closeModal('addRiderModal');
+    showCredentials(username, password);
+    loadRiders();
+    showToast('Rider created!', 'success');
+  } catch (e) {
+    showToast(e.message, 'error');
+  } finally {
+    setLoading(btn, false, '<i class="fas fa-plus"></i> Create Rider');
+  }
+}
+
+async function deleteRider(id, name) {
+  if (!confirm(`Delete rider "${name}"?`)) return;
+  try {
+    await apiFetch(`/admin/riders/${id}`, { method: 'DELETE' });
+    showToast('Rider deleted', 'success');
+    loadRiders();
+  } catch (e) { showToast(e.message, 'error'); }
+}
+
+async function openEditRiderModal(id) {
+  const r = allRiders.find(x => x._id === id);
+  if (!r) { showToast('Rider not found', 'error'); return; }
+  document.getElementById('edit-rider-id').value = id;
+  document.getElementById('edit-rider-name').value = r.name || '';
+  document.getElementById('edit-rider-phone').value = r.phone || '';
+  document.getElementById('edit-rider-vehicle-no').value = r.vehicle_number || '';
+  document.getElementById('edit-rider-username').value = '';
+  document.getElementById('edit-rider-password').value = '';
+  openModal('editRiderModal');
+}
+
+async function saveEditRider() {
+  const id = document.getElementById('edit-rider-id').value;
+  if (!id) return;
+  const name = document.getElementById('edit-rider-name').value.trim();
+  const phone = document.getElementById('edit-rider-phone').value.trim();
+  const vehicleNo = document.getElementById('edit-rider-vehicle-no').value.trim();
+  const username = document.getElementById('edit-rider-username').value.trim();
+  const password = document.getElementById('edit-rider-password').value.trim();
+  if (!name || !phone) { showToast('Name and phone are required', 'error'); return; }
+  const body = { name, phone, vehicle_number: vehicleNo };
+  if (username) body.username = username;
+  if (password) body.password = password;
+  const btn = document.getElementById('editRiderBtn');
+  setLoading(btn, true);
+  try {
+    await apiFetch(`/admin/riders/${id}`, { method: 'PUT', body: JSON.stringify(body) });
+    closeModal('editRiderModal');
+    loadRiders();
+    showToast('Rider updated!', 'success');
+  } catch (e) { showToast(e.message, 'error'); }
+  finally { setLoading(btn, false, '<i class="fas fa-save"></i> Save Changes'); }
+}
+
+// ═══════════════════════════════════════
+// CUSTOMERS
+// ═══════════════════════════════════════
+async function loadCustomers() {
+  const tbody = document.getElementById('customersTbody');
+  tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><div class="spinner" style="margin:0 auto"></div></div></td></tr>';
+  try {
+    const data = await apiFetch('/admin/customers');
+    const list = data.data?.customers || data.data || [];
+    if (!list.length) {
+      tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><div class="es-icon">👥</div><div class="es-msg">No customers yet.</div></div></td></tr>';
+      return;
+    }
+    tbody.innerHTML = list.map(c => `
+      <tr>
+        <td>${escHtml(c.phone || '—')}</td>
+        <td>${escHtml(c.name || 'Customer')}</td>
+        <td>${c.orders_count ?? c.total_orders ?? 0}</td>
+        <td>${c.created_at ? new Date(c.created_at).toLocaleDateString('en-IN') : '—'}</td>
+        <td>
+          <button class="btn btn-danger btn-sm" onclick="deleteCustomer('${c._id}','${escHtml(c.phone||c.name)}')">
+            <i class="fas fa-trash"></i>
+          </button>
+        </td>
+      </tr>
+    `).join('');
+  } catch (e) {
+    tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="es-icon">⚠️</div><div class="es-msg">${e.message}</div></div></td></tr>`;
+  }
+}
+
+async function deleteCustomer(id, label) {
+  if (!confirm(`Delete customer "${label}"?`)) return;
+  try {
+    await apiFetch(`/admin/customers/${id}`, { method: 'DELETE' });
+    showToast('Customer deleted', 'success');
+    loadCustomers();
+  } catch (e) { showToast(e.message, 'error'); }
+}
+
+// ═══════════════════════════════════════
+// ORDERS
+// ═══════════════════════════════════════
+const statusBadgeClass = {
+  pending: 'badge-yellow', confirmed: 'badge-blue', preparing: 'badge-yellow',
+  out_for_delivery: 'badge-blue', delivered: 'badge-green', cancelled: 'badge-red'
+};
+
+async function loadOrders() {
+  const tbody = document.getElementById('ordersTbody');
+  tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><div class="spinner" style="margin:0 auto"></div></div></td></tr>';
+  try {
+    const data = await apiFetch('/admin/orders');
+    allOrders = data.data?.orders || data.data || [];
+    renderOrders(allOrders);
+  } catch (e) {
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="es-icon">⚠️</div><div class="es-msg">${e.message}</div></div></td></tr>`;
+  }
+}
+
+function renderOrders(list) {
+  const tbody = document.getElementById('ordersTbody');
+  if (!list.length) {
+    tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><div class="es-icon">📦</div><div class="es-msg">No orders found.</div></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = list.map(o => {
+    const statusCls = statusBadgeClass[o.status] || 'badge-gray';
+    const unassigned = !o.rider_id && o.status !== 'delivered' && o.status !== 'cancelled';
+    const shortId = String(o._id || o.order_id || '').slice(-8).toUpperCase();
+    return `
+      <tr>
+        <td style="font-family:monospace;font-size:12px">#${shortId}</td>
+        <td>${escHtml(o.customer_phone || o.customer?.phone || '—')}</td>
+        <td>${escHtml(o.restaurant_name || o.restaurant?.name || '—')}</td>
+        <td>${escHtml(o.rider_name || o.rider?.name || (unassigned ? '—' : '—'))}</td>
+        <td style="font-weight:700;color:var(--accent)">₹${o.total_amount || o.amount || 0}</td>
+        <td><span class="badge ${statusCls}">${(o.status||'').replace(/_/g,' ')}</span></td>
+        <td style="font-size:12px;color:var(--text-muted)">${o.created_at ? new Date(o.created_at).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) : '—'}</td>
+        <td style="display:flex;gap:6px">
+          ${unassigned ? `<button class="btn btn-outline btn-sm" onclick="openAssignRider('${o._id||o.order_id}')"><i class="fas fa-motorcycle"></i> Assign</button>` : ''}
+        </td>
+      </tr>`;
+  }).join('');
+}
+
+function filterOrders() {
+  const status = document.getElementById('orderStatusFilter').value;
+  const filtered = status === 'all' ? allOrders : allOrders.filter(o => o.status === status);
+  renderOrders(filtered);
+}
+
+async function openAssignRider(orderId) {
+  currentAssignOrderId = orderId;
+  document.getElementById('assignOrderId').textContent = orderId.slice(-8).toUpperCase();
+  const sel = document.getElementById('assignRiderSelect');
+  sel.innerHTML = '<option value="">Loading...</option>';
+  try {
+    if (!allRiders.length) {
+      const d = await apiFetch('/admin/riders');
+      allRiders = d.data?.riders || d.data || [];
+    }
+    sel.innerHTML = allRiders.map(r => `<option value="${r._id}">${escHtml(r.name)} — ${escHtml(r.vehicle_type||'')}</option>`).join('');
+  } catch (e) {
+    sel.innerHTML = '<option>No riders available</option>';
+  }
+  openModal('assignRiderModal');
+}
+
+async function doAssignRider() {
+  const riderId = document.getElementById('assignRiderSelect').value;
+  if (!riderId) { showToast('Select a rider', 'error'); return; }
+  const btn = document.getElementById('doAssignBtn');
+  setLoading(btn, true);
+  try {
+    await apiFetch(`/admin/orders/${currentAssignOrderId}/assign-rider`, {
+      method: 'POST', body: JSON.stringify({ rider_id: riderId })
+    });
+    closeModal('assignRiderModal');
+    showToast('Rider assigned!', 'success');
+    loadOrders();
+  } catch (e) {
+    showToast(e.message, 'error');
+  } finally {
+    setLoading(btn, false, '<i class="fas fa-check"></i> Assign');
+  }
+}
+
+// ═══════════════════════════════════════
+// COUPONS
+// ═══════════════════════════════════════
+async function loadCoupons() {
+  const grid = document.getElementById('couponGrid');
+  grid.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted)"><div class="spinner" style="margin:0 auto 12px"></div><div style="font-size:14px">Loading coupons...</div></div>';
+  try {
+    const data = await apiFetch('/admin/coupons');
+    couponsData = data.data?.coupons || data.data || [];
+    renderCoupons(couponsData);
+  } catch (e) {
+    grid.innerHTML = `<div style="text-align:center;padding:40px;color:#ef5350"><div style="font-size:14px">⚠️ ${e.message}</div></div>`;
+  }
+}
+
+function renderCoupons(list) {
+  const grid = document.getElementById('couponGrid');
+  if (!list.length) {
+    grid.innerHTML = '<div style="text-align:center;padding:60px;color:var(--text-muted)"><div style="font-size:48px;margin-bottom:12px">🏷️</div><div>No coupons yet. Create one!</div></div>';
+    return;
+  }
+  grid.innerHTML = list.map(c => `
+    <div class="coupon-row">
+      <div>
+        <div class="coupon-code">${escHtml(c.code)}</div>
+        <div class="coupon-meta">
+          ${c.discount_type === 'percent' ? c.value+'% off' : '₹'+c.value+' off'}
+          ${c.min_order ? ' · Min ₹'+c.min_order : ''}
+          ${c.max_uses ? ' · Max '+c.max_uses+' uses' : ''}
+          ${c.expiry_date ? ' · Expires '+new Date(c.expiry_date).toLocaleDateString('en-IN') : ''}
+        </div>
+      </div>
+      <span class="badge ${c.is_active !== false ? 'badge-green' : 'badge-gray'}">${c.is_active !== false ? 'Active' : 'Inactive'}</span>
+      <button class="btn btn-danger btn-sm" onclick="deleteCoupon('${c._id}','${escHtml(c.code)}')">
+        <i class="fas fa-trash"></i>
+      </button>
+    </div>
+  `).join('');
+}
+
+function openAddCouponModal() {
+  ['coup-code','coup-value','coup-min','coup-max','coup-expiry'].forEach(id => document.getElementById(id).value = '');
+  openModal('addCouponModal');
+}
+
+async function createCoupon() {
+  const code  = document.getElementById('coup-code').value.trim();
+  const type  = document.getElementById('coup-type').value;
+  const value = parseFloat(document.getElementById('coup-value').value);
+  const min   = parseFloat(document.getElementById('coup-min').value) || 0;
+  const max   = parseInt(document.getElementById('coup-max').value) || 0;
+  const exp   = document.getElementById('coup-expiry').value;
+
+  if (!code || !value) { showToast('Fill code and value', 'error'); return; }
+  const btn = document.getElementById('createCouponBtn');
+  setLoading(btn, true);
+  try {
+    await apiFetch('/admin/coupons', {
+      method: 'POST',
+      body: JSON.stringify({ code, discount_type: type, value, min_order: min, max_uses: max, expiry_date: exp || undefined })
+    });
+    closeModal('addCouponModal');
+    showToast('Coupon created!', 'success');
+    loadCoupons();
+  } catch (e) {
+    showToast(e.message, 'error');
+  } finally {
+    setLoading(btn, false, '<i class="fas fa-plus"></i> Create Coupon');
+  }
+}
+
+async function deleteCoupon(id, code) {
+  if (!confirm(`Delete coupon "${code}"?`)) return;
+  try {
+    await apiFetch(`/admin/coupons/${id}`, { method: 'DELETE' });
+    showToast('Coupon deleted', 'success');
+    loadCoupons();
+  } catch (e) { showToast(e.message, 'error'); }
+}
+
+// ═══════════════════════════════════════
+// SETTINGS
+// ═══════════════════════════════════════
+async function loadSettings() {
+  try {
+    const data = await apiFetch('/admin/settings');
+    const d = data.data || {};
+    const pf = document.getElementById('settingPlatformFee');
+    const ph = document.getElementById('settingPhone');
+    if (pf) pf.value = d.platform_fee ?? 20;
+    if (ph) ph.value = d.support_phone ?? '';
+  } catch (e) {
+    // silent — might be first load with no settings yet
+  }
+}
+
+async function saveSettings() {
+  const platformFee  = parseFloat(document.getElementById('settingPlatformFee').value);
+  const supportPhone = (document.getElementById('settingPhone').value || '').trim();
+
+  if (isNaN(platformFee)) {
+    showToast('Please enter a valid number for platform fee', 'error'); return;
+  }
+  if (platformFee < 0) {
+    showToast('Platform fee cannot be negative', 'error'); return;
+  }
+
+  const btn = document.getElementById('saveSettingsBtn');
+  setLoading(btn, true);
+  try {
+    const result = await apiFetch('/admin/settings', {
+      method: 'POST',
+      body: JSON.stringify({
+        platform_fee: platformFee,
+        support_phone: supportPhone
+      })
+    });
+    const d = result.data || {};
+    const pf = document.getElementById('settingPlatformFee');
+    const ph = document.getElementById('settingPhone');
+    if (pf) pf.value = d.platform_fee ?? platformFee;
+    if (ph) ph.value = d.support_phone ?? supportPhone;
+    showToast('Settings saved successfully!', 'success');
+  } catch (e) {
+    showToast('Settings: ' + e.message, 'error');
+  } finally {
+    setLoading(btn, false, '<i class="fas fa-save"></i> Save Settings');
+  }
+}
+
+async function confirmResetDB() {
+  if (!confirm('WARNING: This will DELETE ALL restaurants, riders, orders and customers. Are you sure?')) return;
+  if (!confirm('FINAL WARNING: This is IRREVERSIBLE. Click OK to confirm.')) return;
+  try {
+    await apiFetch('/admin/reset-database', { method: 'POST' });
+    showToast('Database reset. All data cleared.', 'warning');
+    setTimeout(() => loadDashboard(), 1000);
+  } catch (e) {
+    showToast(e.message, 'error');
+  }
+}
+
+// ═══════════════════════════════════════
+// CREDENTIALS HELPER
+// ═══════════════════════════════════════
+function showCredentials(username, password) {
+  document.getElementById('credUsername').textContent = username;
+  document.getElementById('credPassword').textContent = password;
+  openModal('credentialsModal');
+}
+
+function copyCredentials() {
+  const u = document.getElementById('credUsername').textContent;
+  const p = document.getElementById('credPassword').textContent;
+  navigator.clipboard.writeText(`Username: ${u}\nPassword: ${p}`).then(() => {
+    showToast('Credentials copied!', 'success');
+  });
+}
+
+// ═══════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════
+function generateUsername(name) {
+  return name.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '') + '_' + Math.random().toString(36).substr(2,4);
+}
+
+function generatePassword() {
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  return Array.from({length: 8}, () => chars[Math.floor(Math.random()*chars.length)]).join('');
+}
+
+function autoUsername(nameInputId, usernameInputId) {
+  const name = document.getElementById(nameInputId).value.trim();
+  if (name) document.getElementById(usernameInputId).value = generateUsername(name);
+}
+
+function togglePW(id, btn) {
+  const inp = document.getElementById(id);
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+  btn.querySelector('i').className = inp.type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
+}
+
+function openModal(id)  { document.getElementById(id).classList.add('active'); }
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+function setLoading(btn, loading, resetHtml = null) {
+  btn.disabled = loading;
+  if (loading) btn.innerHTML = '<span class="spinner"></span>';
+  else if (resetHtml) btn.innerHTML = resetHtml;
+}
+
+function escHtml(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function showToast(message, type = 'success') {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  const icon = { success: '✅', error: '❌', warning: '⚠️' }[type] || '📌';
+  toast.className = `toast ${type}`;
+  toast.innerHTML = `<span>${icon}</span><span>${message}</span>`;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.style.animation = 'slideIn 0.3s ease reverse';
+    setTimeout(() => toast.remove(), 300);
+  }, 3500);
+}
+
+function logout() {
+  localStorage.removeItem('tm_auth');
+  window.location.href = 'login.html';
+}
+
+// Close modals on backdrop click
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) overlay.classList.remove('active');
+  });
+});
+
+// Load dashboard on init
+loadDashboard();
+</script>
+</body>
+</html>

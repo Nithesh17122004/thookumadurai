@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Menu Test</title>
+<style>
+  body { font-family: sans-serif; background: #111; color: #eee; padding: 20px; }
+  button { background: #4caf50; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 16px; margin: 5px; }
+  button:hover { background: #66bb6a; }
+  .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 999; align-items: center; justify-content: center; }
+  .modal.open { display: flex; }
+  .modal-box { background: #1a2e1a; padding: 30px; border-radius: 16px; width: 400px; }
+  input { width: 100%; padding: 12px; background: #0a1a0e; border: 1px solid #2e5c2e; color: #eee; border-radius: 8px; margin: 8px 0; font-size: 15px; box-sizing: border-box; }
+  .cat-item { padding: 12px; background: #0f2016; margin: 6px 0; border-radius: 8px; display: flex; justify-content: space-between; border: 1px solid #2e5c2e; }
+  .del-btn { background: #ef5350; padding: 4px 10px; font-size: 12px; border-radius: 4px; }
+  #status { margin-top: 20px; padding: 12px; background: #0a2a10; border-radius: 8px; font-size: 13px; color: #81c784; font-family: monospace; }
+</style>
+</head>
+<body>
+<h2>Menu Management — Self Contained Test</h2>
+<p id="lsStatus" style="color:#ffc107;font-size:13px">Checking localStorage...</p>
+
+<div>
+  <button onclick="openModal('catModal')">+ Add Category</button>
+  <button onclick="clearAll()">Clear All</button>
+</div>
+
+<div id="catList" style="margin-top:20px">
+  <p style="color:#666">No categories yet.</p>
+</div>
+
+<div id="status">Log output will appear here</div>
+
+<!-- Modal -->
+<div class="modal" id="catModal">
+  <div class="modal-box">
+    <h3 style="margin:0 0 16px">Add Category</h3>
+    <input id="catName" placeholder="Category name (e.g. Starters)" />
+    <input id="catEmoji" placeholder="Emoji (optional, e.g. 🍲)" />
+    <div style="margin-top:16px;display:flex;gap:10px">
+      <button onclick="saveCategory()" style="flex:1">Save Category</button>
+      <button onclick="closeModal('catModal')" style="background:#333;flex:1">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ---- Check localStorage ----
+function checkLS() {
+  try {
+    localStorage.setItem('_test', '1');
+    localStorage.removeItem('_test');
+    document.getElementById('lsStatus').textContent = 'localStorage: WORKING';
+    document.getElementById('lsStatus').style.color = '#4caf50';
+    log('localStorage is accessible');
+  } catch(e) {
+    document.getElementById('lsStatus').textContent = 'localStorage: BLOCKED — ' + e.message;
+    document.getElementById('lsStatus').style.color = '#ef5350';
+    log('ERROR: localStorage blocked: ' + e.message);
+  }
+}
+
+function log(msg) {
+  var el = document.getElementById('status');
+  el.textContent = new Date().toLocaleTimeString() + ': ' + msg + '\n' + el.textContent;
+}
+
+// ---- Modal ----
+function openModal(id) {
+  log('openModal called: ' + id);
+  var el = document.getElementById(id);
+  if (!el) { log('ERROR: element not found: ' + id); return; }
+  el.classList.add('open');
+  log('Modal opened');
+}
+function closeModal(id) {
+  var el = document.getElementById(id);
+  if (el) el.classList.remove('open');
+}
+
+// ---- Categories ----
+var CATS = [];
+var LS_KEY = 'test_cats';
+
+function loadCats() {
+  try {
+    CATS = JSON.parse(localStorage.getItem(LS_KEY) || '[]');
+    log('Loaded ' + CATS.length + ' categories from localStorage');
+  } catch(e) {
+    CATS = [];
+    log('Using in-memory only (localStorage blocked)');
+  }
+}
+
+function saveCats() {
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify(CATS));
+    log('Saved to localStorage: ' + CATS.length + ' categories');
+  } catch(e) {
+    log('Save to localStorage failed (in-memory only): ' + e.message);
+  }
+}
+
+function saveCategory() {
+  var name  = document.getElementById('catName').value.trim();
+  var emoji = document.getElementById('catEmoji').value.trim() || '*';
+  log('saveCategory called: name="' + name + '"');
+  if (!name) { alert('Please enter a category name!'); return; }
+  CATS.push({ id: 'cat_' + Date.now(), name: name, emoji: emoji });
+  saveCats();
+  closeModal('catModal');
+  document.getElementById('catName').value  = '';
+  document.getElementById('catEmoji').value = '';
+  renderCats();
+}
+
+function deleteCategory(id) {
+  CATS = CATS.filter(function(c) { return c.id !== id; });
+  saveCats();
+  renderCats();
+}
+
+function renderCats() {
+  var el = document.getElementById('catList');
+  if (!CATS.length) {
+    el.innerHTML = '<p style="color:#666">No categories yet.</p>';
+    return;
+  }
+  el.innerHTML = CATS.map(function(c) {
+    return '<div class="cat-item">' +
+      '<span>' + c.emoji + ' ' + c.name + '</span>' +
+      '<button class="del-btn" onclick="deleteCategory(\'' + c.id + '\')">Delete</button>' +
+      '</div>';
+  }).join('');
+}
+
+function clearAll() {
+  if (!confirm('Clear everything?')) return;
+  CATS = [];
+  try { localStorage.removeItem(LS_KEY); } catch(e) {}
+  renderCats();
+  log('Cleared all');
+}
+
+// ---- Init ----
+checkLS();
+loadCats();
+renderCats();
+log('Page ready. Click Add Category to test.');
+
+// Close modal on backdrop click
+document.getElementById('catModal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal('catModal');
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+version: "3.9"
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: ../docker/Dockerfile.backend
+    container_name: thooku_backend
+    env_file: .env
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+    restart: unless-stopped
+    networks:
+      - thooku_net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ../docker/Dockerfile.frontend
+    container_name: thooku_frontend
+    ports:
+      - "80:80"
+      - "443:443"
+    restart: unless-stopped
+    networks:
+      - thooku_net
+
+  redis:
+    image: redis:7-alpine
+    container_name: thooku_redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    networks:
+      - thooku_net
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+
+networks:
+  thooku_net:
+    driver: bridge
+
+volumes:
+  redis_data:

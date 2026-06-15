@@ -1,0 +1,61 @@
+=============================
+// TOAST
+// ============================================================
+function showToast(msg, type='success') {
+  const icons = {success:'✅',error:'❌',warning:'⚠️'};
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.innerHTML = `<span>${icons[type]||'ℹ️'}</span><span>${msg}</span>`;
+  document.getElementById('toastContainer').appendChild(t);
+  setTimeout(()=>{ t.style.opacity='0'; t.style.transition='opacity .3s'; setTimeout(()=>t.remove(),300); },3500);
+}
+
+// ============================================================
+// LOGOUT
+// ============================================================
+function doLogout() {
+  localStorage.removeItem('tm_auth'); localStorage.removeItem('tm_role');
+  window.location.href = 'login.html';
+}
+
+
+---ADDCATEGORY---
+async function addCategory() {
+  const editId = document.getElementById('editCatId')?.value?.trim() || '';
+  const name   = document.getElementById('newCatName').value.trim();
+  const emoji  = document.getElementById('newCatEmoji').value.trim() || '🍽️';
+  if (!name) { showToast('Category name required', 'error'); return; }
+
+  // --- Try API first, fall back to local storage ---
+  let savedId = editId;
+  if (!_useLocalMenu && REST_ID && token) {
+    try {
+      let res;
+      if (editId) {
+        res = await fetch(`${API_BASE}/restaurants/${REST_ID}/menu/category/${editId}`, {
+          method: 'PUT', headers: HEADERS, body: JSON.stringify({ name, emoji })
+        });
+      } else {
+        res = await fetch(`${API_BASE}/restaurants/${REST_ID}/menu/category`, {
+          method: 'POST', headers: HEADERS, body: JSON.stringify({ name, emoji })
+        });
+      }
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'API error');
+      savedId = editId || data.data?.category_id || genId();
+      // Reload from API to stay in sync
+      await loadMenuFromAPI();
+    } catch(e) {
+      showToast('API unavailable — saved locally (' + e.message + ')', 'warning');
+      _useLocalMenu = true;
+    }
+  }
+
+  if (_useLocalMenu) {
+    // Offline path — modify in-memory arrays and persist
+    if (editId) {
+      const cat = CATEGORIES.find(c => c.id === editId);
+      if (cat) { cat.name = name; cat.emoji = emoji; }
+    } else {
+      savedId = genId();
+   

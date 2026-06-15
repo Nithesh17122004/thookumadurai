@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Super Admin — Thooku Madurai</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="css/main.css">
+  <style>
+    .super-admin-layout { max-width: 1200px; margin: 0 auto; padding: 80px 24px 40px; }
+    .danger-zone { border: 1px solid rgba(239,83,80,0.3); border-radius: var(--radius); padding: 20px; background: rgba(239,83,80,0.05); margin-top: 20px; }
+    .danger-title { color: #ef5350; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  </style>
+</head>
+<body>
+<nav class="navbar" style="position:fixed;top:0;left:0;right:0;z-index:100">
+  <div class="navbar-brand">
+    <span style="font-size:28px">🍛</span>
+    <div class="brand-name"><span class="brand-top">SUPER ADMIN</span><span class="brand-bot">THOOKU MADURAI</span></div>
+  </div>
+  <div style="display:flex;gap:10px">
+    <a href="admin-panel.html" class="btn-outline btn-sm">← Back to Admin</a>
+    <a href="index.html" class="btn-primary btn-sm" style="color:#fff">Site</a>
+  </div>
+</nav>
+
+<div class="super-admin-layout">
+  <h1 style="font-size:28px;font-weight:800;margin-bottom:8px">Super Admin Control Center</h1>
+  <p style="color:var(--text-muted);margin-bottom:32px">Full platform control. All actions are logged.</p>
+
+  <!-- Admin Management -->
+  <div class="panel" style="background:var(--surface-card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:20px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h2 style="font-size:17px;font-weight:700"><i class="fas fa-user-shield" style="color:var(--accent)"></i> Admin Management</h2>
+      <button class="btn-accent btn-sm" onclick="showToast('Add Admin modal','success')"><i class="fas fa-plus"></i> Add Admin</button>
+    </div>
+    <table style="width:100%;border-collapse:collapse">
+      <thead><tr style="font-size:12px;color:var(--text-muted)"><th style="padding:10px;text-align:left;border-bottom:1px solid var(--border)">Name</th><th style="padding:10px;text-align:left;border-bottom:1px solid var(--border)">Email</th><th style="padding:10px;text-align:left;border-bottom:1px solid var(--border)">Role</th><th style="padding:10px;text-align:left;border-bottom:1px solid var(--border)">Status</th><th style="padding:10px;border-bottom:1px solid var(--border)">Actions</th></tr></thead>
+      <tbody>
+        <tr><td style="padding:12px">Super Admin</td><td style="padding:12px">super@thookumadurai.in</td><td style="padding:12px"><span class="chip chip-green">Super Admin</span></td><td style="padding:12px"><span class="chip chip-green">Active</span></td><td style="padding:12px">—</td></tr>
+        <tr><td style="padding:12px">Admin Priya</td><td style="padding:12px">priya@thookumadurai.in</td><td style="padding:12px"><span class="chip chip-blue">Admin</span></td><td style="padding:12px"><span class="chip chip-green">Active</span></td><td style="padding:12px"><button class="btn-danger" style="padding:4px 10px;font-size:12px" onclick="showToast('Admin deactivated','error')">Deactivate</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Platform Fee Settings -->
+  <div class="panel" style="background:var(--surface-card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:20px">
+    <h2 style="font-size:17px;font-weight:700;margin-bottom:16px"><i class="fas fa-rupee-sign" style="color:var(--accent)"></i> Platform Fee Configuration</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px">
+      <div class="form-group"><label class="form-label">Platform Fee per Order (₹)</label><input type="number" class="form-control" value="20" id="platformFeeInput"></div>
+      <div class="form-group"><label class="form-label">Base Delivery Fee (₹)</label><input type="number" class="form-control" value="30"></div>
+      <div class="form-group"><label class="form-label">Per KM Rate (₹)</label><input type="number" class="form-control" value="8"></div>
+      <div class="form-group"><label class="form-label">Max Delivery Radius (km)</label><input type="number" class="form-control" value="15"></div>
+      <div class="form-group"><label class="form-label">Min Order Amount (₹)</label><input type="number" class="form-control" value="50"></div>
+      <div class="form-group"><label class="form-label">Max Order Amount (₹)</label><input type="number" class="form-control" value="5000"></div>
+    </div>
+    <button class="btn-accent" onclick="savePlatformSettings()"><i class="fas fa-save"></i> Save Platform Settings</button>
+  </div>
+
+  <!-- Restaurant Approval -->
+  <div class="panel" style="background:var(--surface-card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:20px">
+    <h2 style="font-size:17px;font-weight:700;margin-bottom:16px"><i class="fas fa-store" style="color:var(--accent)"></i> Pending Restaurant Approvals</h2>
+    <div id="pendingRestaurants">
+      <div style="padding:16px;background:var(--surface-dark);border-radius:var(--radius-sm);margin-bottom:10px">
+        <div style="font-weight:700;margin-bottom:4px">Madurai Bhavan</div>
+        <div style="font-size:13px;color:var(--text-muted)">FSSAI: 12345678901235 · GST: 33XXXXXXXXX2Z5 · Submitted: Today</div>
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <button class="btn-accent btn-sm" onclick="showToast('Restaurant approved!','success')"><i class="fas fa-check"></i> Approve</button>
+          <button class="btn-danger btn-sm" onclick="showToast('Restaurant rejected','error')">Reject</button>
+          <button class="btn-outline btn-sm" onclick="showToast('Documents viewed','success')">View Documents</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rider Approval -->
+  <div class="panel" style="background:var(--surface-card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:20px">
+    <h2 style="font-size:17px;font-weight:700;margin-bottom:16px"><i class="fas fa-motorcycle" style="color:var(--accent)"></i> Pending Rider Approvals</h2>
+    <div id="pendingRiders">
+      <div style="padding:16px;background:var(--surface-dark);border-radius:var(--radius-sm);margin-bottom:10px">
+        <div style="font-weight:700;margin-bottom:4px">Murugan S.</div>
+        <div style="font-size:13px;color:var(--text-muted)">Aadhaar: ✅ Uploaded · License: ✅ Uploaded · Vehicle: Bike KA-02-CD-5678</div>
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <button class="btn-accent btn-sm" onclick="showToast('Rider approved!','success')"><i class="fas fa-check"></i> Approve</button>
+          <button class="btn-danger btn-sm" onclick="showToast('Rider rejected','error')">Reject</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- System Configuration -->
+  <div class="panel" style="background:var(--surface-card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:20px">
+    <h2 style="font-size:17px;font-weight:700;margin-bottom:16px"><i class="fas fa-cog" style="color:var(--accent)"></i> System Configuration</h2>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div><div style="font-weight:600">Maintenance Mode</div><div style="font-size:12px;color:var(--text-muted)">Pause all new orders. Show maintenance page to users.</div></div>
+        <label class="toggle-switch"><input type="checkbox" id="maintenanceMode"><span class="toggle-slider"></span></label>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div><div style="font-weight:600">New Restaurant Registrations</div><div style="font-size:12px;color:var(--text-muted)">Allow new restaurants to apply.</div></div>
+        <label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div><div style="font-weight:600">New Rider Registrations</div><div style="font-size:12px;color:var(--text-muted)">Allow new riders to apply.</div></div>
+        <label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div><div style="font-weight:600">Phone Ordering</div><div style="font-size:12px;color:var(--text-muted)">Enable/disable call center.</div></div>
+        <label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div><div style="font-weight:600">COD Orders</div><div style="font-size:12px;color:var(--text-muted)">Cash on delivery (currently disabled).</div></div>
+        <label class="toggle-switch"><input type="checkbox"><span class="toggle-slider"></span></label>
+      </div>
+    </div>
+    <button class="btn-primary" style="margin-top:16px" onclick="showToast('System configuration saved!','success')"><i class="fas fa-save"></i> Save Configuration</button>
+  </div>
+
+  <!-- Audit Logs -->
+  <div class="panel" style="background:var(--surface-card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:20px">
+    <h2 style="font-size:17px;font-weight:700;margin-bottom:16px"><i class="fas fa-file-alt" style="color:var(--accent)"></i> Super Admin Audit Log</h2>
+    <div>
+      <div style="padding:12px;border-bottom:1px solid var(--border);font-size:13px"><span style="color:var(--text-dim);margin-right:12px">18:00:00</span><span style="color:var(--accent)">[Super Admin]</span> Platform fee changed from ₹15 to ₹20</div>
+      <div style="padding:12px;border-bottom:1px solid var(--border);font-size:13px"><span style="color:var(--text-dim);margin-right:12px">15:30:00</span><span style="color:var(--accent)">[Super Admin]</span> Admin "Priya" account created</div>
+      <div style="padding:12px;font-size:13px"><span style="color:var(--text-dim);margin-right:12px">10:00:00</span><span style="color:var(--accent)">[Super Admin]</span> Restaurant "Royal Biriyani" approved</div>
+    </div>
+  </div>
+
+  <!-- Danger Zone -->
+  <div class="danger-zone">
+    <div class="danger-title"><i class="fas fa-exclamation-triangle"></i> Danger Zone</div>
+    <div style="display:flex;flex-wrap:wrap;gap:10px">
+      <button class="btn-danger" onclick="confirmDanger('Clear all Redis cache?')"><i class="fas fa-trash"></i> Clear Cache</button>
+      <button class="btn-danger" onclick="confirmDanger('Reset all demo data?')"><i class="fas fa-redo"></i> Reset Demo Data</button>
+      <button class="btn-danger" onclick="confirmDanger('Force-restart all services?')"><i class="fas fa-power-off"></i> Restart Services</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+function savePlatformSettings() { showToast('✅ Platform settings saved and applied!','success'); }
+function confirmDanger(msg) {
+  if(confirm(msg + '\n\nThis action is logged and irreversible.')) {
+    showToast('⚡ Action executed. Check audit log.','warning');
+  }
+}
+function showToast(message, type='success') {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  const icon = {success:'✅',error:'❌',warning:'⚠️'}[type]||'📌';
+  toast.innerHTML = `<span>${icon}</span><span>${message}</span>`;
+  container.appendChild(toast);
+  setTimeout(() => { toast.style.animation='slideIn 0.3s ease reverse'; setTimeout(()=>toast.remove(),300); },3500);
+}
+// Toggle navbar scroll
+window.addEventListener('scroll',()=>document.getElementById('navbar')?.classList.toggle('scrolled',window.scrollY>50));
+</script>
+</body>
+</html>

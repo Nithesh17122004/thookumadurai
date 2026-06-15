@@ -1,0 +1,54 @@
+::1 - - [14/Jun/2026 14:52:11] "GET /index.html HTTP/1.1" 200 -
+::1 - - [14/Jun/2026 14:52:17] "GET /rider-dashboard.html HTTP/1.1" 200 -
+::1 - - [14/Jun/2026 14:52:22] "GET /tracking.html HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [14/Jun/2026 14:53:27] "GET /index.html HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [14/Jun/2026 14:53:27] "GET /css/main.css HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [14/Jun/2026 14:53:27] "GET /img/logo.png HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [14/Jun/2026 14:53:27] code 404, message File not found
+::ffff:127.0.0.1 - - [14/Jun/2026 14:53:27] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -
+::ffff:127.0.0.1 - - [14/Jun/2026 14:53:30] "GET /img/logo.png HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [14/Jun/2026 14:54:29] "GET /tracking.html?order_id=TM-494635 HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [14/Jun/2026 14:54:29] code 404, message File not found
+::ffff:127.0.0.1 - - [14/Jun/2026 14:54:29] "GET /favicon.ico HTTP/1.1" 404 -
+::ffff:127.0.0.1 - - [14/Jun/2026 14:55:09] code 404, message File not found
+::ffff:127.0.0.1 - - [14/Jun/2026 14:55:09] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -
+::ffff:127.0.0.1 - - [14/Jun/2026 15:15:47] "GET /index.html HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [14/Jun/2026 15:15:47] "GET /css/main.css HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [14/Jun/2026 15:15:47] "GET /img/logo.png HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [14/Jun/2026 15:15:47] code 404, message File not found
+::ffff:127.0.0.1 - - [14/Jun/2026 15:15:47] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -
+::ffff:127.0.0.1 - - [14/Jun/2026 15:15:48] "GET /img/logo.png HTTP/1.1" 200 -
+::1 - - [14/Jun/2026 15:22:25] "GET / HTTP/1.1" 200 -
+::1 - - [14/Jun/2026 15:22:25] "GET /img/logo.png HTTP/1.1" 304 -
+::1 - - [14/Jun/2026 15:22:25] "GET /css/main.css HTTP/1.1" 304 -
+::1 - - [14/Jun/2026 15:22:47] "GET / HTTP/1.1" 200 -
+::1 - - [14/Jun/2026 15:22:47] "GET /css/main.css HTTP/1.1" 200 -
+::1 - - [14/Jun/2026 15:22:47] "GET /img/logo.png HTTP/1.1" 200 -
+::1 - - [14/Jun/2026 15:22:48] "GET /img/logo.png HTTP/1.1" 200 -
+::1 - - [14/Jun/2026 15:23:27] "GET /tracking.html?order_id=TM-823295 HTTP/1.1" 200 -
+::1 - - [14/Jun/2026 15:23:27] code 404, message File not found
+::1 - - [14/Jun/2026 15:23:27] "GET /favicon.ico HTTP/1.1" 404 -
+::1 - - [14/Jun/2026 15:24:32] code 404, message File not found
+::1 - - [14/Jun/2026 15:24:32] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -
+::1 - - [14/Jun/2026 15:26:23] "GET /rider-dashboard.html HTTP/1.1" 200 -
+::1 - - [14/Jun/2026 15:26:24] "GET /js/auth-guard.js HTTP/1.1" 200 -
+::1 - - [14/Jun/2026 15:26:24] "GET /index.html HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [14/Jun/2026 15:26:36] "GET /rider-dashboard.html HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [14/Jun/2026 15:26:36] "GET /css/main.css HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [14/Jun/2026 15:26:36] "GET /js/auth-guard.js HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [14/Jun/2026 15:26:36] code 404, message File not found
+::ffff:127.0.0.1 - - [14/Jun/2026 15:26:36] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -
+::ffff:127.0.0.1 - - [14/Jun/2026 15:26:36] "GET /index.html HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [14/Jun/2026 15:26:36] code 404, message File not found
+::ffff:127.0.0.1 - - [14/Jun/2026 15:26:36] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -
+::ffff:127.0.0.1 - - [14/Jun/2026 15:26:48] code 404, message File not found
+::ffff:127.0.0.1 - - [14/Jun/2026 15:26:48] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -
+::ffff:127.0.0.1 - - [14/Jun/2026 15:26:48] code 404, message File not found
+::ffff:127.0.0.1 - - [14/Jun/2026 15:26:48] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -
+::ffff:127.0.0.1 - - [14/Jun/2026 15:27:50] code 404, message File not found
+::ffff:127.0.0.1 - - [14/Jun/2026 15:27:50] "GET /favicon.ico HTTP/1.1" 404 -
+::ffff:127.0.0.1 - - [14/Jun/2026 15:29:49] "GET /rider-dashboard.html HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [14/Jun/2026 15:29:49] "GET /js/auth-guard.js HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [14/Jun/2026 15:29:49] "GET /css/main.css HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [14/Jun/2026 15:29:52] code 404, message File not found
+::ffff:127.0.0.1 - - [14/Jun/2026 15:29:52] "GET /favicon.ico HTTP/1.1" 404 -

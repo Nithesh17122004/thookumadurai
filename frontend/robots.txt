@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /admin-panel.html
+Disallow: /restaurant-dashboard.html
+Disallow: /rider-dashboard.html
+Disallow: /super-admin.html
+Disallow: /api/
+
+Sitemap: https://thookumadurai.in/sitemap.xml

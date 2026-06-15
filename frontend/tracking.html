@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Live Tracking — Thooku Madurai</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#060f08;--surface:#0a1a10;--card:#0f2016;--accent:#4caf50;
+  --gold:#ffc107;--red:#ef5350;--blue:#64b5f6;--border:rgba(76,175,80,.14);
+  --muted:#81c784;--dim:#4a7c59;--text:#e8f5e9;--radius:14px;
+}
+html,body{height:100%;font-family:'Inter','Segoe UI',sans-serif;background:var(--bg);color:var(--text);overflow:hidden}
+.app{display:flex;flex-direction:column;height:100vh;position:relative}
+
+/* TOP BAR */
+.topbar{
+  background:rgba(10,26,16,.97);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);padding:12px 16px;
+  display:flex;align-items:center;justify-content:space-between;z-index:1000;flex-shrink:0
+}
+.topbar-left{display:flex;align-items:center;gap:10px}
+.topbar-logo{font-size:13px;font-weight:800;color:var(--accent);letter-spacing:.5px}
+.live-badge{display:flex;align-items:center;gap:5px;background:rgba(76,175,80,.12);border:1px solid rgba(76,175,80,.3);border-radius:20px;padding:3px 10px;font-size:10px;font-weight:700;color:var(--accent)}
+.live-badge .dot{width:6px;height:6px;background:var(--accent);border-radius:50%;animation:livePulse 1.5s infinite}
+@keyframes livePulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.3)}}
+.eta-badge{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:5px 14px;font-size:13px;font-weight:700;font-family:monospace;color:var(--gold)}
+
+/* STATUS PROGRESS BAR */
+.progress-bar{background:var(--card);padding:16px 16px 10px;flex-shrink:0;border-bottom:1px solid var(--border)}
+.steps-row{display:flex;align-items:center;justify-content:space-between;position:relative;margin-bottom:6px}
+.steps-row::before{content:'';position:absolute;top:14px;left:24px;right:24px;height:2px;background:var(--border);z-index:0}
+.step-item{display:flex;flex-direction:column;align-items:center;gap:4px;position:relative;z-index:1;flex:1}
+.step-circle{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;border:2px solid var(--border);background:var(--card);color:var(--dim);transition:all .4s}
+.step-item.done .step-circle{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 0 10px rgba(76,175,80,.4)}
+.step-item.active .step-circle{background:var(--gold);border-color:var(--gold);color:#000;animation:stepPulse 1.5s infinite}
+@keyframes stepPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,193,7,.4)}50%{box-shadow:0 0 0 8px rgba(255,193,7,0)}}
+.step-label{font-size:8px;font-weight:600;color:var(--dim);text-transform:uppercase;text-align:center;letter-spacing:.2px}
+.status-text{text-align:center;font-size:14px;font-weight:700;color:var(--accent);margin-top:4px;padding:4px;border-radius:8px;background:rgba(76,175,80,.06)}
+
+/* MAIN CONTENT - MAP TAKES FULL SPACE */
+.main{flex:1;position:relative;overflow:hidden}
+#map{width:100%;height:100%;z-index:1}
+
+/* RIDER CARD OVERLAY ON MAP */
+.rider-overlay{
+  position:absolute;bottom:0;left:0;right:0;z-index:500;
+  background:linear-gradient(transparent,rgba(6,15,8,.95) 30%);
+  padding:40px 16px 16px;pointer-events:none
+}
+.rider-card{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:16px;pointer-events:auto;backdrop-filter:blur(10px);
+  box-shadow:0 -4px 24px rgba(0,0,0,.5)
+}
+.rider-card-top{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.rider-avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--primary,#1b6b3a),var(--accent));display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.rider-details{flex:1}
+.rider-name{font-weight:700;font-size:14px;margin-bottom:2px}
+.rider-sub{font-size:11px;color:var(--muted)}
+.rider-call-btn{width:40px;height:40px;border-radius:50%;background:rgba(76,175,80,.15);border:1px solid rgba(76,175,80,.3);color:var(--accent);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
+.rider-call-btn:hover{background:rgba(76,175,80,.25);transform:scale(1.05)}
+
+.metrics{display:flex;gap:10px}
+.metric{flex:1;text-align:center;padding:8px;background:var(--card);border-radius:10px}
+.metric-val{font-size:22px;font-weight:800;color:var(--accent);font-family:monospace}
+.metric-label{font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+
+/* DELIVERY CONFIRM OVERLAY */
+.confirm-overlay{
+  position:absolute;bottom:0;left:0;right:0;z-index:600;
+  background:linear-gradient(transparent,rgba(6,15,8,.97) 25%);
+  padding:50px 16px 20px;display:none
+}
+.confirm-card{background:var(--card);border:2px solid var(--accent);border-radius:var(--radius);padding:20px;text-align:center;box-shadow:0 -8px 32px rgba(76,175,80,.15)}
+.confirm-icon{font-size:48px;margin-bottom:8px}
+.confirm-title{font-size:18px;font-weight:800;margin-bottom:4px;color:var(--accent)}
+.confirm-sub{font-size:13px;color:var(--muted);margin-bottom:16px}
+.confirm-btn{width:100%;padding:16px;background:linear-gradient(135deg,var(--primary,#1b6b3a),var(--accent));color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:800;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.confirm-btn:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(76,175,80,.4)}
+
+/* REFUND MESSAGE */
+.refund-banner{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:500;
+  background:rgba(239,83,80,.1);border:2px solid var(--red);border-radius:var(--radius);
+  padding:24px;text-align:center;max-width:320px;display:none
+}
+.refund-banner .icon{font-size:48px;margin-bottom:8px}
+.refund-banner .title{font-size:16px;font-weight:800;color:var(--red);margin-bottom:4px}
+.refund-banner .sub{font-size:12px;color:var(--muted)}
+
+/* ORDER SUMMARY PANEL (hidden by default, swipe up) */
+.order-summary-toggle{
+  position:absolute;top:8px;right:8px;z-index:400;
+  background:rgba(10,26,16,.85);border:1px solid var(--border);border-radius:20px;
+  padding:6px 12px;font-size:11px;color:var(--muted);cursor:pointer
+}
+
+/* RESPONSIVE */
+@media(max-width:480px){
+  .step-label{font-size:7px;letter-spacing:0}
+  .step-circle{width:24px;height:24px;font-size:9px}
+  .metric-val{font-size:18px}
+}
+
+/* TOAST */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#0a2010;border:1px solid rgba(76,175,80,.4);color:var(--accent);padding:10px 20px;border-radius:10px;font-size:13px;font-weight:600;z-index:9999;transition:transform .4s;pointer-events:none;white-space:nowrap}
+#toast.show{transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <span class="topbar-logo">🛵 THOOKU</span>
+      <div class="live-badge"><span class="dot"></span>LIVE</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span class="eta-badge" id="etaBadge">⏱ — min</span>
+      <button onclick="window.close()" style="background:none;border:none;color:var(--dim);font-size:18px;cursor:pointer">✕</button>
+    </div>
+  </div>
+
+  <!-- STATUS PROGRESS -->
+  <div class="progress-bar">
+    <div class="steps-row" id="stepsRow">
+      <div class="step-item done" id="s-confirmed"><div class="step-circle">✓</div><div class="step-label">Confirmed</div></div>
+      <div class="step-item" id="s-preparing"><div class="step-circle">🍳</div><div class="step-label">Preparing</div></div>
+      <div class="step-item" id="s-rider"><div class="step-circle">🛵</div><div class="step-label">Rider</div></div>
+      <div class="step-item" id="s-picked"><div class="step-circle">📦</div><div class="step-label">Picked Up</div></div>
+      <div class="step-item" id="s-delivered"><div class="step-circle">🏠</div><div class="step-label">Delivered</div></div>
+    </div>
+    <div class="status-text" id="statusText">Order Confirmed</div>
+  </div>
+
+  <!-- MAIN: MAP -->
+  <div class="main">
+    <div id="map"></div>
+
+    <!-- Order summary toggle -->
+    <div class="order-summary-toggle" onclick="toggleOrderSummary()">
+      <i class="fas fa-receipt"></i> Bill
+    </div>
+
+    <!-- Refund Banner (no rider available) -->
+    <div class="refund-banner" id="refundBanner">
+      <div class="icon">😔</div>
+      <div class="title">No Rider Available</div>
+      <div class="sub" id="refundText">We're still looking... Auto-refund in <span id="refundCountdown">30:00</span></div>
+    </div>
+
+    <!-- Delivery Confirm Overlay -->
+    <div class="confirm-overlay" id="confirmOverlay">
+      <div class="confirm-card">
+        <div class="confirm-icon">📦</div>
+        <div class="confirm-title">Your Order Has Arrived!</div>
+        <div class="confirm-sub">Please confirm that you've received your order</div>
+        <button class="confirm-btn" onclick="confirmDelivery()">
+          <i class="fas fa-check-circle"></i> Yes, I Got My Order!
+        </button>
+      </div>
+    </div>
+
+    <!-- Rider Card Overlay -->
+    <div class="rider-overlay" id="riderOverlay">
+      <div class="rider-card">
+        <div class="rider-card-top">
+          <div class="rider-avatar">🛵</div>
+          <div class="rider-details">
+            <div class="rider-name" id="riderName">Looking for rider...</div>
+            <div class="rider-sub" id="riderSub">📍 <span id="riderDist">—</span> km away</div>
+          </div>
+          <button class="rider-call-btn" onclick="callRider()" id="callBtn" title="Call Rider"><i class="fas fa-phone"></i></button>
+        </div>
+        <div class="metrics">
+          <div class="metric"><div class="metric-val" id="metricDist">—</div><div class="metric-label">km Away</div></div>
+          <div class="metric"><div class="metric-val" id="metricEta">—</div><div class="metric-label">min ETA</div></div>
+          <div class="metric"><div class="metric-val" id="metricTotal">₹—</div><div class="metric-label">Total</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/agora-rtc-sdk-ng/AgoraRTC_N-production.js"></script>
+<script>
+var API = 'http://127.0.0.1:5000/api/v1';
+var WS  = 'http://127.0.0.1:5000';
+var AGORA_APP_ID = 'b15c6fa202c74bd197dbf2c924ca5109';
+var CALL_FALLBACK_TIMEOUT = 10000;
+var auth = {};
+try{ auth = JSON.parse(localStorage.getItem('tm_auth')||'{}'); }catch(e){}
+var token = auth.token || '';
+var HDR = {'Authorization':'Bearer '+token,'Content-Type':'application/json'};
+
+var params = new URLSearchParams(window.location.search);
+var ORDER_ID = params.get('order_id') || '';
+
+// State
+var map, riderMarker, restaurantMarker, customerMarker, routeLine;
+var currentRiderPos = null, targetRiderPos = null;
+var animStart = null, animDuration = 3000;
+var socket = null, pollInterval = null;
+var lastStatus = '';
+var refundTimer = null;
+var confirmDeliveryShown = false;
+
+// Demo fallback locations
+var DEMO_REST = {lat:9.9310,lng:78.1200};
+var DEMO_CUST = {lat:9.9180,lng:78.1350};
+var demoRider = {lat:9.9280,lng:78.1220};
+
+// ── MAP INIT ─────────────────────────────────────────────────
+
+function initMap(rLat,rLng,cLat,cLng) {
+  map = L.map('map',{zoomControl:false,attributionControl:false});
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+    {subdomains:'abcd',maxZoom:19}).addTo(map);
+  L.control.zoom({position:'bottomright'}).addTo(map);
+
+  // Locate me button
+  var locateBtn = L.control({position:'topright'});
+  locateBtn.onAdd = function() {
+    var btn = L.DomUtil.create('button','locate-btn');
+    btn.innerHTML = '📍';
+    btn.title = 'Find my location';
+    btn.style.cssText = 'background:#fff;border:1px solid #ddd;border-radius:8px;padding:6px 10px;font-size:18px;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.1);margin-top:8px';
+    btn.onclick = function() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(pos) {
+          map.setView([pos.coords.latitude, pos.coords.longitude], 15);
+          L.marker([pos.coords.latitude, pos.coords.longitude], {icon: L.divIcon({html:'<div style="font-size:20px">📍</div>',iconSize:[24,24],className:''})}).addTo(map);
+        });
+      }
+    };
+    return btn;
+  };
+  locateBtn.addTo(map);
+
+  restaurantMarker = L.marker([rLat,rLng],{icon:makeIcon('🏪',40,'#4caf50','Restaurant')}).addTo(map);
+  customerMarker = L.marker([cLat,cLng],{icon:makeIcon('📍',40,'#64b5f6','Delivery')}).addTo(map);
+  riderMarker = L.marker([rLat,rLng],{icon:makeIcon('🛵',44,'#ff9800','Rider'),zIndexOffset:1000}).addTo(map);
+
+  currentRiderPos = {lat:rLat,lng:rLng};
+  routeLine = L.polyline([[rLat,rLng],[cLat,cLng]],
+    {color:'#ff9800',weight:2,dashArray:'6,8',opacity:.5}).addTo(map);
+
+  map.fitBounds([[rLat,rLng],[cLat,cLng]],{padding:[50,50]});
+  updateDistance(rLat,rLng,cLat,cLng);
+}
+
+function makeIcon(emoji,size,bg,label){
+  return L.divIcon({
+    className:'',
+    html:'<div style="width:'+size+'px;height:'+size+'px;background:'+bg+'18;border:2px solid '+bg+
+         ';border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:'+(size*.5)+'px;'+
+         'box-shadow:0 2px 10px rgba(0,0,0,.5)">'+emoji+'</div>'+
+         (label?'<div style="text-align:center;font-size:9px;font-weight:700;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.8);margin-top:2px;white-space:nowrap">'+label+'</div>':''),
+    iconSize:[size,size+(label?16:0)],iconAnchor:[size/2,size/2+(label?8:0)]
+  });
+}
+
+// ── ANIMATION ────────────────────────────────────────────────
+
+function animateRider(newLat,newLng){
+  if(!riderMarker||!currentRiderPos) return;
+  var fLat=currentRiderPos.lat,fLng=currentRiderPos.lng;
+  animStart=null; targetRiderPos={lat:newLat,lng:newLng};
+  function step(ts){
+    if(!animStart) animStart=ts;
+    var p=Math.min((ts-animStart)/animDuration,1);
+    var e=1-Math.pow(1-p,3);
+    var lat=fLat+(newLat-fLat)*e,lng=fLng+(newLng-fLng)*e;
+    riderMarker.setLatLng([lat,lng]);
+    if(routeLine&&customerMarker){
+      var c=customerMarker.getLatLng();
+      routeLine.setLatLngs([[lat,lng],[c.lat,c.lng]]);
+    }
+    if(p<1) requestAnimationFrame(step);
+    else{
+      currentRiderPos={lat:newLat,lng:newLng};
+      if(customerMarker&&restaurantMarker){
+        var c=customerMarker.getLatLng();
+        var r=restaurantMarker.getLatLng();
+        updateDistance(newLat,newLng,c.lat,c.lng);
+        // Re-fit bounds to keep all three markers visible
+        map.fitBounds([[newLat,newLng],[c.lat,c.lng],[r.lat,r.lng]],{padding:[50,50],maxZoom:16});
+      }
+    }
+  }
+  requestAnimationFrame(step);
+}
+
+function updateDistance(rLat,rLng,cLat,cLng){
+  var d=haversine(rLat,rLng,cLat,cLng);
+  var eta=Math.max(1,Math.round(d/0.5));
+  setText('metricDist',d.toFixed(1));
+  setText('metricEta',eta);
+  setText('riderDist',d.toFixed(1));
+  var b=document.getElementById('etaBadge');
+  if(b) b.textContent='⏱ '+eta+' min';
+}
+
+function haversine(lat1,lng1,lat2,lng2){
+  var R=6371,dLat=(lat2-lat1)*Math.PI/180,dLng=(lng2-lng1)*Math.PI/180;
+  var a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+
+// ── STATUS STEPS ─────────────────────────────────────────────
+
+var STATUS_MAP = {
+  'pending':0,'confirmed':1,'accepted':1,'preparing':2,
+  'ready_for_pickup':2,'out_for_delivery':3,'picked_up':3,'delivered':4
+};
+var STEP_IDS = ['s-confirmed','s-preparing','s-rider','s-picked','s-delivered'];
+var STATUS_LABELS = {
+  'pending':'Order Placed','confirmed':'Confirmed','accepted':'Restaurant Accepted',
+  'preparing':'Preparing Your Food','ready_for_pickup':'Ready for Pickup',
+  'out_for_delivery':'Rider is on the way!','picked_up':'Rider picked up',
+  'delivered':'Delivered! Enjoy! 🎉'
+};
+
+function updateSteps(status){
+  var idx = STATUS_MAP[status] ?? 0;
+  STEP_IDS.forEach(function(id,i){
+    var el=document.getElementById(id);
+    if(!el) return;
+    el.className='step-item'+(i<idx?' done':'')+(i===idx?' active':'');
+  });
+  setText('statusText',STATUS_LABELS[status]||status);
+  if(status==='delivered'){
+    showConfirmDelivery();
+  }
+  // Show rider card when rider assigned
+  if(status==='preparing'||status==='ready_for_pickup'||status==='out_for_delivery'||status==='delivered'){
+    document.getElementById('callBtn').style.display='flex';
+  }
+}
+
+// ── DELIVERY CONFIRMATION ────────────────────────────────────
+
+function showConfirmDelivery(){
+  if(confirmDeliveryShown) return;
+  confirmDeliveryShown=true;
+  var el=document.getElementById('confirmOverlay');
+  if(el) el.style.display='block';
+  showToast('📦 Your order has arrived! Please confirm delivery.','success');
+}
+
+async function confirmDelivery(){
+  if(!ORDER_ID) return;
+  try{
+    var res=await fetch(API+'/riders/delivery/'+ORDER_ID+'/deliver',{method:'POST',headers:HDR});
+    var d=await res.json();
+    if(d.success){
+      showToast('🎉 Thank you! Enjoy your meal!','success');
+      document.getElementById('confirmOverlay').style.display='none';
+      document.getElementById('riderOverlay').style.display='none';
+      setText('statusText','Delivered! 🎉 Enjoy your meal!');
+    } else {
+      showToast('Already confirmed!','success');
+      document.getElementById('confirmOverlay').style.display='none';
+    }
+  }catch(e){
+    showToast('Delivery confirmed!','success');
+    document.getElementById('confirmOverlay').style.display='none';
+  }
+}
+
+// ── SOCKET.IO ────────────────────────────────────────────────
+
+function initSocket(){
+  try{
+    socket=io(WS,{transports:['websocket','polling'],timeout:5000});
+    socket.on('connect',function(){
+      if(ORDER_ID) socket.emit('join_order',{order_id:ORDER_ID});
+    });
+    socket.on('location_update',function(data){animateRider(data.lat,data.lng);});
+    socket.on('order_status_update',function(data){
+      if(data.status) updateSteps(data.status);
+      if(data.message) showToast(data.message,'success');
+    });
+    socket.on('order_refunded',function(data){
+      showRefundBanner(data.message||'Refund processed');
+    });
+    socket.on('disconnect',function(){});
+    socket.on('connect_error',function(){startPolling();});
+    // WebRTC signaling handlers
+    socket.on('call_offer',function(data){
+      if(data.order_id!==ORDER_ID||!data.sdp) return;
+      callOrderId = data.order_id;
+      callTargetName = data.caller_name||'Rider';
+      showCallOverlay(callTargetName,'Incoming...');
+      navigator.mediaDevices.getUserMedia({audio:true,video:false}).then(function(stream){
+        callStream=stream;
+        pc=createPeerConnection(callOrderId,function(remoteStream){
+          var audio=new Audio();
+          audio.srcObject=remoteStream;
+          audio.play().catch(function(){});
+          startCallTimer();
+        });
+        stream.getTracks().forEach(function(t){pc.addTrack(t,stream);});
+        pc.setRemoteDescription(new RTCSessionDescription(data.sdp)).then(function(){
+          return pc.createAnswer();
+        }).then(function(answer){
+          return pc.setLocalDescription(answer);
+        }).then(function(){
+          socket.emit('call_answer',{order_id:callOrderId,sdp:pc.localDescription});
+        });
+      }).catch(function(e){showToast('Call error: '+e.message,'error');endCall();});
+    });
+    socket.on('call_answer',function(data){
+      if(data.order_id!==callOrderId||!pc||!data.sdp) return;
+      pc.setRemoteDescription(new RTCSessionDescription(data.sdp)).catch(function(){});
+      startCallTimer();
+    });
+    socket.on('ice_candidate',function(data){
+      if(data.order_id!==callOrderId||!pc||!data.candidate) return;
+      pc.addIceCandidate(new RTCIceCandidate(data.candidate)).catch(function(){});
+    });
+    socket.on('call_end',function(data){
+      if(data.order_id!==callOrderId) return;
+      showToast('📞 Call ended','warning');
+      endCall();
+    });
+    socket.on('call_decline',function(data){
+      if(data.order_id!==callOrderId) return;
+      showToast('📞 Call declined','warning');
+      endCall();
+    });
+    socket.on('agora_fallback',async function(data){
+      if(data.order_id!==callOrderId) return;
+      showCallOverlay(callTargetName,'Joining Agora...');
+      await startAgoraCall(data.order_id);
+    });
+    setTimeout(function(){if(!socket||!socket.connected) startPolling();},4000);
+  }catch(e){startPolling();}
+}
+
+// ── POLLING ──────────────────────────────────────────────────
+
+function startPolling(){
+  if(pollInterval) return;
+  if(!ORDER_ID){startDemo();return;}
+  pollInterval=setInterval(fetchOrder,5000);
+  fetchOrder();
+  // Also check for refund status
+  refundTimer=setInterval(checkRefundStatus,1000);
+}
+
+async function fetchOrder(){
+  try{
+    var res=await fetch(API+'/orders/'+ORDER_ID,{headers:HDR});
+    var d=await res.json();
+    if(!d.success) return;
+    var o=d.data||{};
+    updateSteps(o.status);
+    setText('metricTotal','₹'+(o.total||0));
+    // Rider info
+    if(o.rider_name){
+      setText('riderName',o.rider_name);
+      setText('riderSub',o.rider_phone?'📞 '+o.rider_phone:'📍 0.0 km away');
+      document.getElementById('riderDist').textContent='—';
+    }
+  }catch(e){/* silent */}
+  // Also fetch tracking data
+  fetchTracking();
+}
+
+async function fetchTracking(){
+  try{
+    var res=await fetch(API+'/tracking/order/'+ORDER_ID,{headers:HDR});
+    var d=await res.json();
+    if(!d.success) return;
+    var td=d.data;
+    if(td.rider&&td.rider.lat) animateRider(td.rider.lat,td.rider.lng);
+    if(td.rider&&td.rider.name) setText('riderName',td.rider.name);
+    if(td.restaurant&&td.restaurant.lat&&restaurantMarker){
+      restaurantMarker.setLatLng([td.restaurant.lat,td.restaurant.lng]);
+    }
+    if(td.customer&&td.customer.lat&&customerMarker){
+      customerMarker.setLatLng([td.customer.lat,td.customer.lng]);
+    }
+  }catch(e){/* silent */}
+}
+
+// ── REFUND CHECK ─────────────────────────────────────────────
+
+function checkRefundStatus(){
+  // Calculate time since order creation (stored in localStorage)
+  var last=JSON.parse(localStorage.getItem('tm_last_order')||'{}');
+  if(!last.ts) return;
+  var age=Math.floor((Date.now()-last.ts)/1000);
+  var remaining=1800-age; // 30 min
+  if(remaining<=0){
+    var rb=document.getElementById('refundBanner');
+    if(rb) rb.style.display='block';
+    setText('refundText','No rider was available. Full refund has been processed.');
+    if(refundTimer) clearInterval(refundTimer);
+    return;
+  }
+  // Show countdown if no rider yet
+  if(document.getElementById('riderName')&&
+     document.getElementById('riderName').textContent==='Looking for rider...'){
+    var mins=Math.floor(remaining/60);
+    var secs=remaining%60;
+    setText('refundCountdown',String(mins).padStart(2,'0')+':'+String(secs).padStart(2,'0'));
+  }
+}
+
+function showRefundBanner(msg){
+  var rb=document.getElementById('refundBanner');
+  if(rb){rb.style.display='block';setText('refundText',msg);}
+}
+
+// ── DEMO MODE ────────────────────────────────────────────────
+
+var demoTimer=null;
+function startDemo(){
+  setText('riderName','Kumar (Demo Rider)');
+  setText('riderSub','📍 1.2 km away');
+  var dest=DEMO_CUST;
+  demoTimer=setInterval(function(){
+    var dlat=dest.lat-demoRider.lat,dlng=dest.lng-demoRider.lng;
+    var dist=Math.sqrt(dlat*dlat+dlng*dlng);
+    if(dist<0.0005){demoRider={lat:DEMO_REST.lat,lng:DEMO_REST.lng};}
+    else{var sp=0.0012;demoRider.lat+=(dlat/dist)*sp+(Math.random()-.5)*0.0002;demoRider.lng+=(dlng/dist)*sp+(Math.random()-.5)*0.0002;}
+    animateRider(demoRider.lat,demoRider.lng);
+    updateSteps('out_for_delivery');
+    setText('metricTotal','₹180');
+  },4000);
+  setText('statusText','Rider is on the way!');
+}
+
+// ── ACTIONS ──────────────────────────────────────────────────
+
+// WebRTC + Agora state
+var pc = null, callOrderId = '', callTargetName = '';
+var callTimerInterval = null, callStartTime = null, callMuted = false, callStream = null;
+var agClient = null, agLocalTrack = null, callFallbackTimer = null;
+
+function getCallConfig(){ return { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }; }
+
+function createPeerConnection(oid, onRemoteStream){
+  var cfg = getCallConfig();
+  var p = new RTCPeerConnection(cfg);
+  p.onicecandidate = function(e){
+    if(e.candidate && socket) socket.emit('ice_candidate',{order_id:oid,candidate:e.candidate});
+  };
+  p.ontrack = function(e){ if(onRemoteStream) onRemoteStream(e.streams[0]); };
+  return p;
+}
+
+function showCallOverlay(name, status){
+  var o = document.getElementById('callOverlay');
+  if(!o) return;
+  o.style.display = 'flex';
+  var ne = document.getElementById('callOverlayName');
+  var se = document.getElementById('callOverlayStatus');
+  if(ne) ne.textContent = name || 'Call';
+  if(se) se.textContent = status || 'Connected';
+}
+
+function hideCallOverlay(){
+  var o = document.getElementById('callOverlay');
+  if(o) o.style.display = 'none';
+}
+
+function startCallTimer(){
+  callStartTime = Date.now();
+  var se = document.getElementById('callOverlayStatus');
+  if(callTimerInterval) clearInterval(callTimerInterval);
+  callTimerInterval = setInterval(function(){
+    if(!callStartTime) return;
+    var secs = Math.floor((Date.now() - callStartTime) / 1000);
+    var m = String(Math.floor(secs/60)).padStart(2,'0');
+    var s = String(secs%60).padStart(2,'0');
+    if(se) se.textContent = m + ':' + s;
+  }, 1000);
+}
+
+function stopCallTimer(){
+  if(callTimerInterval){ clearInterval(callTimerInterval); callTimerInterval = null; }
+  callStartTime = null;
+}
+
+async function endAgoraCall(){
+  if(agLocalTrack){ try{ agLocalTrack.close(); }catch(e){} agLocalTrack = null; }
+  if(agClient){
+    try{
+      agClient.remoteUsers.forEach(function(u){ agClient.unsubscribe(u).catch(function(){}); });
+      await agClient.leave();
+    }catch(e){}
+    agClient = null;
+  }
+}
+
+async function endCall(){
+  if(callFallbackTimer){ clearTimeout(callFallbackTimer); callFallbackTimer = null; }
+  if(pc){ pc.close(); pc = null; }
+  if(callStream){ callStream.getTracks().forEach(function(t){ t.stop(); }); callStream = null; }
+  await endAgoraCall();
+  stopCallTimer();
+  hideCallOverlay();
+  if(callOrderId && socket){ socket.emit('call_end',{order_id:callOrderId}); }
+  callOrderId = '';
+  callTargetName = '';
+}
+
+function toggleMute(){
+  callMuted = !callMuted;
+  if(callStream) callStream.getAudioTracks().forEach(function(t){ t.enabled = !callMuted; });
+  var btn = document.getElementById('callMuteBtn');
+  if(btn) btn.textContent = callMuted ? '🔇' : '🔊';
+}
+
+async function startAgoraCall(orderId){
+  try{
+    if(typeof AgoraRTC === 'undefined'){ showToast('Agora SDK not loaded','error'); return false; }
+    agClient = AgoraRTC.createClient({mode:'rtc'});
+    agClient.on('user-published',async function(user,mediaType){
+      await agClient.subscribe(user,mediaType);
+      if(mediaType === 'audio') user.audioTrack.play();
+      startCallTimer();
+    });
+    await agClient.join(AGORA_APP_ID,'order_'+orderId,null,null);
+    agLocalTrack = await AgoraRTC.createMicrophoneAudioTrack();
+    await agClient.publish([agLocalTrack]);
+    showCallOverlay(callTargetName,'Agora call...');
+    if(socket) socket.emit('agora_fallback',{order_id:orderId});
+    return true;
+  }catch(e){
+    showToast('Agora call failed: '+e.message,'error');
+    await endAgoraCall();
+    return false;
+  }
+}
+
+function callRider(){
+  if(!ORDER_ID){ showToast('Order not ready','warning'); return; }
+  if(!socket || !socket.connected){ showToast('Reconnecting... try again','warning'); return; }
+  callOrderId = ORDER_ID;
+  callTargetName = document.getElementById('riderName')?.textContent || 'Rider';
+  showCallOverlay(callTargetName, 'Ringing...');
+  navigator.mediaDevices.getUserMedia({audio:true,video:false}).then(function(stream){
+    callStream = stream;
+    pc = createPeerConnection(ORDER_ID, function(remoteStream){
+      if(callFallbackTimer){ clearTimeout(callFallbackTimer); callFallbackTimer = null; }
+      var audio = new Audio();
+      audio.srcObject = remoteStream;
+      audio.play().catch(function(){});
+      startCallTimer();
+    });
+    stream.getTracks().forEach(function(t){ pc.addTrack(t,stream); });
+    pc.createOffer().then(function(offer){
+      return pc.setLocalDescription(offer);
+    }).then(function(){
+      socket.emit('call_offer',{order_id:ORDER_ID,sdp:pc.localDescription,caller_name:auth.name||'Customer'});
+    });
+    // Fallback timer
+    callFallbackTimer = setTimeout(async function(){
+      if(pc && pc.connectionState !== 'connected'){
+        showToast('📞 WebRTC timeout, switching to Agora...','warning');
+        await endCall();
+        await startAgoraCall(ORDER_ID);
+      }
+    }, CALL_FALLBACK_TIMEOUT);
+  }).catch(function(e){
+    showToast('Call failed: '+e.message,'error');
+    startAgoraCall(ORDER_ID);
+  });
+}
+
+function toggleOrderSummary(){
+  showToast('Order total: '+document.getElementById('metricTotal').textContent,'info');
+}
+
+function setText(id,html){var e=document.getElementById(id);if(e)e.textContent=html;}
+
+function showToast(msg,type){
+  var t=document.getElementById('toast');
+  if(!t) return;
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show');},3500);
+}
+
+// ── INIT ─────────────────────────────────────────────────────
+
+document.addEventListener('DOMContentLoaded',function(){
+  if(ORDER_ID){
+    // Fetch real order data to get coordinates
+    fetch(API+'/orders/'+ORDER_ID,{headers:HDR}).then(function(r){return r.json();}).then(function(d){
+      if(d.success){
+        var o=d.data||{};
+        var rLat=DEMO_REST.lat,rLng=DEMO_REST.lng,cLat=DEMO_CUST.lat,cLng=DEMO_CUST.lng;
+        // Customer location from delivery_address FIRST
+        if(o.delivery_address){
+          var da=o.delivery_address;
+          if(da.lat&&da.lng){cLat=parseFloat(da.lat);cLng=parseFloat(da.lng);}
+        }
+        // Fallback to delivery_location
+        if(!(o.delivery_address&&o.delivery_address.lat&&o.delivery_address.lng)&&o.delivery_location){
+          var dl=o.delivery_location;
+          if(dl.lat&&dl.lng){cLat=parseFloat(dl.lat);cLng=parseFloat(dl.lng);}
+        }
+        // Get restaurant location from order's restaurant_id
+        if(o.restaurant_id){
+          fetch(API+'/restaurants/'+o.restaurant_id).then(function(r2){return r2.json();}).then(function(rd){
+            if(rd.success&&rd.data){
+              if(rd.data.lat&&rd.data.lng){rLat=parseFloat(rd.data.lat);rLng=parseFloat(rd.data.lng);}
+              if(rd.data.name) setText('riderSub','Pickup: '+rd.data.name);
+            }
+            initMap(rLat,rLng,cLat,cLng);
+          }).catch(function(){initMap(rLat,rLng,cLat,cLng);});
+        } else {
+          initMap(rLat,rLng,cLat,cLng);
+        }
+        // Update rider card with delivery address
+        if(o.delivery_address){
+          var da=o.delivery_address;
+          var addrStr=[da.street,da.area,da.city].filter(Boolean).join(', ');
+          if(addrStr) setText('riderSub','📍 '+addrStr);
+        }
+        setText('metricTotal','₹'+(o.total||0));
+        updateSteps(o.status);
+        setText('statusText','Tracking Order #'+ORDER_ID);
+      } else {
+        initMap(DEMO_REST.lat,DEMO_REST.lng,DEMO_CUST.lat,DEMO_CUST.lng);
+      }
+    }).catch(function(){
+      initMap(DEMO_REST.lat,DEMO_REST.lng,DEMO_CUST.lat,DEMO_CUST.lng);
+    });
+
+    initSocket();
+    // Poll for live updates
+    pollInterval=setInterval(fetchOrder,5000);
+    fetchOrder();
+    refundTimer=setInterval(checkRefundStatus,1000);
+  } else {
+    // No order_id — use demo mode
+    initMap(DEMO_REST.lat,DEMO_REST.lng,DEMO_CUST.lat,DEMO_CUST.lng);
+    updateSteps('preparing');
+    startDemo();
+  }
+});
+</script>
+
+<!-- ===== ACTIVE CALL BAR ===== -->
+<div id="callOverlay" style="display:none;position:fixed;bottom:80px;left:16px;right:16px;z-index:99999;background:#fff;border-radius:16px;padding:14px 16px;border:1px solid #e0e0e0;box-shadow:0 8px 32px rgba(0,0,0,.2);align-items:center;gap:12px;max-width:400px;margin:0 auto">
+  <div style="display:flex;align-items:center;gap:12px;width:100%">
+    <div style="font-size:28px">🔊</div>
+    <div style="flex:1;min-width:0">
+      <div style="font-weight:700;font-size:14px;color:#222" id="callOverlayName">Call</div>
+      <div style="font-size:12px;color:#888" id="callOverlayStatus">00:00</div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button onclick="toggleMute()" id="callMuteBtn" style="background:#f0f0f0;border:none;border-radius:50%;width:40px;height:40px;cursor:pointer;font-size:18px" title="Mute">🔇</button>
+      <button onclick="endCall()" style="background:#e53935;border:none;border-radius:50%;width:40px;height:40px;cursor:pointer;font-size:18px;color:#fff" title="End call">📞</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

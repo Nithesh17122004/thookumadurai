@@ -1,0 +1,2463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Thooku Madurai — Madurai's #1 hyperlocal food delivery platform. Order from your favourite local restaurants with exact menu prices, no hidden charges. Fast delivery across Madurai.">
+  <meta name="keywords" content="food delivery Madurai, thooku madurai, biryani delivery Madurai, meals delivery Madurai, tiffin delivery Madurai, online food order Madurai">
+  <meta name="robots" content="index, follow">
+  <meta property="og:title" content="Thooku Madurai — Local Food Delivery">
+  <meta property="og:description" content="Madurai's hyperlocal food delivery with exact restaurant prices. No markup. No hidden fees.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://thookumadurai.in">
+  <meta property="og:image" content="https://thookumadurai.in/assets/og-image.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Thooku Madurai — Local Food Delivery">
+  <meta name="theme-color" content="#1b6b3a">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta name="app-version" content="2.1.0">
+  <link rel="canonical" href="https://thookumadurai.in">
+  <title>Thooku Madurai — Madurai's Local Food Delivery | No Markup Prices</title>
+
+  <!-- Favicon -->
+  <link rel="icon" href="img/logo.png" type="image/png">
+
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FoodDelivery",
+    "name": "Thooku Madurai",
+    "url": "https://thookumadurai.in",
+    "logo": "https://thookumadurai.in/assets/logo.png",
+    "description": "Hyperlocal food delivery in Madurai, Tamil Nadu",
+    "areaServed": "Madurai, Tamil Nadu, India",
+    "telephone": "+91-XXX-XXX-XXXX"
+  }
+  </script>
+
+  <link rel="stylesheet" href="css/main.css">
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+
+<!-- ===== PAGE LOADER ===== -->
+<div class="loader-overlay" id="pageLoader">
+  <div style="text-align:center">
+    <img src="img/logo.png" alt="Thooku Madurai" style="width:80px;height:80px;object-fit:contain;margin-bottom:16px;animation:logoPulse 1.5s ease infinite;filter:drop-shadow(0 4px 16px rgba(76,175,80,0.4));">
+    <div style="font-family:'Poppins',sans-serif; font-size:22px; font-weight:800; color:#4caf50; margin-bottom:8px;">THOOKU MADURAI</div>
+    <div style="font-size:12px; color:#999; letter-spacing:3px; margin-bottom:24px;">MADURAI'S OWN FOOD DELIVERY</div>
+    <div class="loader-bar"><div class="loader-bar-fill"></div></div>
+  </div>
+</div>
+
+<!-- ===== NAVBAR ===== -->
+<nav class="navbar" id="navbar" role="navigation" aria-label="Main navigation">
+  <div class="navbar-brand">
+    <div class="navbar-logo">
+      <img src="img/logo.png" alt="Thooku Madurai" style="width:44px;height:44px;object-fit:contain;border-radius:10px;">
+    </div>
+    <div class="brand-name">
+      <span class="brand-top">THOOKU</span>
+      <span class="brand-bot">MADURAI</span>
+    </div>
+  </div>
+
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#restaurants" id="nav-restaurants">Restaurants</a></li>
+    <li><a href="#how-it-works" id="nav-how">How It Works</a></li>
+    <li><a href="#areas" id="nav-areas">Delivery Areas</a></li>
+    <li><a href="restaurant-dashboard.html" id="nav-partner">For Restaurants</a></li>
+    <li><a href="rider-dashboard.html" id="nav-rider">Become a Rider</a></li>
+    <li><a href="#orders" id="nav-orders" style="display:none" onclick="loadOrderHistory()"><i class="fas fa-receipt"></i> My Orders</a></li>
+    <li><a href="#" id="nav-track-order" style="display:none;color:var(--gold)!important" onclick="openLastOrderTracking()"><i class="fas fa-map-marker-alt"></i> Track</a></li>
+  </ul>
+
+  <div class="nav-cta">
+    <div class="location-pill" id="locationPill" onclick="detectLocation()" title="Detect my location">
+      <i class="fas fa-map-marker-alt"></i>
+      <span id="locationText">Detecting...</span>
+    </div>
+    <button class="btn-primary btn-sm" onclick="openModal('loginModal')" id="loginBtn">
+      <i class="fas fa-user"></i> Login
+    </button>
+    <div class="navbar-toggler" id="navToggler" onclick="toggleNav()">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+</nav>
+
+<!-- ===== HERO ===== -->
+<section class="hero" id="home" aria-label="Hero Section">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="animate-fadeup">
+      <div class="hero-badge">
+        <span>🎉 Madurai's First Zero-Markup Food Delivery</span>
+      </div>
+      <h1>
+        <span class="text-gradient">Real Prices.</span><br>
+        Real Restaurants.<br>
+        <span style="color:var(--text-muted); font-size:0.7em;">Delivered to Your Door.</span>
+      </h1>
+      <p>Order from local restaurants in Madurai with <strong style="color:var(--accent)">exact menu prices</strong> — no inflation, no hidden charges. Just food + delivery fee + ₹20 platform fee.</p>
+
+      <div class="hero-actions">
+        <button class="btn-accent btn-lg" onclick="scrollToRestaurants()" id="orderNowBtn">
+          <i class="fas fa-utensils"></i> Order Now
+        </button>
+        <button class="btn-outline btn-lg" onclick="openLastOrderTracking()" id="trackOrderBtn">
+          <i class="fas fa-map-marker-alt"></i> Track Order
+        </button>
+      </div>
+
+      <div class="hero-stats">
+        <div class="stat-item">
+          <span class="stat-number" id="statRestaurants">—</span>
+          <span class="stat-label">Restaurants</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number" id="statCustomers">—</span>
+          <span class="stat-label">Happy Customers</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number" id="statDeliveries">—</span>
+          <span class="stat-label">Orders Daily</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number" id="statRiders">—</span>
+          <span class="stat-label">Delivery Partners</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="heroFeatured" style="position:absolute;right:5%;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:12px;opacity:0.85" class="d-none d-xl-flex"></div>
+  </div>
+</section>
+
+<!-- ===== HOW PRICING WORKS ===== -->
+<section class="about-section" id="how-it-works" aria-label="Pricing Model">
+  <div style="max-width:900px;margin:0 auto">
+    <div class="hero-badge" style="margin:0 auto 24px;width:fit-content">
+      <i class="fas fa-rupee-sign"></i> Transparent Pricing
+    </div>
+    <h2 class="text-gradient" style="font-size:2.2rem;margin-bottom:16px">You Pay What The Restaurant Charges</h2>
+    <p style="color:var(--text-muted);font-size:17px;max-width:600px;margin:0 auto 40px">Unlike other apps, we never inflate menu prices. What you see in the restaurant is what you pay.</p>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🍽️</div>
+        <div class="feature-title">Food Amount</div>
+        <div class="feature-desc">Exact restaurant menu price. Zero markup. Zero inflation. What you see is what you pay.</div>
+        <div style="margin-top:12px;font-size:18px;font-weight:800;color:var(--accent)">Goes to Restaurant</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🚴</div>
+        <div class="feature-title">Delivery Fee</div>
+        <div class="feature-desc">Distance-based. Short distance = less fee. Transparent calculation shown before checkout.</div>
+        <div style="margin-top:12px;font-size:18px;font-weight:800;color:var(--accent)">Goes to Rider</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📱</div>
+        <div class="feature-title">Platform Fee</div>
+        <div class="feature-desc">Fixed ₹20 per order. No hidden charges. This is how we keep the service running.</div>
+        <div style="margin-top:12px;font-size:18px;font-weight:800;color:var(--accent)">₹20 Fixed</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📲</div>
+        <div class="feature-title">UPI Only</div>
+        <div class="feature-desc">Google Pay, PhonePe, Paytm UPI, BHIM, Razorpay UPI. Instant & Secure. No COD.</div>
+        <div style="margin-top:12px;font-size:18px;font-weight:800;color:var(--accent)">Instant Payment</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SEARCH SECTION ===== -->
+<section class="search-section" id="searchSection" aria-label="Search">
+  <div class="search-wrapper">
+    <div class="search-bar">
+      <i class="fas fa-search"></i>
+      <input type="text" id="searchInput" placeholder="Search restaurants, biryani, meals, tiffin..." autocomplete="off" aria-label="Search food or restaurants">
+      <button class="search-btn" onclick="performSearch()" id="searchBtn">
+        <i class="fas fa-search"></i> Search
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CATEGORIES ===== -->
+<div class="categories" id="categories" aria-label="Food categories">
+  <div class="categories-row" id="categoriesRow">
+    <button class="category-chip active" onclick="filterCategory('all')" id="cat-all" aria-label="All categories">
+      <span class="emoji">🍽️</span> All
+    </button>
+    <button class="category-chip" onclick="filterCategory('biryani')" id="cat-biryani" aria-label="Biryani">
+      <span class="emoji">🍛</span> Biryani
+    </button>
+    <button class="category-chip" onclick="filterCategory('meals')" id="cat-meals" aria-label="Meals">
+      <span class="emoji">🥘</span> Meals
+    </button>
+    <button class="category-chip" onclick="filterCategory('tiffin')" id="cat-tiffin" aria-label="Tiffin">
+      <span class="emoji">🫓</span> Tiffin
+    </button>
+    <button class="category-chip" onclick="filterCategory('parotta')" id="cat-parotta" aria-label="Parotta">
+      <span class="emoji">🫓</span> Parotta
+    </button>
+    <button class="category-chip" onclick="filterCategory('north-indian')" id="cat-north-indian" aria-label="North Indian">
+      <span class="emoji">🍲</span> North Indian
+    </button>
+    <button class="category-chip" onclick="filterCategory('chinese')" id="cat-chinese" aria-label="Chinese">
+      <span class="emoji">🍜</span> Chinese
+    </button>
+    <button class="category-chip" onclick="filterCategory('juice')" id="cat-juice" aria-label="Juice & Drinks">
+      <span class="emoji">🥤</span> Juice & Drinks
+    </button>
+    <button class="category-chip" onclick="filterCategory('sweets')" id="cat-sweets" aria-label="Sweets">
+      <span class="emoji">🍮</span> Sweets
+    </button>
+    <button class="category-chip" onclick="filterCategory('seafood')" id="cat-seafood" aria-label="Seafood">
+      <span class="emoji">🦐</span> Seafood
+    </button>
+    <button class="category-chip" onclick="filterCategory('night')" id="cat-night" aria-label="Night Food">
+      <span class="emoji">🌙</span> Night Food
+    </button>
+    <button class="category-chip" onclick="filterCategory('veg')" id="cat-veg" aria-label="Pure Veg">
+      <span class="emoji">🥗</span> Pure Veg
+    </button>
+  </div>
+</div>
+
+<!-- ===== RESTAURANTS ===== -->
+<section class="section" id="restaurants" aria-label="Restaurants">
+  <div class="section-header">
+    <div>
+      <h2 class="section-title">Restaurants Near You <span id="restaurantCount" style="font-size:14px;color:var(--text-muted);font-weight:400"></span></h2>
+      <p style="font-size:13px;color:var(--text-dim);margin-top:4px">Sorted by distance & rating</p>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <select id="sortSelect" class="form-control" style="width:auto;padding:8px 14px;font-size:13px" onchange="sortRestaurants(this.value)" aria-label="Sort restaurants">
+        <option value="rating">Top Rated</option>
+        <option value="distance">Nearest</option>
+        <option value="delivery_time">Fastest</option>
+        <option value="price_low">Price: Low to High</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="restaurant-grid" id="restaurantGrid">
+    <!-- Skeleton Loaders -->
+    <div class="restaurant-card" style="pointer-events:none" aria-hidden="true">
+      <div style="height:180px;background:linear-gradient(135deg,#ffffff,#f0f4f0);animation:loadBar 1.5s ease infinite"></div>
+      <div style="padding:16px">
+        <div style="height:16px;background:var(--surface-mid);border-radius:4px;margin-bottom:8px;width:70%"></div>
+        <div style="height:12px;background:var(--surface-mid);border-radius:4px;width:50%"></div>
+      </div>
+    </div>
+    <div class="restaurant-card" style="pointer-events:none" aria-hidden="true">
+      <div style="height:180px;background:linear-gradient(135deg,#ffffff,#f0f4f0);animation:loadBar 1.5s ease infinite"></div>
+      <div style="padding:16px">
+        <div style="height:16px;background:var(--surface-mid);border-radius:4px;margin-bottom:8px;width:70%"></div>
+        <div style="height:12px;background:var(--surface-mid);border-radius:4px;width:50%"></div>
+      </div>
+    </div>
+    <div class="restaurant-card" style="pointer-events:none" aria-hidden="true">
+      <div style="height:180px;background:linear-gradient(135deg,#ffffff,#f0f4f0);animation:loadBar 1.5s ease infinite"></div>
+      <div style="padding:16px">
+        <div style="height:16px;background:var(--surface-mid);border-radius:4px;margin-bottom:8px;width:70%"></div>
+        <div style="height:12px;background:var(--surface-mid);border-radius:4px;width:50%"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ORDER HISTORY ===== -->
+<section class="section" id="orders" aria-label="My Orders" style="display:none">
+  <div style="max-width:800px;margin:0 auto">
+    <h2 class="section-title" style="margin-bottom:8px"><i class="fas fa-receipt"></i> My Orders</h2>
+    <p style="color:var(--text-muted);font-size:14px;margin-bottom:20px">Your past orders from Thooku Madurai</p>
+    <div id="orderHistoryList">
+      <div style="text-align:center;padding:48px 20px;color:var(--text-muted)">
+        <div style="font-size:48px;margin-bottom:12px">📋</div>
+        <div>Loading your orders...</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== DELIVERY AREAS ===== -->
+<section class="section" id="areas" aria-label="Delivery areas in Madurai">
+  <div style="max-width:1200px;margin:0 auto">
+    <h2 class="section-title" style="margin-bottom:8px">We Deliver Across Madurai</h2>
+    <p style="color:var(--text-muted);font-size:14px;margin-bottom:20px">Available in all major areas of Madurai city</p>
+    <div class="area-grid" id="areaGrid">
+      <!-- Populated by JS -->
+    </div>
+  </div>
+</section>
+
+<!-- ===== FEATURES ===== -->
+<section class="section" aria-label="Platform features">
+  <div style="max-width:1200px;margin:0 auto;text-align:center">
+    <h2 class="text-gradient" style="font-size:2rem;margin-bottom:8px">Why Choose Thooku Madurai?</h2>
+    <p style="color:var(--text-muted);margin-bottom:40px">Built for Madurai. By Madurai.</p>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">💯</div>
+        <div class="feature-title">Zero Price Markup</div>
+        <div class="feature-desc">We never inflate menu prices. Pay exactly what the restaurant charges — always.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <div class="feature-title">Lightning Fast Delivery</div>
+        <div class="feature-desc">500+ delivery partners across Madurai ensuring your food arrives hot and fast.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📍</div>
+        <div class="feature-title">Live GPS Tracking</div>
+        <div class="feature-desc">Track your rider live on map from restaurant to your doorstep in real-time.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔒</div>
+        <div class="feature-title">Secure UPI Payment</div>
+        <div class="feature-desc">Pay with Google Pay, PhonePe, Paytm UPI, BHIM — safe and instant.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📞</div>
+        <div class="feature-title">Phone Ordering</div>
+        <div class="feature-desc">Call our virtual number. Our agents will place your order. No app needed.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🏪</div>
+        <div class="feature-title">Local Restaurants</div>
+        <div class="feature-desc">From street-side mess to premium restaurants — the best of Madurai food.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CTA BANNER ===== -->
+<section style="padding:60px 24px;background:linear-gradient(135deg,var(--primary-dark),var(--primary));margin:40px 0" aria-label="Call to action">
+  <div style="max-width:700px;margin:0 auto;text-align:center">
+    <div style="font-size:48px;margin-bottom:16px">📱</div>
+    <h2 style="font-size:2rem;margin-bottom:12px">Order by Phone Too!</h2>
+    <p style="color:var(--accent-glow);margin-bottom:24px;font-size:17px">Call our food ordering hotline. Our agents are available to take your order.</p>
+    <a href="tel:+914422001234" class="btn-gold btn-lg" style="display:inline-flex;align-items:center;gap:10px;border-radius:100px;padding:16px 36px;font-weight:700;background:linear-gradient(135deg,#ffc107,#ff8f00);color:#fff;text-decoration:none" id="callOrderBtn">
+      <i class="fas fa-phone-alt"></i> <span id="supportPhoneText">Call to Order</span>
+    </a>
+    <p style="color:rgba(165,214,167,0.6);margin-top:12px;font-size:13px">Mon–Sun, 7AM–11PM</p>
+  </div>
+</section>
+
+<!-- ===== RESTAURANT MODAL ===== -->
+<div class="modal-overlay" id="restaurantModal" role="dialog" aria-modal="true" aria-labelledby="restaurantModalTitle">
+  <div class="modal" style="max-width:900px;height:85vh;overflow-y:auto;padding:0">
+    <!-- Populated by JS -->
+  </div>
+</div>
+
+<!-- ===== LOGIN MODAL ===== -->
+<div class="modal-overlay" id="loginModal" role="dialog" aria-modal="true" aria-labelledby="loginModalTitle">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-header">
+      <div>
+        <h3 class="modal-title" id="loginModalTitle">Sign in</h3>
+        <p style="font-size:13px;color:var(--text-muted);margin-top:4px">Continue with your Google account to order food.</p>
+      </div>
+      <button class="modal-close" onclick="closeModal('loginModal')" aria-label="Close modal">✕</button>
+    </div>
+    <div id="loginStep1">
+      <div id="g_id_onload"
+        data-client_id="849711418902-7reguj59f9au1c48ko8boh3eaprp0rng.apps.googleusercontent.com"
+        data-context="signin"
+        data-ux_mode="popup"
+        data-callback="handleGoogleSignIn"
+        data-auto_prompt="false">
+      </div>
+      <div class="g_id_signin"
+        data-type="standard"
+        data-shape="rectangular"
+        data-theme="outline"
+        data-text="signin_with"
+        data-size="large"
+        data-logo_alignment="left"
+        style="width:100%">
+      </div>
+      <p style="text-align:center;font-size:12px;color:var(--text-dim);margin-top:16px">By continuing, you agree to our <a href="#" style="color:var(--accent)">Terms</a> & <a href="#" style="color:var(--accent)">Privacy Policy</a></p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PHONE COLLECT MODAL ===== -->
+<div class="modal-overlay" id="phoneCollectModal" role="dialog" aria-modal="true" aria-labelledby="phoneCollectTitle">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-header">
+      <div>
+        <h3 class="modal-title" id="phoneCollectTitle">One more step!</h3>
+        <p style="font-size:13px;color:var(--text-muted);margin-top:4px">Enter your mobile number so the rider can contact you for delivery.</p>
+      </div>
+      <button class="modal-close" onclick="closeModal('phoneCollectModal')" aria-label="Close">✕</button>
+    </div>
+    <div>
+      <div class="form-group">
+        <label class="form-label" for="collectPhoneInput">Mobile Number</label>
+        <div class="input-group">
+          <span class="input-prefix">🇮🇳 +91</span>
+          <input type="tel" class="form-control" id="collectPhoneInput" placeholder="9876543210" maxlength="10" pattern="[0-9]{10}" autocomplete="tel" aria-label="Mobile number">
+        </div>
+      </div>
+      <button class="btn-accent" style="width:100%;padding:14px" onclick="saveCollectedPhone()" id="savePhoneBtn">
+        <i class="fas fa-check"></i> Save & Continue
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CHECKOUT MODAL ===== -->
+<div class="modal-overlay" id="checkoutModal" role="dialog" aria-modal="true" aria-labelledby="checkoutModalTitle">
+  <div class="modal" style="max-width:560px;max-height:90vh;overflow-y:auto">
+    <div class="modal-header">
+      <h3 class="modal-title" id="checkoutModalTitle">Checkout</h3>
+      <button class="modal-close" onclick="closeModal('checkoutModal')" aria-label="Close checkout">✕</button>
+    </div>
+
+    <!-- Delivery Address -->
+    <div style="margin-bottom:20px">
+      <label class="form-label"><i class="fas fa-map-marker-alt" style="color:var(--accent)"></i> Delivery Address</label>
+      <div id="savedAddresses" style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px"></div>
+      <button class="btn-outline btn-sm" onclick="toggleAddressForm()" id="addAddressBtn">
+        <i class="fas fa-plus"></i> Add New Address
+      </button>
+      <div id="newAddressForm" style="margin-top:12px">
+        <div class="form-group">
+          <input type="text" class="form-control" id="streetInput" placeholder="House/Flat No, Street" aria-label="Street address">
+        </div>
+        <div class="form-group">
+          <input type="text" class="form-control" id="areaInput" placeholder="Area / Locality" aria-label="Area">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <input type="text" class="form-control" id="cityInput" placeholder="City" value="Madurai" aria-label="City">
+          <input type="text" class="form-control" id="pincodeInput" placeholder="Pincode" maxlength="6" aria-label="Pincode">
+        </div>
+        <input type="hidden" id="deliveryLat" value="">
+        <input type="hidden" id="deliveryLng" value="">
+      </div>
+    </div>
+
+    <script>
+    // Geocode address via Nominatim when area input changes
+    let _geoTimeout;
+    document.addEventListener('DOMContentLoaded', function() {
+      var areaInput = document.getElementById('areaInput');
+      if (areaInput) {
+        areaInput.addEventListener('blur', function() {
+          clearTimeout(_geoTimeout);
+          _geoTimeout = setTimeout(geocodeAddress, 500);
+        });
+      }
+    });
+    async function geocodeAddress() {
+      var street = document.getElementById('streetInput')?.value?.trim();
+      var area = document.getElementById('areaInput')?.value?.trim();
+      var city = document.getElementById('cityInput')?.value?.trim() || 'Madurai';
+      var q = [street, area, city, 'Tamil Nadu', 'India'].filter(Boolean).join(', ');
+      if (!area) return;
+      // Add 'Madurai' suffix for better Nominatim results
+      var query = q + ', Madurai, Tamil Nadu, India';
+      try {
+        var r = await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(query), { headers: { 'Accept-Language': 'en' } });
+        var d = await r.json();
+        if (d && d.length > 0) {
+          document.getElementById('deliveryLat').value = d[0].lat;
+          document.getElementById('deliveryLng').value = d[0].lon;
+        } else {
+          // Try browser geolocation as fallback
+          if (state.location && state.location.lat) {
+            document.getElementById('deliveryLat').value = state.location.lat;
+            document.getElementById('deliveryLng').value = state.location.lng;
+          } else if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(pos) {
+              document.getElementById('deliveryLat').value = pos.coords.latitude;
+              document.getElementById('deliveryLng').value = pos.coords.longitude;
+            }, function() {
+              document.getElementById('deliveryLat').value = 9.9252;
+              document.getElementById('deliveryLng').value = 78.1198;
+            });
+          } else {
+            document.getElementById('deliveryLat').value = 9.9252;
+            document.getElementById('deliveryLng').value = 78.1198;
+          }
+        }
+        updateCartUI();
+        updateBill();
+      } catch(e) { console.warn('Geocode failed', e); }
+    }
+    </script>
+
+    <!-- Coupon -->
+    <div style="margin-bottom:20px">
+      <label class="form-label"><i class="fas fa-tag" style="color:var(--gold)"></i> Coupon Code</label>
+      <div style="display:flex;gap:8px">
+        <input type="text" class="form-control" id="couponInput" placeholder="Enter coupon code" aria-label="Coupon code">
+        <button class="btn-outline" onclick="applyCoupon()" id="applyCouponBtn">Apply</button>
+      </div>
+      <div id="couponMsg" style="font-size:12px;margin-top:6px"></div>
+    </div>
+
+    <!-- Bill -->
+    <div class="price-breakdown" style="background:var(--surface-card);border-radius:var(--radius);padding:16px;margin-bottom:20px">
+      <div class="price-row"><span>Item Total</span><span id="billItems">₹0</span></div>
+      <div class="price-row"><span>Delivery Fee</span><span id="billDelivery">₹0</span></div>
+      <div id="billDeliveryDetail" style="display:none;font-size:11px;color:var(--text-dim);padding:4px 0 8px 12px;line-height:1.6;border-bottom:1px solid var(--border)"></div>
+      <div class="price-row" id="billSlabInfo" style="display:none;font-size:12px;color:var(--text-dim);padding:0 0 4px 0"><span>Slab</span><span id="billSlabText"></span></div>
+      <div class="price-row"><span>Platform Fee</span><span id="billPlatform">₹20</span></div>
+      <div class="price-row" id="discountRow" style="display:none"><span style="color:var(--accent)">Coupon Discount</span><span id="billDiscount" style="color:var(--accent)">-₹0</span></div>
+      <div class="price-row total"><span>Total Amount</span><span id="billTotal">₹0</span></div>
+    </div>
+
+    <!-- Payment -->
+    <div style="margin-bottom:20px">
+      <label class="form-label"><i class="fas fa-wallet" style="color:var(--accent)"></i> Payment Method</label>
+      <div class="payment-options">
+        <div class="payment-option selected" id="payGPay" onclick="selectPayment('gpay')">
+          <div class="payment-icon">🟢</div>
+          <div><div class="payment-name">Google Pay</div><div class="payment-desc">UPI Payment via Google Pay</div></div>
+          <div class="payment-radio"></div>
+        </div>
+        <div class="payment-option" id="payPhonePe" onclick="selectPayment('phonepe')">
+          <div class="payment-icon">💜</div>
+          <div><div class="payment-name">PhonePe</div><div class="payment-desc">UPI Payment via PhonePe</div></div>
+          <div class="payment-radio"></div>
+        </div>
+        <div class="payment-option" id="payPaytm" onclick="selectPayment('paytm')">
+          <div class="payment-icon">🔵</div>
+          <div><div class="payment-name">Paytm UPI</div><div class="payment-desc">Pay via Paytm UPI</div></div>
+          <div class="payment-radio"></div>
+        </div>
+        <div class="payment-option" id="payBHIM" onclick="selectPayment('bhim')">
+          <div class="payment-icon">🇮🇳</div>
+          <div><div class="payment-name">BHIM UPI</div><div class="payment-desc">Pay via BHIM App</div></div>
+          <div class="payment-radio"></div>
+        </div>
+        <div class="payment-option" id="payRazorpay" onclick="selectPayment('razorpay')">
+          <div class="payment-icon">⚡</div>
+          <div><div class="payment-name">Any UPI App</div><div class="payment-desc">Pay via UPI ID or QR scan</div></div>
+          <div class="payment-radio"></div>
+        </div>
+      </div>
+    </div>
+
+    <button class="checkout-btn" onclick="placeOrder()" id="placeOrderBtn">
+      <i class="fas fa-lock"></i> Pay & Place Order — <span id="checkoutTotal">₹0</span>
+    </button>
+  </div>
+</div>
+
+<!-- ===== ORDER TRACKING MODAL ===== -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+
+<!-- ===== TRACKING MODAL (Leaflet Live Map) ===== -->
+<div class="modal-overlay" id="trackingModal" role="dialog" aria-modal="true" aria-labelledby="trackingModalTitle">
+  <div class="modal" style="max-width:680px;padding:0;overflow:hidden">
+    <!-- Header -->
+    <div class="modal-header" style="padding:16px 20px">
+      <div>
+        <h3 class="modal-title" id="trackingModalTitle" style="font-size:18px">🛵 Live Order Tracking</h3>
+        <p style="font-size:12px;color:var(--text-muted);margin-top:2px">Order #<span id="trackingOrderId">—</span> · <span id="trackingEta">Estimating...</span></p>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button type="button" onclick="openFullTracking()" title="Full screen map"
+          style="background:rgba(76,175,80,.15);border:1px solid rgba(76,175,80,.3);color:#4caf50;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer">
+          🗺️ Full Map
+        </button>
+        <button class="modal-close" onclick="closeTrackingModal()" aria-label="Close tracking">✕</button>
+      </div>
+    </div>
+    <!-- Leaflet Map -->
+    <div id="trackingMap" style="height:260px;width:100%;z-index:1"></div>
+    <!-- Status steps -->
+    <div style="padding:16px 20px">
+      <div class="tracking-timeline" id="trackingTimeline">
+        <div class="tracking-step" id="tstep-0">
+          <div class="step-icon"><i class="fas fa-check"></i></div>
+          <div class="step-info"><div class="step-title">Order Confirmed</div><div class="step-time">Payment received</div></div>
+        </div>
+        <div class="tracking-step" id="tstep-1">
+          <div class="step-icon"><i class="fas fa-fire"></i></div>
+          <div class="step-info"><div class="step-title">Preparing Your Food</div><div class="step-time">Restaurant is cooking</div></div>
+        </div>
+        <div class="tracking-step" id="tstep-2">
+          <div class="step-icon"><i class="fas fa-motorcycle"></i></div>
+          <div class="step-info"><div class="step-title">Rider Assigned</div><div class="step-time">Heading to restaurant</div></div>
+        </div>
+        <div class="tracking-step" id="tstep-3">
+          <div class="step-icon"><i class="fas fa-box"></i></div>
+          <div class="step-info"><div class="step-title">Order Picked Up</div><div class="step-time">Rider collected your order</div></div>
+        </div>
+        <div class="tracking-step" id="tstep-4">
+          <div class="step-icon"><i class="fas fa-home"></i></div>
+          <div class="step-info"><div class="step-title">Delivered!</div><div class="step-time">Enjoy your meal!</div></div>
+        </div>
+      </div>
+      <!-- Rider card -->
+      <div id="riderInfo" style="display:none;align-items:center;gap:12px;padding:12px 16px;background:var(--surface-card);border:1px solid var(--border);border-radius:10px;margin-top:14px">
+        <div style="width:44px;height:44px;background:var(--primary);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🏍️</div>
+        <div style="flex:1">
+          <div style="font-weight:700;font-size:14px" id="riderInfoName">Your Rider</div>
+          <div style="font-size:12px;color:var(--text-muted)">Tap Call — your number stays private</div>
+        </div>
+        <button type="button" style="background:#4caf50;color:#fff;border:none;padding:8px 14px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer" onclick="callRiderMasked()">
+          <i class="fas fa-phone"></i> Call
+        </button>
+      </div>
+      <!-- Restaurant card -->
+      <div id="restaurantInfo" style="display:none;align-items:center;gap:12px;padding:12px 16px;background:var(--surface-card);border:1px solid var(--border);border-radius:10px;margin-top:10px">
+        <div style="width:44px;height:44px;background:rgba(255,193,7,.12);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🏪</div>
+        <div style="flex:1">
+          <div style="font-weight:700;font-size:14px" id="restaurantInfoName">Restaurant</div>
+          <div style="font-size:12px;color:var(--text-muted)">Call the restaurant</div>
+        </div>
+        <button type="button" style="background:#ff9800;color:#fff;border:none;padding:8px 14px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer" onclick="callRestaurant()">
+          <i class="fas fa-phone"></i> Call
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== DELIVERY CONFIRMATION MODAL ===== -->
+<div class="modal-overlay" id="deliveryConfirmModal" role="dialog" aria-modal="true">
+  <div class="modal" style="max-width:420px;text-align:center;padding:32px 24px">
+    <div style="font-size:64px;margin-bottom:16px" id="dcIcon">📦</div>
+    <h3 style="font-size:20px;font-weight:800;margin-bottom:8px;color:var(--accent)" id="dcTitle">Your Order Has Arrived!</h3>
+    <p style="color:var(--text-muted);margin-bottom:24px" id="dcSub">Please confirm that you've received your order</p>
+    <!-- Rating (hidden until confirmed) -->
+    <div id="ratingSection" style="display:none;margin-bottom:20px">
+      <p style="color:var(--text-muted);font-size:13px;margin-bottom:12px">How was your experience? <span style="color:var(--accent);font-weight:700" id="ratingLabel">Tap to rate</span></p>
+      <div style="display:flex;justify-content:center;gap:6px;margin-bottom:14px;font-size:32px;cursor:pointer">
+        <span class="star" data-val="1" onclick="setRating(1)" style="color:var(--border)">★</span>
+        <span class="star" data-val="2" onclick="setRating(2)" style="color:var(--border)">★</span>
+        <span class="star" data-val="3" onclick="setRating(3)" style="color:var(--border)">★</span>
+        <span class="star" data-val="4" onclick="setRating(4)" style="color:var(--border)">★</span>
+        <span class="star" data-val="5" onclick="setRating(5)" style="color:var(--border)">★</span>
+      </div>
+      <textarea id="reviewText" rows="2" placeholder="Share your feedback (optional)" style="width:100%;background:var(--surface-card);border:1px solid var(--border);border-radius:10px;padding:10px;color:var(--text);font-size:12px;resize:none;font-family:'Inter',sans-serif;margin-bottom:10px"></textarea>
+      <button class="btn-accent" style="width:100%;padding:12px;font-size:14px;font-weight:800" onclick="submitRating()">
+        <i class="fas fa-star"></i> Submit Rating
+      </button>
+    </div>
+    <button class="btn-accent" style="width:100%;padding:16px;font-size:16px;font-weight:800;margin-bottom:10px" onclick="confirmDeliveryReceived()" id="dcConfirmBtn">
+      <i class="fas fa-check-circle"></i> Yes, I Got My Order!
+    </button>
+    <button class="btn-outline" style="width:100%;padding:12px;font-size:13px" onclick="closeModal('deliveryConfirmModal')">
+      Not Yet
+    </button>
+  </div>
+</div>
+
+<!-- ===== CART SLIDE-OVER ===== -->
+<div id="cartOverlay" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:800;display:none;opacity:0;transition:opacity 0.3s" onclick="closeCart()"></div>
+<div id="cartDrawer" style="position:fixed;right:0;top:0;bottom:0;width:360px;background:var(--surface-mid);border-left:1px solid var(--border);z-index:900;transform:translateX(100%);transition:transform 0.3s ease;display:flex;flex-direction:column;padding-top:70px" role="complementary" aria-label="Shopping cart">
+  <div class="cart-header">
+    <div class="cart-title"><i class="fas fa-shopping-bag" style="color:var(--accent)"></i> Your Cart</div>
+    <button onclick="closeCart()" aria-label="Close cart" style="color:var(--text-muted);font-size:18px">✕</button>
+  </div>
+  <div class="cart-items" id="cartItems">
+    <div style="text-align:center;padding:40px;color:var(--text-muted)">
+      <div style="font-size:48px;margin-bottom:12px">🛒</div>
+      <div>Your cart is empty</div>
+    </div>
+  </div>
+  <div class="cart-footer" id="cartFooter" style="display:none">
+    <div class="price-breakdown">
+      <div class="price-row"><span>Item Total</span><span id="cartSubtotal">₹0</span></div>
+      <div class="price-row"><span>Delivery Fee</span><span id="cartDelivery">₹30</span></div>
+      <div id="cartDeliveryDetail" style="display:none;font-size:11px;color:var(--text-dim);padding:4px 0 8px 12px;line-height:1.6;border-bottom:1px solid var(--border)"></div>
+      <div class="price-row" id="cartSlabInfo" style="display:none;font-size:12px;color:var(--text-dim);padding:0 0 4px 0"><span>Slab</span><span id="cartSlabText"></span></div>
+      <div class="price-row"><span>Platform Fee</span><span id="cartPlatform">₹20</span></div>
+      <div class="price-row total"><span>Total</span><span id="cartTotal">₹0</span></div>
+    </div>
+    <button class="checkout-btn" onclick="openCheckout()" id="proceedCheckoutBtn">
+      Proceed to Checkout — <span id="cartTotalBtn">₹0</span>
+    </button>
+  </div>
+</div>
+
+<!-- ===== FLOATING CART BUTTON ===== -->
+<button class="floating-cart-btn" id="floatingCart" onclick="toggleCart()" style="display:none" aria-label="Open cart">
+  <i class="fas fa-shopping-bag"></i>
+  <span class="cart-count" id="cartCount">0</span>
+</button>
+
+<!-- ===== TOAST CONTAINER ===== -->
+<div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+<!-- ===== CALL OVERLAY (WebRTC) ===== -->
+<div id="callOverlay" style="display:none;position:fixed;bottom:80px;right:16px;z-index:9999;background:#fff;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,.2);padding:16px;width:300px;border:1px solid #e0e0e0">
+  <div style="display:flex;align-items:center;gap:12px">
+    <div style="font-size:32px" id="callOverlayIcon">📞</div>
+    <div style="flex:1">
+      <div style="font-weight:700;font-size:14px" id="callOverlayName">Connecting...</div>
+      <div style="font-size:12px;color:#888" id="callOverlayStatus">Ringing</div>
+    </div>
+    <div style="display:flex;gap:6px">
+      <button id="callMuteBtn" onclick="toggleMute()" style="background:#f0f0f0;border:none;border-radius:50%;width:36px;height:36px;cursor:pointer;font-size:16px" title="Mute">🔇</button>
+      <button onclick="endCall()" style="background:#e53935;border:none;border-radius:50%;width:36px;height:36px;cursor:pointer;font-size:16px;color:#fff" title="End call">📞</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<footer role="contentinfo">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <span style="font-size:32px">🍛</span>
+        <div>
+          <div style="font-family:'Poppins',sans-serif;font-weight:800;font-size:20px;color:var(--accent)">THOOKU</div>
+          <div style="font-size:11px;color:var(--text-muted);letter-spacing:2px">MADURAI</div>
+        </div>
+      </div>
+      <p>Madurai's hyperlocal food delivery platform. Real prices, real restaurants, real taste.</p>
+      <div class="social-links">
+        <a href="#" class="social-link" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+        <a href="#" class="social-link" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="#" class="social-link" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+        <a href="#" class="social-link" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Quick Links</h4>
+      <ul>
+        <li><a href="#restaurants">Restaurants</a></li>
+        <li><a href="#how-it-works">How It Works</a></li>
+        <li><a href="#areas">Delivery Areas</a></li>
+        <li><a href="restaurant-dashboard.html">For Restaurants</a></li>
+        <li><a href="rider-dashboard.html">Become a Rider</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Food Delivery</h4>
+      <ul>
+        <li><a href="#" onclick="filterCategory('biryani')">Biryani Delivery</a></li>
+        <li><a href="#" onclick="filterCategory('meals')">Meals Delivery</a></li>
+        <li><a href="#" onclick="filterCategory('tiffin')">Tiffin Delivery</a></li>
+        <li><a href="#" onclick="filterCategory('night')">Night Food Delivery</a></li>
+        <li><a href="#" onclick="filterCategory('veg')">Pure Veg Delivery</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Legal</h4>
+      <ul>
+        <li><a href="#">Privacy Policy</a></li>
+        <li><a href="#">Terms &amp; Conditions</a></li>
+        <li><a href="#">Refund Policy</a></li>
+        <li><a href="#">Cancellation Policy</a></li>
+        <li><a href="#">Contact Us</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2026 Thooku Madurai. All rights reserved. | CIN: Coming Soon | FSSAI: Coming Soon | GST: Coming Soon</p>
+    <p style="margin-top:8px;font-size:11px">Madurai, Tamil Nadu, India — thookumadurai.in</p>
+  </div>
+</footer>
+
+<!-- ===== SCRIPTS ===== -->
+
+<script>
+// =========================================
+// THOOKU MADURAI — MAIN APP JAVASCRIPT
+// Real API Integration v2.0
+// =========================================
+
+// ===== CONSTANTS =====
+const API_BASE = 'http://127.0.0.1:5000/api/v1';
+let DELIVERY_BASE_FEE = 30;
+let PLATFORM_FEE = 20;
+let SUPPORT_PHONE = '044-2200-1234';
+let g_calcDistance = 0;
+let g_calcDeliveryFee = 30;
+
+// Haversine distance from restaurant to customer (km)
+function calcDeliveryDistance(rLat, rLng, cLat, cLng) {
+  var R = 6371;
+  var dLat = (cLat - rLat) * Math.PI / 180;
+  var dLng = (cLng - rLng) * Math.PI / 180;
+  var a = Math.sin(dLat/2)*Math.sin(dLat/2) +
+          Math.cos(rLat*Math.PI/180)*Math.cos(cLat*Math.PI/180)*
+          Math.sin(dLng/2)*Math.sin(dLng/2);
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+function deliveryFeeSlab(dist) {
+  if (dist <= 2) return 30;
+  if (dist <= 4) return 40;
+  if (dist <= 6) return 50;
+  if (dist <= 8) return 60;
+  return 70;
+}
+
+function slabRange(dist) {
+  if (dist <= 2) return '0–2 km · ₹30';
+  if (dist <= 4) return '2–4 km · ₹40';
+  if (dist <= 6) return '4–6 km · ₹50';
+  if (dist <= 8) return '6–8 km · ₹60';
+  return '8+ km · ₹70';
+}
+
+// ===== STATE =====
+const state = {
+  user: null,
+  cart: [],
+  activeRestaurant: null,
+  selectedPayment: 'gpay',
+  location: null,
+  coupon: null,
+  allRestaurants: [],
+  trackingOrderId: null, _restaurantPhone: '', _restaurantName: '',
+  pendingCheckout: false,
+  selectedAddressIndex: 0,
+};
+
+// ===== AREAS =====
+const AREAS = ['Anna Nagar','KK Nagar','SS Colony','Tallakulam','Thirunagar','Mattuthavani','Villapuram','Iyer Bungalow','Alagar Kovil Road','Goripalayam','Palanganatham','Ellis Nagar'];
+
+async function loadPlatformSettings() {
+  try {
+    const res = await fetch(`${API_BASE}/settings/platform`);
+    const data = await res.json();
+    if (!res.ok || !data.success) return;
+    const d = data.data || {};
+    DELIVERY_BASE_FEE = Number(d.delivery_base_fee ?? 30);
+    PLATFORM_FEE = Number(d.platform_fee ?? 20);
+    if (d.support_phone) {
+      SUPPORT_PHONE = d.support_phone;
+      const sp = document.getElementById('supportPhoneText');
+      if (sp) sp.textContent = SUPPORT_PHONE;
+    }
+    updateCartUI();
+    updateBill();
+  } catch (e) {
+    console.warn('Could not load platform settings', e);
+  }
+}
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('Thooku Madurai Customer App v2.1.0');
+  // Hide loader
+  setTimeout(() => {
+    const loader = document.getElementById('pageLoader');
+    if (loader) { loader.style.opacity = '0'; setTimeout(() => loader.style.display = 'none', 500); }
+  }, 1800);
+
+  // Restore auth from storage
+  const savedAuth = localStorage.getItem('tm_auth');
+  if (savedAuth) {
+    const auth = JSON.parse(savedAuth);
+    if (auth.token && auth.role === 'customer') {
+      state.user = auth;
+      const btn = document.getElementById('loginBtn');
+      if (btn) btn.innerHTML = `<i class="fas fa-user-check"></i> ${(auth.name||'').substring(0,8)}...`;
+      const ordNav = document.getElementById('nav-orders');
+      if (ordNav) ordNav.style.display = 'inline-flex';
+    }
+  }
+
+  detectLocation();
+  loadPlatformSettings();
+  loadRestaurantsFromAPI();
+  renderAreas();
+  loadCartFromStorage();
+  loadSavedAddresses();
+  setupScrollEffects();
+  const sp = document.getElementById('supportPhoneText');
+  if (sp) sp.textContent = SUPPORT_PHONE;
+
+  // Search on enter
+  const searchInput = document.getElementById('searchInput');
+  if (searchInput) searchInput.addEventListener('keypress', e => { if (e.key === 'Enter') performSearch(); });
+
+  // Close modals on backdrop click
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) overlay.classList.remove('active');
+    });
+  });
+
+  // Show track button if recent order exists
+  const lastOrder = JSON.parse(localStorage.getItem('tm_last_order') || 'null');
+  if (lastOrder && lastOrder.order_id) {
+    const age = Date.now() - (lastOrder.ts || 0);
+    if (age < 3 * 3600 * 1000) {
+      const trackEl = document.getElementById('nav-track-order');
+      if (trackEl) trackEl.style.display = 'inline-flex';
+    }
+  }
+});
+
+// ===== NAVBAR =====
+function toggleNav() {
+  const navLinks = document.getElementById('navLinks');
+  if (navLinks) navLinks.classList.toggle('open');
+}
+
+function setupScrollEffects() {
+  window.addEventListener('scroll', () => {
+    const navbar = document.getElementById('navbar');
+    if (navbar) navbar.classList.toggle('scrolled', window.scrollY > 50);
+  });
+}
+
+// ===== LOCATION =====
+async function detectLocation() {
+  const text = document.getElementById('locationText');
+  if (!navigator.geolocation) { if (text) text.textContent = 'Madurai, TN'; return; }
+  if (text) text.textContent = 'Detecting...';
+  navigator.geolocation.getCurrentPosition(
+    async (pos) => {
+      state.location = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${state.location.lat}&lon=${state.location.lng}`);
+        const data = await res.json();
+        const suburb = data.address?.suburb || data.address?.neighbourhood || data.address?.city_district || 'Madurai';
+        if (text) text.textContent = suburb.length > 18 ? suburb.substring(0,16)+'…' : suburb;
+        showToast('📍 Location detected: ' + suburb, 'success');
+      } catch { if (text) text.textContent = 'Madurai, TN'; }
+    },
+    () => { if (text) text.textContent = 'Madurai, TN'; }
+  );
+}
+
+// ===== RESTAURANTS — LOAD FROM API =====
+async function loadRestaurantsFromAPI() {
+  const grid = document.getElementById('restaurantGrid');
+  // Keep skeleton visible during load
+  try {
+    const res = await fetch(`${API_BASE}/restaurants`);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Failed to load restaurants');
+    const list = data.data?.restaurants || data.data || [];
+    state.allRestaurants = list;
+    renderRestaurants(list);
+    renderHeroFeatured(list);
+    updateHeroStats(list.length);
+    if (state.cart.length) updateCartUI();
+    const countEl = document.getElementById('restaurantCount');
+    if (countEl) countEl.textContent = `(${list.length} restaurant${list.length!==1?'s':''})`;
+  } catch (err) {
+    console.warn('API Error:', err.message);
+    // Show empty state
+    if (grid) grid.innerHTML = `
+      <div style="grid-column:1/-1;text-align:center;padding:80px 20px;color:#666">
+        <div style="font-size:64px;margin-bottom:16px">🏪</div>
+        <div style="font-size:20px;font-weight:700;margin-bottom:8px">No Restaurants Yet</div>
+        <div style="font-size:14px;color:#999">Admin is setting up restaurants. Check back soon!</div>
+      </div>`;
+    state.allRestaurants = [];
+    updateHeroStats(0);
+    const countEl = document.getElementById('restaurantCount');
+    if (countEl) countEl.textContent = '';
+  }
+}
+
+function updateHeroStats(restaurantCount) {
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  set('statRestaurants', restaurantCount > 0 ? String(restaurantCount) : '—');
+  set('statCustomers', '—');
+  set('statDeliveries', '—');
+  set('statRiders', '—');
+}
+
+function renderHeroFeatured(restaurants) {
+  const el = document.getElementById('heroFeatured');
+  if (!el) return;
+  const featured = (restaurants || []).slice(0, 3);
+  if (!featured.length) { el.innerHTML = ''; return; }
+  el.innerHTML = featured.map(r => `
+    <div class="glass-card" style="padding:16px;min-width:220px;cursor:pointer" onclick="openRestaurant('${r._id}')">
+      <div style="font-size:28px;margin-bottom:8px">${r.emoji || '🍽️'}</div>
+      <div style="font-weight:700;margin-bottom:4px">${r.name || 'Restaurant'}</div>
+      <div style="font-size:13px;color:var(--text-muted)">${r.area || r.city || 'Madurai'}</div>
+      <div style="font-size:11px;color:var(--text-dim);margin-top:8px">Exact restaurant prices</div>
+    </div>`).join('');
+}
+
+// ===== RENDER RESTAURANTS =====
+function renderRestaurants(data) {
+  const grid = document.getElementById('restaurantGrid');
+  if (!grid) return;
+  if (!data || !data.length) {
+    grid.innerHTML = `
+      <div style="grid-column:1/-1;text-align:center;padding:80px 20px;color:#666">
+        <div style="font-size:64px;margin-bottom:16px">🏪</div>
+        <div style="font-size:20px;font-weight:700;margin-bottom:8px">No Restaurants Yet</div>
+        <div style="font-size:14px;color:#999">Admin is setting up restaurants. Check back soon!</div>
+      </div>`;
+    return;
+  }
+  grid.innerHTML = data.map((r, i) => {
+    const id = r._id || r.id;
+    const isOpen = r.is_open !== undefined ? r.is_open : r.isOpen;
+    const isVeg = r.is_veg || r.isVeg || false;
+    const tags = r.tags || [];
+    return `
+    <article class="restaurant-card animate-fadeup" style="animation-delay:${i*0.05}s"
+      onclick="openRestaurant('${id}')"
+      role="button" tabindex="0" aria-label="Open ${r.name}"
+      onkeypress="if(event.key==='Enter') openRestaurant('${id}')">
+      <div class="restaurant-img-placeholder">
+        <span style="font-size:56px">${cuisineEmoji(r.cuisine)}</span>
+      </div>
+      ${isVeg ? '<div class="restaurant-badge badge-pure-veg">🟢 Pure Veg</div>' : ''}
+      <div class="restaurant-badge ${isOpen ? 'badge-open' : 'badge-closed'}" style="top:${isVeg?'44px':'12px'}">
+        ${isOpen ? '● Open' : '● Closed'}
+      </div>
+      <button class="fav-btn" onclick="toggleFav(event,'${id}')" id="fav-${id}" aria-label="Add to favourites">♡</button>
+      <div class="restaurant-info">
+        <div class="restaurant-name">${r.name}</div>
+        <div class="restaurant-cuisine">${r.cuisine || ''}</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+          ${tags.map(t => `<span class="chip chip-green">${t}</span>`).join('')}
+        </div>
+        <div class="restaurant-meta">
+          <span class="rating">⭐ ${r.rating || '—'} <span style="color:var(--text-dim);font-weight:400">(${r.total_orders || r.reviews || 0})</span></span>
+          <span class="eta">🕐 ${r.eta || '30-40 min'}</span>
+          <span class="delivery-fee">🚴 From ₹${DELIVERY_BASE_FEE || 30}</span>
+        </div>
+        ${r.area ? `<div style="font-size:12px;color:var(--text-dim);margin-top:6px">📍 ${r.area}</div>` : ''}
+      </div>
+    </article>`;
+  }).join('');
+  const countEl = document.getElementById('restaurantCount');
+  if (countEl) countEl.textContent = `(${data.length} restaurant${data.length!==1?'s':''})`;
+}
+
+function cuisineEmoji(cuisine = '') {
+  const c = (cuisine || '').toLowerCase();
+  if (c.includes('biryani')) return '🍛';
+  if (c.includes('meal') || c.includes('rice')) return '🥘';
+  if (c.includes('tiffin') || c.includes('dosa') || c.includes('idli')) return '🥞';
+  if (c.includes('parotta')) return '🫓';
+  if (c.includes('chinese') || c.includes('noodle')) return '🍜';
+  if (c.includes('juice') || c.includes('drink') || c.includes('shake')) return '🥤';
+  if (c.includes('sweet') || c.includes('halwa')) return '🍮';
+  if (c.includes('seafood') || c.includes('fish') || c.includes('crab')) return '🦐';
+  if (c.includes('north') || c.includes('paneer')) return '🍲';
+  if (c.includes('veg')) return '🥗';
+  return '🍽️';
+}
+
+// ===== CATEGORY FILTER (client-side) =====
+function filterCategory(cat) {
+  document.querySelectorAll('.category-chip').forEach(c => c.classList.remove('active'));
+  const el = document.getElementById('cat-' + cat);
+  if (el) el.classList.add('active');
+
+  const filtered = cat === 'all'
+    ? state.allRestaurants
+    : state.allRestaurants.filter(r => {
+        if (cat === 'veg') return r.is_veg || r.isVeg;
+        const cuisine = (r.cuisine || '').toLowerCase();
+        const category = (r.category || '').toLowerCase();
+        return category === cat || cuisine.includes(cat.replace(/-/g,' '));
+      });
+  renderRestaurants(filtered);
+  scrollToRestaurants();
+}
+
+// ===== SORT =====
+function sortRestaurants(by) {
+  const sorted = [...state.allRestaurants].sort((a,b) => {
+    if (by === 'rating') return (b.rating||0) - (a.rating||0);
+    if (by === 'delivery_time') return parseInt(a.eta||'30') - parseInt(b.eta||'30');
+    if (by === 'price_low') return (a.delivery_fee||a.deliveryFee||30) - (b.delivery_fee||b.deliveryFee||30);
+    return 0;
+  });
+  renderRestaurants(sorted);
+}
+
+// ===== SEARCH (client-side) =====
+function performSearch() {
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  if (!q) { renderRestaurants(state.allRestaurants); return; }
+  const results = state.allRestaurants.filter(r =>
+    r.name.toLowerCase().includes(q) || (r.cuisine||'').toLowerCase().includes(q) || (r.area||'').toLowerCase().includes(q)
+  );
+  renderRestaurants(results);
+  scrollToRestaurants();
+}
+
+function scrollToRestaurants() {
+  const el = document.getElementById('restaurants');
+  if (el) el.scrollIntoView({ behavior: 'smooth' });
+}
+
+// ===== AREAS =====
+function renderAreas() {
+  const el = document.getElementById('areaGrid');
+  if (!el) return;
+  el.innerHTML = AREAS.map(a => `
+    <div class="area-card" onclick="searchArea('${a}')" role="button" tabindex="0" aria-label="Food delivery in ${a}">
+      <i class="fas fa-map-marker-alt"></i>
+      <div style="font-weight:600;font-size:14px">${a}</div>
+      <div style="font-size:12px;color:var(--text-muted)">Food Delivery</div>
+    </div>
+  `).join('');
+}
+
+function searchArea(area) {
+  document.getElementById('searchInput').value = area;
+  performSearch();
+  showToast(`Showing restaurants near ${area}`, 'success');
+}
+
+// ===== RESTAURANT MENU MODAL =====
+async function openRestaurant(id) {
+  if (!id || id === 'undefined' || id === 'null') return;
+  const restaurant = state.allRestaurants.find(r => r._id === id || String(r.id) === String(id));
+  state.activeRestaurant = restaurant || { _id: id, name: 'Restaurant' };
+
+  const modal = document.getElementById('restaurantModal');
+  // Loading placeholder
+  modal.querySelector('.modal').innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:center;height:350px;flex-direction:column;gap:16px;color:var(--text-muted)">
+      <button onclick="closeModal('restaurantModal')" style="position:absolute;top:16px;right:16px;background:rgba(0,0,0,0.3);border:none;color:#fff;width:34px;height:34px;border-radius:50%;font-size:18px;cursor:pointer">✕</button>
+      <div style="font-size:48px;animation:spin 1s linear infinite;display:inline-block">⟳</div>
+      <div>Loading menu...</div>
+    </div>`;
+  openModal('restaurantModal');
+
+  try {
+    const res = await fetch(`${API_BASE}/restaurants/${id}/menu`);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Failed to load menu');
+    // Support both response formats
+    const menu = data.data?.menu || data.menu || [];
+    buildRestaurantModal(state.activeRestaurant, menu);
+  } catch (err) {
+    modal.querySelector('.modal').innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:center;height:350px;flex-direction:column;gap:16px;color:#ef5350;position:relative">
+        <button onclick="closeModal('restaurantModal')" style="position:absolute;top:16px;right:16px;background:rgba(0,0,0,0.3);border:none;color:#fff;width:34px;height:34px;border-radius:50%;font-size:18px;cursor:pointer">✕</button>
+        <div style="font-size:48px">⚠️</div>
+        <div>${err.message}</div>
+      </div>`;
+  }
+}
+
+function buildRestaurantModal(r, menu) {
+  const modal = document.getElementById('restaurantModal');
+  const hasMenu = Array.isArray(menu) && menu.length > 0;
+  const isOpen = r.is_open !== undefined ? r.is_open : r.isOpen;
+
+  modal.querySelector('.modal').innerHTML = `
+    <div style="background:linear-gradient(135deg,var(--primary-dark,#0a3d20),var(--primary));padding:32px 24px 24px;position:relative">
+      <button onclick="closeModal('restaurantModal')" style="position:absolute;top:16px;right:16px;background:rgba(0,0,0,0.3);border:none;color:#fff;width:34px;height:34px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center" aria-label="Close">✕</button>
+      <div style="font-size:52px;margin-bottom:12px">${cuisineEmoji(r.cuisine)}</div>
+      <h2 id="restaurantModalTitle" style="font-size:24px;font-weight:800;margin-bottom:4px">${r.name}</h2>
+      <p style="color:#a5d6a7">${r.cuisine || ''}</p>
+      <div style="display:flex;gap:16px;margin-top:12px;font-size:14px;flex-wrap:wrap">
+        ${r.rating ? `<span style="color:var(--gold,#ffc107)">⭐ ${r.rating}</span>` : ''}
+        ${r.area ? `<span>📍 ${r.area}</span>` : ''}
+        ${isOpen !== undefined ? `<span style="color:${isOpen?'#4caf50':'#ef5350'}">${isOpen?'● Open':'● Closed'}</span>` : ''}
+      </div>
+      <div style="margin-top:12px;background:rgba(76,175,80,0.15);border:1px solid rgba(76,175,80,0.3);border-radius:8px;padding:8px 12px;font-size:13px;color:#4caf50">
+        ✅ Menu prices are EXACTLY as in restaurant. No markup.
+      </div>
+    </div>
+    ${!hasMenu ? `
+      <div style="text-align:center;padding:80px 20px;color:#666">
+        <div style="font-size:64px;margin-bottom:16px">🍽️</div>
+        <div style="font-size:18px;font-weight:700;margin-bottom:8px">Menu Not Available Yet</div>
+        <div style="font-size:14px;color:#999">This restaurant hasn't added their menu yet. Check back soon!</div>
+      </div>
+    ` : `
+    <div style="display:flex;height:calc(85vh - 220px);overflow:hidden">
+      <!-- Category Sidebar -->
+      <div style="width:160px;background:var(--surface-mid,#122019);border-right:1px solid rgba(76,175,80,0.18);overflow-y:auto;padding:12px 0;flex-shrink:0">
+        ${menu.map(cat => `
+          <div class="menu-sidebar-item" onclick="scrollToCategory('mcat-${cat.category_id}')" id="sidebar-${cat.category_id}">
+            ${cat.emoji || ''} ${cat.category_name}
+          </div>
+        `).join('')}
+      </div>
+      <!-- Menu Items -->
+      <div style="flex:1;overflow-y:auto;padding:16px" id="menuContent">
+        ${menu.map(cat => `
+          <div id="mcat-${cat.category_id}" style="margin-bottom:8px">
+            <h3 class="menu-category-title">${cat.emoji || ''} ${cat.category_name}</h3>
+            ${cat.items.map(item => {
+              const avail = item.is_available !== false;
+              const iid = item.item_id;
+              const itemData = JSON.stringify({
+                id: iid, name: item.name, price: item.price,
+                emoji: cat.emoji || '', isVeg: item.is_veg
+              }).replace(/'/g, '&#39;');
+              return `
+              <div class="menu-item" style="${!avail ? 'opacity:0.5;pointer-events:none;' : ''}">
+                <div style="flex:1">
+                  <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+                    <span style="font-size:12px;${item.is_veg ? 'color:#4caf50' : 'color:#ef5350'}">⬛</span>
+                    ${!avail ? '<span style="background:rgba(239,83,80,0.15);color:#ef5350;font-size:10px;padding:2px 8px;border-radius:100px;font-weight:700">NOT AVAILABLE</span>' : ''}
+                  </div>
+                  <div class="menu-item-name">${item.name}</div>
+                  ${item.description ? `<div class="menu-item-desc">${item.description}</div>` : ''}
+                  <div class="menu-item-price">₹${item.price}</div>
+                </div>
+                <div style="text-align:center;min-width:80px">
+                  <div style="font-size:32px;margin-bottom:8px">${cat.emoji || cuisineEmoji(cat.category_name)}</div>
+                  <div id="addControl-${iid}">
+                    ${avail ? `<button class="add-btn" onclick='addToCart(${itemData})' id="addBtn-${iid}">ADD</button>` : ''}
+                  </div>
+                </div>
+              </div>`;
+            }).join('')}
+          </div>
+        `).join('')}
+      </div>
+    </div>`}
+  `;
+  renderCartInRestaurant();
+}
+
+function scrollToCategory(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ===== CART =====
+function addToCart(item) {
+  const restId = state.activeRestaurant?._id || state.activeRestaurant?.id;
+  if (state.cart.length > 0 && state.cart[0].restaurant_id && restId && state.cart[0].restaurant_id !== restId) {
+    if (!confirm('Your cart has items from another restaurant. Clear cart and add this item?')) return;
+    state.cart = [];
+  }
+  const existing = state.cart.find(c => String(c.id) === String(item.id));
+  if (existing) {
+    existing.qty += 1;
+  } else {
+    state.cart.push({ ...item, qty: 1, restaurant_id: restId });
+  }
+  saveCartToStorage();
+  updateCartUI();
+  renderCartInRestaurant();
+  showToast(`Added ${item.name} to cart`, 'success');
+}
+
+function updateCartUI() {
+  const count = state.cart.reduce((s, c) => s + c.qty, 0);
+  const subtotal = state.cart.reduce((s, c) => s + c.price * c.qty, 0);
+
+  var dist = 0;
+  var delivery = DELIVERY_BASE_FEE;
+  var rest = state.activeRestaurant || {};
+  if (!rest.name && state.cart.length && state.allRestaurants.length) {
+    var rid = state.cart[0].restaurant_id;
+    var found = state.allRestaurants.find(function(r) { return r._id === rid || String(r.id) === String(rid); });
+    if (found) rest = found;
+  }
+  var rLat = parseFloat(rest.lat) || 0;
+  var rLng = parseFloat(rest.lng) || 0;
+  var cLat = parseFloat(document.getElementById('deliveryLat')?.value || 0);
+  var cLng = parseFloat(document.getElementById('deliveryLng')?.value || 0);
+  // Fallback: use browser geolocation if available, else Madurai center
+  if (!cLat || !cLng) {
+    if (state.location && state.location.lat) {
+      cLat = state.location.lat;
+      cLng = state.location.lng;
+    } else {
+      cLat = 9.9252; cLng = 78.1198;
+    }
+  }
+  if (rLat && rLng && cLat && cLng) {
+    dist = calcDeliveryDistance(rLat, rLng, cLat, cLng);
+    delivery = deliveryFeeSlab(dist);
+  }
+  g_calcDistance = dist;
+  g_calcDeliveryFee = delivery;
+
+  const total = subtotal + delivery + PLATFORM_FEE;
+
+  const cartCount = document.getElementById('cartCount');
+  const floatingCart = document.getElementById('floatingCart');
+  if (cartCount) cartCount.textContent = count;
+  if (floatingCart) floatingCart.style.display = count > 0 ? 'flex' : 'none';
+
+  const setSafe = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  setSafe('cartSubtotal', '₹' + subtotal);
+  setSafe('cartDelivery', '₹' + delivery + (dist ? ' (' + dist.toFixed(1) + ' km)' : ''));
+  setSafe('cartPlatform', '₹' + PLATFORM_FEE);
+  setSafe('cartTotal', '₹' + total);
+  setSafe('cartTotalBtn', '₹' + total);
+  var s = document.getElementById('cartSlabInfo');
+  if (s) s.style.display = dist ? 'block' : 'none';
+  var st = document.getElementById('cartSlabText');
+  if (st) st.textContent = dist ? slabRange(dist) : '';
+  var dd = document.getElementById('cartDeliveryDetail');
+  if (dd) {
+    if (dist && rest.name) {
+      dd.style.display = 'block';
+      dd.style.borderBottom = '1px solid var(--border)';
+      dd.innerHTML = '🏪 ' + rest.name + '<br>📍 Rest: ' + rLat.toFixed(4) + ', ' + rLng.toFixed(4) + '<br>📍 You: ' + cLat.toFixed(4) + ', ' + cLng.toFixed(4) + '<br>📏 ' + dist.toFixed(2) + ' km → ₹' + delivery;
+    } else if (rest.name) {
+      dd.style.display = 'block';
+      dd.style.borderBottom = 'none';
+      dd.innerHTML = '📍 Enter delivery address in checkout to calculate fee';
+    } else {
+      dd.style.display = 'none';
+    }
+  }
+
+  const cartItems = document.getElementById('cartItems');
+  const cartFooter = document.getElementById('cartFooter');
+  
+  if (state.cart.length === 0) {
+    if (cartItems) cartItems.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted)"><div style="font-size:48px;margin-bottom:12px">🛒</div><div>Your cart is empty</div></div>';
+    if (cartFooter) cartFooter.style.display = 'none';
+  } else {
+    if (cartItems) cartItems.innerHTML = state.cart.map(item => `
+      <div class="cart-item">
+        <div style="font-size:24px">${item.emoji || '🍽️'}</div>
+        <div class="cart-item-name">${item.name}</div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <button onclick="changeQty('${item.id}',-1)" class="qty-btn" style="width:26px;height:26px;background:var(--surface-card,#0a1a0e);color:var(--accent);border-radius:4px;border:1px solid var(--border)" aria-label="Decrease">−</button>
+          <span style="font-weight:700;min-width:20px;text-align:center">${item.qty}</span>
+          <button onclick="changeQty('${item.id}',1)" class="qty-btn" style="width:26px;height:26px;background:var(--accent);color:#fff;border-radius:4px" aria-label="Increase">+</button>
+        </div>
+        <div class="cart-item-price">₹${item.price * item.qty}</div>
+      </div>
+    `).join('');
+    if (cartFooter) cartFooter.style.display = 'block';
+  }
+}
+
+function changeQty(id, delta) {
+  const item = state.cart.find(c => String(c.id) === String(id));
+  if (!item) return;
+  item.qty += delta;
+  if (item.qty <= 0) state.cart = state.cart.filter(c => String(c.id) !== String(id));
+  saveCartToStorage();
+  updateCartUI();
+  renderCartInRestaurant();
+}
+
+function renderCartInRestaurant() {
+  state.cart.forEach(item => {
+    const ctrl = document.getElementById('addControl-' + item.id);
+    if (ctrl) {
+      ctrl.innerHTML = `
+        <div class="qty-control">
+          <button class="qty-btn" onclick="changeQty('${item.id}',-1)" aria-label="Decrease">−</button>
+          <span class="qty-num">${item.qty}</span>
+          <button class="qty-btn" onclick="changeQty('${item.id}',1)" aria-label="Increase">+</button>
+        </div>`;
+    }
+  });
+}
+
+function toggleCart() {
+  const drawer = document.getElementById('cartDrawer');
+  const t = drawer.style.transform;
+  const isOpen = t === 'translateX(0px)' || t === 'translateX(0)';
+  if (isOpen) closeCart(); else openCartDrawer();
+}
+
+function openCartDrawer() {
+  const drawer = document.getElementById('cartDrawer');
+  const overlay = document.getElementById('cartOverlay');
+  drawer.style.transform = 'translateX(0)';
+  if (overlay) { overlay.style.display = 'block'; setTimeout(() => overlay.style.opacity = '1', 10); }
+  updateCartUI();
+}
+
+function closeCart() {
+  const drawer = document.getElementById('cartDrawer');
+  const overlay = document.getElementById('cartOverlay');
+  drawer.style.transform = 'translateX(100%)';
+  if (overlay) { overlay.style.opacity = '0'; setTimeout(() => overlay.style.display = 'none', 300); }
+}
+
+function saveCartToStorage()  { localStorage.setItem('tm_cart', JSON.stringify(state.cart)); }
+function loadCartFromStorage() {
+  const saved = localStorage.getItem('tm_cart');
+  if (saved) { try { state.cart = JSON.parse(saved); updateCartUI(); } catch(e) { state.cart = []; } }
+}
+
+// ===== CHECKOUT =====
+async function openCheckout() {
+  if (!state.user || !state.user.token) {
+    state.pendingCheckout = true;
+    openModal('loginModal');
+    showToast('Please login to continue checkout', 'warning');
+    return;
+  }
+  if (!state.cart.length) {
+    showToast('Your cart is empty', 'error'); return;
+  }
+  closeCart();
+  closeModal('restaurantModal');
+  await loadPlatformSettings();
+  updateBill();
+  state.selectedAddressIndex = 0;
+  loadSavedAddresses();
+  openModal('checkoutModal');
+}
+
+function loadSavedAddresses() {
+  const container = document.getElementById('savedAddresses');
+  if (!container) return;
+  const saved = JSON.parse(localStorage.getItem('tm_addresses') || '[]');
+  if (!saved.length) {
+    container.innerHTML = '';
+    state.selectedAddressIndex = -1;
+    return;
+  }
+  container.innerHTML = saved.map((a, i) => `
+    <label style="display:flex;align-items:flex-start;gap:10px;padding:12px;background:var(--surface-card);border:1px solid var(--border);border-radius:8px;cursor:pointer">
+      <input type="radio" name="savedAddr" value="${i}" ${i===0?'checked':''} onchange="selectSavedAddress(${i})" style="margin-top:4px">
+      <div>
+        <div style="font-weight:600;font-size:13px">${a.street}</div>
+        <div style="font-size:12px;color:var(--text-muted)">${a.area}, ${a.city} ${a.pincode||''}</div>
+      </div>
+    </label>`).join('');
+  // Auto-select first saved address
+  state.selectedAddressIndex = 0;
+  selectSavedAddress(0);
+}
+
+function selectSavedAddress(idx) {
+  state.selectedAddressIndex = idx;
+  const saved = JSON.parse(localStorage.getItem('tm_addresses') || '[]');
+  const a = saved[idx];
+  if (!a) return;
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.value = v || ''; };
+  set('streetInput', a.street);
+  set('areaInput', a.area);
+  set('cityInput', a.city || 'Madurai');
+  set('pincodeInput', a.pincode);
+  set('deliveryLat', a.lat || '');
+  set('deliveryLng', a.lng || '');
+  updateBill();
+}
+
+async function saveCurrentAddress() {
+  // First try: use selected saved address directly
+  const saved = JSON.parse(localStorage.getItem('tm_addresses') || '[]');
+  if (state.selectedAddressIndex >= 0 && state.selectedAddressIndex < saved.length) {
+    const a = saved[state.selectedAddressIndex];
+    if (a && a.street && a.area) {
+      var lat = parseFloat(a.lat) || 0;
+      var lng = parseFloat(a.lng) || 0;
+      // Never send 0,0 — fallback to browser geolocation or Madurai center
+      if (!lat || !lng) {
+        if (state.location && state.location.lat) {
+          lat = state.location.lat; lng = state.location.lng;
+        } else {
+          lat = 9.9252; lng = 78.1198;
+    }
+  }
+
+  // Register Service Worker + subscribe to push
+  if ('serviceWorker' in navigator && 'PushManager' in window) {
+    navigator.serviceWorker.register('/sw.js').then(function(reg) {
+      navigator.serviceWorker.addEventListener('message', function(event) {
+        if (event.data && event.data.type === 'THOOKU_INCOMING_CALL') {
+          const d = event.data;
+          _tryHandleIncomingCall(d);
+        }
+      });
+      reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlB64ToUint8Array('BNnzcMGGloSz2cEO5alGmpncGahhiXSfzTQEAUh5gd7NHQgkpTv6edQeaoUPNGCXQRoDS5BjwloIa8utWD2ueEs') }).then(function(sub) {
+        if (state.user && state.user.token) {
+          fetch(API_BASE + '/push/subscribe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + state.user.token },
+            body: JSON.stringify({ subscription: sub.toJSON() })
+          }).catch(function(){});
+        }
+      }).catch(function(){});
+    }).catch(function(){});
+  }
+
+  // Check for pending call from push notification on page load
+  setTimeout(_tryHandleIncomingCall, 1000);
+      return {
+        street: a.street,
+        area: a.area,
+        city: a.city || 'Madurai',
+        pincode: a.pincode || '',
+        lat: lat, lng: lng
+      };
+    }
+  }
+  // Fallback: read from form inputs
+  const street = (document.getElementById('streetInput')?.value || '').trim();
+  const area = (document.getElementById('areaInput')?.value || '').trim();
+  if (!street || !area) return null;
+  var mapLat = parseFloat(document.getElementById('deliveryLat')?.value || 0);
+  var mapLng = parseFloat(document.getElementById('deliveryLng')?.value || 0);
+  // Geocode if coordinates are missing or invalid
+  if (!mapLat || !mapLng) {
+    await geocodeAddress();
+    mapLat = parseFloat(document.getElementById('deliveryLat')?.value || 0);
+    mapLng = parseFloat(document.getElementById('deliveryLng')?.value || 0);
+  }
+  // Final fallback if still 0,0
+  if (!mapLat || !mapLng) {
+    if (state.location && state.location.lat) {
+      mapLat = state.location.lat; mapLng = state.location.lng;
+    } else {
+      mapLat = 9.9252; mapLng = 78.1198;
+    }
+  }
+  const addr = {
+    street, area,
+    city: document.getElementById('cityInput')?.value || 'Madurai',
+    pincode: document.getElementById('pincodeInput')?.value || '',
+    lat: mapLat,
+    lng: mapLng
+  };
+  const existingAddrs = JSON.parse(localStorage.getItem('tm_addresses') || '[]');
+  const exists = existingAddrs.find(s => s.street === addr.street && s.area === addr.area);
+  if (!exists) {
+    existingAddrs.unshift(addr);
+    localStorage.setItem('tm_addresses', JSON.stringify(existingAddrs.slice(0, 5)));
+  }
+  return addr;
+}
+
+function updateBill() {
+  const subtotal = state.cart.reduce((s, c) => s + c.price * c.qty, 0);
+
+  // Calculate delivery fee based on restaurant→customer distance
+  var dist = 0;
+  var delivery = DELIVERY_BASE_FEE;
+  var rest = state.activeRestaurant || {};
+  if (!rest.name && state.cart.length && state.allRestaurants.length) {
+    var rid = state.cart[0].restaurant_id;
+    var found = state.allRestaurants.find(function(r) { return r._id === rid || String(r.id) === String(rid); });
+    if (found) rest = found;
+  }
+  var rLat = parseFloat(rest.lat) || 0;
+  var rLng = parseFloat(rest.lng) || 0;
+  var cLat = parseFloat(document.getElementById('deliveryLat')?.value || 0);
+  var cLng = parseFloat(document.getElementById('deliveryLng')?.value || 0);
+  // Fallback: use browser geolocation if available, else Madurai center
+  if (!cLat || !cLng) {
+    if (state.location && state.location.lat) {
+      cLat = state.location.lat;
+      cLng = state.location.lng;
+    } else {
+      cLat = 9.9252; cLng = 78.1198;
+    }
+  }
+  if (rLat && rLng && cLat && cLng) {
+    dist = calcDeliveryDistance(rLat, rLng, cLat, cLng);
+    delivery = deliveryFeeSlab(dist);
+  }
+  g_calcDistance = dist;
+  g_calcDeliveryFee = delivery;
+
+  const discount = state.coupon ? state.coupon.discount : 0;
+  const total = subtotal + delivery + PLATFORM_FEE - discount;
+
+  const setSafe = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  setSafe('billItems', '₹' + subtotal);
+  setSafe('billDelivery', '₹' + delivery + (dist ? ' (' + dist.toFixed(1) + ' km)' : ''));
+  setSafe('billPlatform', '₹' + PLATFORM_FEE);
+  setSafe('billTotal', '₹' + total);
+  setSafe('checkoutTotal', '₹' + total);
+  var s = document.getElementById('billSlabInfo');
+  if (s) s.style.display = dist ? 'block' : 'none';
+  var st = document.getElementById('billSlabText');
+  if (st) st.textContent = dist ? slabRange(dist) : '';
+  var dd = document.getElementById('billDeliveryDetail');
+  if (dd) {
+    if (dist && rest.name) {
+      dd.style.display = 'block';
+      dd.style.borderBottom = '1px solid var(--border)';
+      dd.innerHTML = '🏪 ' + rest.name + '<br>📍 Rest: ' + rLat.toFixed(4) + ', ' + rLng.toFixed(4) + '<br>📍 You: ' + cLat.toFixed(4) + ', ' + cLng.toFixed(4) + '<br>📏 ' + dist.toFixed(2) + ' km → ₹' + delivery;
+    } else if (rest.name) {
+      dd.style.display = 'block';
+      dd.style.borderBottom = 'none';
+      dd.innerHTML = '📍 Enter delivery address above to calculate fee';
+    } else {
+      dd.style.display = 'none';
+    }
+  }
+  
+  const discRow = document.getElementById('discountRow');
+  if (state.coupon && discRow) {
+    discRow.style.display = 'flex';
+    setSafe('billDiscount', '-₹' + discount);
+  }
+}
+
+function selectPayment(method) {
+  state.selectedPayment = method;
+  document.querySelectorAll('.payment-option').forEach(o => o.classList.remove('selected'));
+  const map = { gpay: 'payGPay', phonepe: 'payPhonePe', paytm: 'payPaytm', bhim: 'payBHIM', razorpay: 'payRazorpay' };
+  const target = document.getElementById(map[method]);
+  if (target) target.classList.add('selected');
+}
+
+async function applyCoupon() {
+  const code = document.getElementById('couponInput').value.trim().toUpperCase();
+  const msgEl = document.getElementById('couponMsg');
+  if (!code) return;
+
+  const btn = document.getElementById('applyCouponBtn');
+  if (btn) { btn.disabled = true; btn.textContent = '...'; }
+
+  try {
+    const subtotal = state.cart.reduce((s,c) => s+c.price*c.qty, 0);
+    const res = await fetch(`${API_BASE}/coupons/validate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code, order_amount: subtotal })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Invalid coupon');
+    const disc = data.data?.discount_amount || data.data?.value || 0;
+    state.coupon = { code, discount: disc };
+    if (msgEl) { msgEl.style.color = 'var(--accent)'; msgEl.textContent = `✅ Coupon applied! You save ₹${disc}`; }
+    updateBill();
+  } catch (e) {
+    if (msgEl) { msgEl.style.color = '#ef5350'; msgEl.textContent = '❌ ' + e.message; }
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Apply'; }
+  }
+}
+
+function toggleAddressForm() {
+  const form = document.getElementById('newAddressForm');
+  if (form) {
+    const isVisible = form.style.display !== 'none';
+    form.style.display = isVisible ? 'none' : 'block';
+    if (!isVisible) {
+      // User is adding new address — clear saved selection
+      state.selectedAddressIndex = -1;
+      document.querySelectorAll('input[name="savedAddr"]').forEach(r => r.checked = false);
+    }
+  }
+}
+
+async function placeOrder() {
+  if (!state.user || !state.user.token) {
+    openModal('loginModal'); showToast('Please login first', 'warning'); return;
+  }
+  if (!state.user.phone) {
+    showToast('Please add your phone number first', 'warning');
+    state.pendingCheckout = true;
+    openModal('phoneCollectModal');
+    return;
+  }
+
+  // Get restaurant_id from cart items
+  const cartRestaurantId = state.cart[0]?.restaurant_id;
+  const activeRestaurantId = state.activeRestaurant?._id || state.activeRestaurant?.id;
+  const restaurantId = activeRestaurantId || cartRestaurantId;
+
+  if (!restaurantId) {
+    showToast('Please add items from a restaurant first', 'error');
+    return;
+  }
+
+  const delivery_address = await saveCurrentAddress();
+  if (!delivery_address) { showToast('Please enter delivery address', 'error'); return; }
+
+  const btn = document.getElementById('placeOrderBtn');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...'; }
+
+  const subtotal = state.cart.reduce((s, c) => s + c.price * c.qty, 0);
+  const discount = state.coupon ? state.coupon.discount : 0;
+  const delivery_fee = g_calcDeliveryFee || DELIVERY_BASE_FEE;
+  const distance_km = g_calcDistance;
+  const total = subtotal + delivery_fee + PLATFORM_FEE - discount;
+
+  const payload = {
+    restaurant_id: restaurantId,
+    customer_phone: state.user.phone,
+    items: state.cart.map(c => ({ item_id: c.id, name: c.name, price: c.price, qty: c.qty })),
+    delivery_address,
+    payment_method: state.selectedPayment || 'gpay',
+    coupon_code: state.coupon?.code || null
+  };
+
+  console.log('Order payload:', JSON.stringify(payload, null, 2));
+
+  try {
+    const res = await fetch(`${API_BASE}/orders`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${state.user.token}` },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Order failed');
+    const orderId = data.data?.order_id || data.data?._id;
+
+    const payRes = await fetch(`${API_BASE}/payments/create-order`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${state.user.token}` },
+      body: JSON.stringify({ order_id: orderId, amount: total })
+    });
+    const payData = await payRes.json();
+    if (!payRes.ok) throw new Error(payData.error || payData.message || 'Payment setup failed');
+
+    const pd = payData.data || {};
+    if (pd.mock_mode) {
+      showToast('Demo payment — order confirmed (no real charge in test mode)', 'success');
+      await verifyPayment({
+        payment_request_id: pd.payment_request_id || 'mock_pr',
+        payment_id: 'pay_mock_' + Date.now(),
+        order_id: orderId,
+        mock_mode: true,
+        status: 'paid'
+      });
+      return;
+    }
+
+    // Instamojo: open payment page in new tab/window
+    if (pd.longurl) {
+      showToast('Redirecting to Instamojo payment...', 'warning');
+      // Open Instamojo payment window
+      const payWindow = window.open(pd.longurl, '_blank', 'width=500,height=700');
+      if (!payWindow) {
+        // Fallback: redirect current page
+        window.location.href = pd.longurl;
+      }
+      // Poll for payment completion
+      const pollInterval = setInterval(async () => {
+        try {
+          const checkRes = await fetch(`${API_BASE}/orders/${orderId}`, {
+            headers: { Authorization: `Bearer ${state.user.token}` }
+          });
+          const checkData = await checkRes.json();
+          const order = checkData.data || {};
+          if (order.payment_status === 'paid' || order.payment_status === 'completed') {
+            clearInterval(pollInterval);
+            verifyPayment({
+              payment_request_id: pd.payment_request_id,
+              payment_id: order.instamojo_payment_id || '',
+              order_id: orderId,
+              status: 'paid'
+            });
+          }
+        } catch(e) { /* poll silently */ }
+      }, 3000);
+    } else {
+      showToast('Payment setup failed - no payment URL', 'error');
+      if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-lock"></i> Pay & Place Order — <span id="checkoutTotal">₹' + total + '</span>'; }
+    }
+  } catch (err) {
+    showToast(err.message, 'error');
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-lock"></i> Pay & Place Order — <span id="checkoutTotal">₹0</span>'; }
+    updateBill();
+  }
+}
+
+async function verifyPayment(paymentResponse) {
+  try {
+    const res = await fetch(`${API_BASE}/payments/verify`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${state.user.token}` },
+      body: JSON.stringify(paymentResponse)
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || data.message || 'Payment verification failed');
+
+    const orderId = paymentResponse.order_id;
+    closeModal('checkoutModal');
+    state.cart = []; state.coupon = null;
+    saveCartToStorage(); updateCartUI();
+    const orderInfo = { order_id: orderId, ts: Date.now() };
+    localStorage.setItem('tm_last_order', JSON.stringify(orderInfo));
+    showToast('🎉 Payment successful! Tracking your order...', 'success');
+    setTimeout(() => {
+      window.open('tracking.html?order_id=' + orderId, '_blank');
+      openModal('trackingModal');
+      if (orderId) startOrderTracking(orderId);
+      // Add "Track Order" button to navbar
+      const trackBtn = document.getElementById('nav-track-order');
+      if (trackBtn) trackBtn.style.display = 'inline-flex';
+    }, 800);
+  } catch (e) {
+    showToast(e.message, 'error');
+  }
+}
+
+// ===== ORDER TRACKING (Leaflet map + Socket.IO) =====
+let trackingInterval = null;
+let _trackMap = null, _riderMarker = null, _restMarker = null;
+let _trackSocket = null;
+
+async function confirmDeliveryReceived() {
+  const oid = state.trackingOrderId;
+  if (!oid) { showToast('No active order to confirm', 'warning'); return; }
+  try {
+    const res = await fetch(`${API_BASE}/riders/delivery/${oid}/deliver`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${state.user.token}` }
+    });
+    const data = await res.json();
+    if (data.success) showToast('🎉 Thank you! Enjoy your meal!', 'success');
+    else showToast('✅ Delivery confirmed!', 'success');
+  } catch (e) {
+    showToast('✅ Delivery confirmed! Enjoy!', 'success');
+  }
+  // Show rating section
+  document.getElementById('dcIcon').textContent = '🎉';
+  document.getElementById('dcTitle').textContent = 'Enjoy Your Meal!';
+  document.getElementById('dcSub').textContent = 'Rate your experience';
+  document.getElementById('dcConfirmBtn').style.display = 'none';
+  document.getElementById('ratingSection').style.display = 'block';
+  state._ratingOrderId = oid;
+}
+
+var _selectedRating = 0;
+function setRating(val) {
+  _selectedRating = val;
+  var stars = document.querySelectorAll('.star');
+  var labels = ['', '😞 Poor', '🙁 Fair', '😐 Good', '😊 Great', '🤩 Excellent'];
+  stars.forEach(function(s) {
+    s.style.color = parseInt(s.dataset.val) <= val ? 'var(--gold)' : 'var(--border)';
+  });
+  document.getElementById('ratingLabel').textContent = labels[val] || 'Tap to rate';
+}
+async function submitRating() {
+  if (!_selectedRating) { showToast('Please select a rating', 'warning'); return; }
+  var oid = state._ratingOrderId;
+  if (!oid) { showToast('Order not found', 'error'); return; }
+  var review = document.getElementById('reviewText').value.trim();
+  try {
+    var res = await fetch(API_BASE+'/orders/'+oid+'/rate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer '+(state.user?.token||'') },
+      body: JSON.stringify({ rating: _selectedRating, review: review })
+    });
+    var data = await res.json();
+    if (data.success) showToast('⭐ Thanks for rating!', 'success');
+    else showToast('Rating saved!', 'success');
+  } catch(e) { showToast('Rating saved!', 'success'); }
+  closeModal('deliveryConfirmModal');
+  // Reset for next time
+  _selectedRating = 0;
+  setRating(0);
+  document.getElementById('reviewText').value = '';
+}
+
+function closeTrackingModal() {
+  closeModal('trackingModal');
+  clearInterval(trackingInterval);
+  if (_trackSocket) { try { _trackSocket.disconnect(); } catch(e){} _trackSocket = null; }
+}
+
+function openLastOrderTracking() {
+  const last = JSON.parse(localStorage.getItem('tm_last_order') || 'null');
+  if (last && last.order_id) {
+    const age = Date.now() - (last.ts || 0);
+    if (age < 3 * 3600 * 1000) {
+      const trackEl = document.getElementById('nav-track-order');
+      if (trackEl) trackEl.style.display = 'inline-flex';
+      window.open('tracking.html?order_id=' + last.order_id, '_blank');
+      openModal('trackingModal');
+      startOrderTracking(last.order_id);
+      return;
+    }
+  }
+  if (!state.user || !state.user.token) {
+    openModal('loginModal');
+    showToast('Login to see your order tracking', 'warning');
+  } else {
+    window.open('tracking.html', '_blank');
+    showToast('No active order found. Place an order first!', 'warning');
+  }
+}
+
+function openFullTracking() {
+  const oid = state.trackingOrderId;
+  if (oid) window.open('tracking.html?order_id=' + oid, '_blank');
+  else window.open('tracking.html', '_blank');
+}
+
+async function startOrderTracking(orderId) {
+  state.trackingOrderId = orderId;
+  const trackEl = document.getElementById('trackingOrderId');
+  if (trackEl) trackEl.textContent = String(orderId);
+  clearInterval(trackingInterval);
+
+  // Init Leaflet map
+  if (!_trackMap) {
+    try {
+      _trackMap = L.map('trackingMap', { zoomControl: false, attributionControl: false })
+        .setView([9.9252, 78.1198], 13);
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(_trackMap);
+      L.control.zoom({ position: 'topright' }).addTo(_trackMap);
+    } catch(e) { /* leaflet not loaded yet */ }
+  } else {
+    try { _trackMap.invalidateSize(); } catch(e){}
+  }
+
+  // Connect Socket.IO
+  try {
+    if (_trackSocket) _trackSocket.disconnect();
+    _trackSocket = io('http://127.0.0.1:5000', { transports: ['websocket','polling'] });
+    _trackSocket.on('connect', () => _trackSocket.emit('join_order', { order_id: orderId }));
+    _trackSocket.on('location_update', (data) => moveRiderMarker(data.lat, data.lng, data.heading));
+    attachCallSocketHandlers(_trackSocket);
+  } catch(e) { /* socket.io not loaded */ }
+
+  // Initial poll + polling fallback
+  await pollOrder(orderId);
+  trackingInterval = setInterval(() => pollOrder(orderId), 10000);
+
+  // Fetch restaurant info for call button
+  try {
+    const orderRes = await fetch(`${API_BASE}/orders/${orderId}`, {
+      headers: state.user?.token ? { 'Authorization': `Bearer ${state.user.token}` } : {}
+    });
+    const orderData = await orderRes.json();
+    const ord = orderData.data?.order || orderData.data || {};
+    if (ord.restaurant_id) {
+      const restRes = await fetch(`${API_BASE}/restaurants/${ord.restaurant_id}`);
+      const restData = await restRes.json();
+      const rest = restData.data || restData.restaurant || {};
+      state._restaurantPhone = rest.phone || '';
+      state._restaurantName = rest.name || 'Restaurant';
+      const restNameEl = document.getElementById('restaurantInfoName');
+      if (restNameEl) restNameEl.textContent = state._restaurantName;
+    }
+  } catch(e) { /* silent */ }
+}
+
+function moveRiderMarker(lat, lng, heading) {
+  if (!_trackMap) return;
+  try {
+    const icon = L.divIcon({
+      html: '<div style="font-size:26px;transform:rotate('+(heading||0)+'deg)">🛵</div>',
+      iconSize: [30, 30], className: ''
+    });
+    if (_riderMarker) {
+      _riderMarker.setLatLng([lat, lng]).setIcon(icon);
+    } else {
+      _riderMarker = L.marker([lat, lng], { icon }).addTo(_trackMap);
+    }
+    _trackMap.panTo([lat, lng]);
+  } catch(e){}
+}
+
+
+// ── WebRTC Calling ────────────────────────────────────────────
+let pc = null;
+let callOrderId = '';
+let callTargetName = '';
+let callTimerInterval = null;
+let callStartTime = null;
+let callMuted = false;
+let callStream = null;
+let callSocket = null;
+let callFallbackTimer = null;
+
+function getCallConfig() {
+  return { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
+}
+
+function createPeerConnection(orderId, onRemoteStream) {
+  const cfg = getCallConfig();
+  const p = new RTCPeerConnection(cfg);
+  p.onicecandidate = function(e) {
+    if (e.candidate && callSocket) {
+      callSocket.emit('ice_candidate', { order_id: orderId, candidate: e.candidate });
+    }
+  };
+  p.ontrack = function(e) {
+    if (onRemoteStream) onRemoteStream(e.streams[0]);
+  };
+  return p;
+}
+
+function showCallOverlay(name, status) {
+  const o = document.getElementById('callOverlay');
+  if (o) {
+    o.style.display = 'block';
+    const nameEl = document.getElementById('callOverlayName');
+    const statusEl = document.getElementById('callOverlayStatus');
+    if (nameEl) nameEl.textContent = name || 'Call';
+    if (statusEl) statusEl.textContent = status || 'Connected';
+    document.getElementById('callOverlayIcon').textContent = '📞';
+  }
+}
+
+function hideCallOverlay() {
+  const o = document.getElementById('callOverlay');
+  if (o) o.style.display = 'none';
+}
+
+function startCallTimer() {
+  callStartTime = Date.now();
+  const statusEl = document.getElementById('callOverlayStatus');
+  if (callTimerInterval) clearInterval(callTimerInterval);
+  callTimerInterval = setInterval(function() {
+    if (!callStartTime) return;
+    const secs = Math.floor((Date.now() - callStartTime) / 1000);
+    const m = String(Math.floor(secs / 60)).padStart(2, '0');
+    const s = String(secs % 60).padStart(2, '0');
+    if (statusEl) statusEl.textContent = m + ':' + s;
+  }, 1000);
+}
+
+function stopCallTimer() {
+  if (callTimerInterval) { clearInterval(callTimerInterval); callTimerInterval = null; }
+  callStartTime = null;
+}
+
+async function endCall() {
+  if (callFallbackTimer) { clearTimeout(callFallbackTimer); callFallbackTimer = null; }
+  if (pc) { pc.close(); pc = null; }
+  if (callStream) { callStream.getTracks().forEach(function(t) { t.stop(); }); callStream = null; }
+  stopCallTimer();
+  hideCallOverlay();
+  if (callOrderId && callSocket) {
+    callSocket.emit('call_end', { order_id: callOrderId });
+  }
+  callOrderId = '';
+  callTargetName = '';
+}
+
+function toggleMute() {
+  callMuted = !callMuted;
+  if (callStream) callStream.getAudioTracks().forEach(function(t) { t.enabled = !callMuted; });
+  const btn = document.getElementById('callMuteBtn');
+  if (btn) btn.textContent = callMuted ? '🔇' : '🔊';
+}
+
+async function callRiderMasked() {
+  if (!state.user?.token || !state.trackingOrderId) {
+    showToast('Order not ready for calling yet', 'warning');
+    return;
+  }
+  if (!_trackSocket || !_trackSocket.connected) {
+    showToast('Reconnecting... try again', 'warning');
+    return;
+  }
+  callSocket = _trackSocket;
+  const oid = state.trackingOrderId;
+  callOrderId = oid;
+  callTargetName = document.getElementById('riderInfoName')?.textContent || 'Rider';
+  showCallOverlay(callTargetName, 'Ringing...');
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+    callStream = stream;
+    pc = createPeerConnection(oid, function(remoteStream) {
+      const audio = new Audio();
+      audio.srcObject = remoteStream;
+      audio.play().catch(function(){});
+      document.getElementById('callOverlayIcon').textContent = '🔊';
+      startCallTimer();
+    });
+    stream.getTracks().forEach(function(t) { pc.addTrack(t, stream); });
+
+    const offer = await pc.createOffer();
+    await pc.setLocalDescription(offer);
+    const callId = oid + '_' + Date.now();
+    callSocket.emit('call_offer', { order_id: oid, sdp: offer, caller_name: state.user.name || 'Customer', callId: callId, caller_role: 'customer' });
+
+    // Send push notification to rider
+    try {
+      await fetch(API_BASE + '/push/call-rider', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + state.user.token },
+        body: JSON.stringify({ riderId: state.riderId || '', callId: callId, orderId: oid, callerName: state.user.name || 'Customer' })
+      });
+    } catch(e) {}
+  } catch (e) {
+    showToast('Call failed: ' + e.message, 'error');
+  }
+}
+
+async function callRestaurant() {
+  if (!state.user?.token || !state.trackingOrderId) {
+    showToast('Order not ready for calling yet', 'warning');
+    return;
+  }
+  if (!state._restaurantPhone) { showToast('Restaurant phone not available', 'warning'); return; }
+  showToast('🏪 Restaurant: ' + state._restaurantPhone, 'success');
+}
+
+// Attach WebRTC socket event handlers — called from startOrderTracking
+function attachCallSocketHandlers(sock) {
+  callSocket = sock;
+  sock.on('call_offer', async function(data) {
+    if (callOrderId && data.order_id !== callOrderId) return;
+    if (!pc) {
+      callOrderId = data.order_id;
+      callTargetName = data.caller_name || 'Customer';
+      showCallOverlay(callTargetName, 'Incoming...');
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+        callStream = stream;
+        pc = createPeerConnection(callOrderId, function(remoteStream) {
+          if (callFallbackTimer) { clearTimeout(callFallbackTimer); callFallbackTimer = null; }
+          const audio = new Audio();
+          audio.srcObject = remoteStream;
+          audio.play().catch(function(){});
+          document.getElementById('callOverlayIcon').textContent = '🔊';
+          startCallTimer();
+        });
+        stream.getTracks().forEach(function(t) { pc.addTrack(t, stream); });
+        await pc.setRemoteDescription(new RTCSessionDescription(data.sdp));
+        const answer = await pc.createAnswer();
+        await pc.setLocalDescription(answer);
+        sock.emit('call_answer', { order_id: callOrderId, sdp: answer });
+      } catch(e) {
+        showToast('Call error: ' + e.message, 'error');
+        endCall();
+      }
+    }
+  });
+  sock.on('call_answer', async function(data) {
+    if (data.order_id !== callOrderId || !pc) return;
+    try {
+      await pc.setRemoteDescription(new RTCSessionDescription(data.sdp));
+      if (callFallbackTimer) { clearTimeout(callFallbackTimer); callFallbackTimer = null; }
+      document.getElementById('callOverlayIcon').textContent = '🔊';
+      startCallTimer();
+    } catch(e) { showToast('Call error: ' + e.message, 'error'); }
+  });
+  sock.on('ice_candidate', function(data) {
+    if (data.order_id !== callOrderId || !pc) return;
+    if (data.candidate) {
+      pc.addIceCandidate(new RTCIceCandidate(data.candidate)).catch(function(){});
+    }
+  });
+  sock.on('call_end', function(data) {
+    if (data.order_id !== callOrderId) return;
+    showToast('📞 Call ended', 'warning');
+    endCall();
+  });
+  sock.on('call_decline', function(data) {
+    if (data.order_id !== callOrderId) return;
+    showToast('📞 Call declined', 'warning');
+    endCall();
+  });
+}
+
+/* ============================================================
+   ORDER HISTORY
+   ============================================================ */
+function esc(str) {
+  var d = document.createElement('div');
+  d.textContent = String(str);
+  return d.innerHTML;
+}
+function statusChip(s) {
+  var m = {pending:'chip-gold',accepted:'chip-blue',preparing:'chip-blue',ready_for_pickup:'chip-blue',out_for_delivery:'chip-green',picked_up:'chip-green',delivered:'chip-green',cancelled:'chip-red'};
+  return '<span class="chip '+(m[s]||'chip-gray')+'">'+(s||'unknown')+'</span>';
+}
+function fmtDate(ts) {
+  if (!ts) return '-';
+  var d = new Date(Number(ts)*1000);
+  return d.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+}
+
+async function loadOrderHistory() {
+  var section = document.getElementById('orders');
+  if (section) section.style.display = 'block';
+  var list = document.getElementById('orderHistoryList');
+  if (!list) return;
+  list.innerHTML = '<div style="text-align:center;padding:48px 20px;color:var(--text-muted)"><div class="spinner spinner-lg" style="margin:0 auto 12px"></div><div>Loading your orders...</div></div>';
+
+  var phone = state.user?.phone || '';
+  if (!phone) { list.innerHTML = '<div style="text-align:center;padding:48px 20px;color:var(--text-muted)">Please login to view your orders</div>'; return; }
+
+  try {
+    var headers = state.user?.token ? { 'Authorization': 'Bearer '+state.user.token } : {};
+    var res = await fetch(API_BASE+'/orders/my-orders?phone='+encodeURIComponent(phone), { headers: headers });
+    var data = await res.json();
+    if (!data.success || !data.data || !data.data.length) {
+      list.innerHTML = '<div style="text-align:center;padding:48px 20px;color:var(--text-muted)"><div style="font-size:48px;margin-bottom:12px">📋</div><div>No orders yet. Order some delicious food!</div></div>';
+      return;
+    }
+    renderOrderList(data.data);
+  } catch(e) {
+    list.innerHTML = '<div style="text-align:center;padding:48px 20px;color:var(--text-muted)">Failed to load orders. Try again later.</div>';
+  }
+}
+
+function renderOrderList(orders) {
+  var list = document.getElementById('orderHistoryList');
+  list.innerHTML = orders.map(function(o){
+    var oid = esc(o._id || o.order_id || '');
+    var rest = esc(o.restaurant_name || 'Restaurant');
+    var total = Number(o.total || 0);
+    var status = o.status || 'pending';
+    var time = fmtDate(o.created_at);
+    var items = (o.items||[]).map(function(i){return esc(i.name)+' ×'+i.qty;}).join(', ');
+    var trackBtn = status !== 'cancelled' && status !== 'delivered'
+      ? '<button class="btn-sm" style="background:var(--accent);color:#fff" onclick="openOrderTracking(\''+oid+'\')">Track</button>'
+      : '<button class="btn-sm" style="background:rgba(76,175,80,.1);color:var(--accent);border:1px solid rgba(76,175,80,.3)" onclick="reorder(\''+oid+'\',\''+esc(o.restaurant_id||'')+'\')">Reorder</button>';
+    return '<div class="order-card-h">'+
+      '<div class="order-hd"><span class="oid">'+oid+'</span><span class="rest-name">🏪 '+rest+'</span><span class="date">'+time+'</span></div>'+
+      '<div class="order-items-h">'+items+'</div>'+
+      '<div class="order-ft-h">'+statusChip(status)+'<span class="amount">₹'+total+'</span><span style="flex:1"></span>'+trackBtn+'</div></div>';
+  }).join('');
+}
+
+function openOrderTracking(oid) {
+  window.open('tracking.html?order_id='+oid, '_blank');
+  if (typeof startOrderTracking === 'function') {
+    startOrderTracking(oid);
+  }
+}
+function reorder(oid, rid) {
+  showToast('🔄 Loading restaurant to reorder...', 'warning');
+  if (rid) {
+    var cards = document.querySelectorAll('.restaurant-card');
+    for (var i = 0; i < cards.length; i++) {
+      if (cards[i].dataset && cards[i].dataset.restaurantId === rid) {
+        cards[i].click();
+        showToast('Add items from your previous order', 'success');
+        return;
+      }
+    }
+  }
+  showToast('Open a restaurant and add items to cart', 'warning');
+}
+
+async function pollOrder(orderId) {
+  try {
+    const res = await fetch(`${API_BASE}/orders/${orderId}`, {
+      headers: state.user?.token ? { 'Authorization': `Bearer ${state.user.token}` } : {}
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    const order = data.data?.order || data.data || {};
+    updateTrackingUI(order);
+    // Check for auto-refund
+    if (order.no_rider_refund_processed) {
+      showToast('😔 No rider was available. A full refund has been processed.', 'warning');
+      clearInterval(trackingInterval);
+      const etaEl = document.getElementById('trackingEta');
+      if (etaEl) etaEl.textContent = 'Refunded';
+    }
+  } catch(e) { /* silent fail */ }
+}
+
+function updateTrackingUI(order) {
+  const status = order.status || 'pending';
+  const stepMap = { pending: 0, confirmed: 1, accepted: 1, preparing: 2, ready_for_pickup: 2, out_for_delivery: 3, picked_up: 3, delivered: 4 };
+  const activeStep = stepMap[status] ?? 0;
+  for (let i = 0; i <= 4; i++) {
+    const el = document.getElementById('tstep-' + i);
+    if (!el) continue;
+    el.className = 'tracking-step';
+    if (i < activeStep) el.classList.add('completed');
+    else if (i === activeStep) el.classList.add('active');
+  }
+  // ETA
+  const etaEl = document.getElementById('trackingEta');
+  if (etaEl) etaEl.textContent = order.eta || (status === 'delivered' ? 'Delivered!' : 'ETA ~20 min');
+  // Rider info
+  const riderInfo = document.getElementById('riderInfo');
+  if (riderInfo && order.rider_name) {
+    riderInfo.style.display = 'flex';
+    const nameEl = document.getElementById('riderInfoName');
+    if (nameEl) nameEl.textContent = order.rider_name;
+    // Store rider_id for push calls
+    if (order.rider_id) state.riderId = order.rider_id;
+    if (order.rider) state.riderId = order.rider;
+  }
+  // Restaurant call button (show when order is active, before delivery)
+  const restInfo = document.getElementById('restaurantInfo');
+  if (restInfo && state._restaurantPhone && !['delivered','cancelled'].includes(status)) {
+    restInfo.style.display = 'flex';
+  } else if (restInfo) {
+    restInfo.style.display = 'none';
+  }
+  // Update map markers
+  if (_trackMap && order.rider_lat) moveRiderMarker(order.rider_lat, order.rider_lng, order.rider_heading || 0);
+  if (status === 'delivered') {
+    clearInterval(trackingInterval);
+    if (_trackSocket) { try { _trackSocket.disconnect(); } catch(e){} _trackSocket = null; }
+    showToast('🎉 Your order has been delivered! Enjoy your meal!', 'success');
+    setTimeout(() => openModal('deliveryConfirmModal'), 1500);
+  }
+}
+
+// ===== AUTH — Customer Phone OTP =====
+function handleGoogleSignIn(response) {
+  if (!response || !response.credential) {
+    showToast('Google sign-in failed', 'error');
+    return;
+  }
+  fetch(API_BASE+'/auth/google', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ credential: response.credential, client_id: '849711418902-7reguj59f9au1c48ko8boh3eaprp0rng.apps.googleusercontent.com' })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (!data.success) throw new Error(data.message || 'Google login failed');
+    state.user = {
+      id: data.data.user.email,
+      phone: data.data.user.phone || '',
+      name: data.data.user.name || 'User',
+      role: 'customer',
+      token: data.data.token
+    };
+    localStorage.setItem('tm_auth', JSON.stringify(state.user));
+    closeModal('loginModal');
+    const loginBtn = document.getElementById('loginBtn');
+    if (loginBtn) loginBtn.innerHTML = '<i class="fas fa-user-check"></i> ' + (data.data.user.name || '').substring(0,8) + '...';
+    const ordNav = document.getElementById('nav-orders');
+    if (ordNav) ordNav.style.display = 'inline-flex';
+    showToast('✅ Signed in with Google!', 'success');
+    // Check if phone is missing
+    if (!state.user.phone) {
+      setTimeout(function() { openModal('phoneCollectModal'); }, 500);
+    } else if (state.pendingCheckout && state.cart.length) {
+      state.pendingCheckout = false;
+      setTimeout(openCheckout, 400);
+    }
+  })
+  .catch(function(err) {
+    showToast(err.message || 'Google sign-in failed', 'error');
+  });
+}
+
+function saveCollectedPhone() {
+  const phone = document.getElementById('collectPhoneInput').value.trim();
+  if (!/^[6-9]\d{9}$/.test(phone)) {
+    showToast('Please enter a valid 10-digit mobile number', 'error'); return;
+  }
+  const btn = document.getElementById('savePhoneBtn');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...'; }
+  fetch(API_BASE + '/auth/save-phone', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + state.user.token },
+    body: JSON.stringify({ phone: phone })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (!data.success) throw new Error(data.message || 'Failed to save phone');
+    state.user.phone = phone;
+    localStorage.setItem('tm_auth', JSON.stringify(state.user));
+    closeModal('phoneCollectModal');
+    showToast('✅ Phone number saved!', 'success');
+    if (state.pendingCheckout && state.cart.length) {
+      state.pendingCheckout = false;
+      setTimeout(openCheckout, 400);
+    }
+  })
+  .catch(function(err) {
+    showToast(err.message, 'error');
+  })
+  .finally(function() {
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-check"></i> Save &amp; Continue'; }
+  });
+}
+
+// ===== FAVOURITES =====
+function toggleFav(e, id) {
+  e.stopPropagation();
+  const btn = document.getElementById('fav-' + id);
+  if (!btn) return;
+  btn.classList.toggle('active');
+  btn.textContent = btn.classList.contains('active') ? '♥' : '♡';
+  showToast(btn.classList.contains('active') ? '❤️ Added to favourites' : '🤍 Removed from favourites', 'success');
+}
+
+// ===== MODALS =====
+function openModal(id) { const el = document.getElementById(id); if (el) el.classList.add('active'); }
+function closeModal(id) { const el = document.getElementById(id); if (el) el.classList.remove('active'); }
+
+// ===== TOAST =====
+function showToast(message, type = 'success') {
+  const container = document.getElementById('toastContainer');
+  if (!container) return;
+  const toast = document.createElement('div');
+  const icon = { success: '✅', error: '❌', warning: '⚠️' }[type] || '📌';
+  toast.className = `toast ${type}`;
+  toast.innerHTML = `<span>${icon}</span><span>${message}</span>`;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.style.animation = 'slideIn 0.3s ease reverse';
+    setTimeout(() => toast.remove(), 300);
+  }, 3500);
+}
+
+// ===== UTILS =====
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ===== WEB PUSH HELPERS =====
+function urlB64ToUint8Array(b64) {
+  var padding = '='.repeat((4 - b64.length % 4) % 4);
+  var data = atob((b64 + padding).replace(/\-/g, '+').replace(/_/g, '/'));
+  var arr = new Uint8Array(data.length);
+  for (var i = 0; i < data.length; i++) arr[i] = data.charCodeAt(i);
+  return arr;
+}
+
+async function _tryHandleIncomingCall(pushData) {
+  if (!pushData) {
+    var params = new URLSearchParams(window.location.search);
+    var callId = params.get('thooku_callId') || sessionStorage.getItem('thooku_pending_callId');
+    var orderId = params.get('thooku_orderId') || sessionStorage.getItem('thooku_pending_orderId');
+    if (callId) {
+      sessionStorage.removeItem('thooku_pending_callId');
+      sessionStorage.removeItem('thooku_pending_orderId');
+      pushData = { callId: callId, orderId: orderId, replay: true };
+    }
+  }
+  if (!pushData) return;
+
+  if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+    navigator.serviceWorker.controller.postMessage({ type: 'THOOKU_MARK_HANDLED', callId: pushData.callId });
+  }
+
+  // Open tracking modal first (connects socket)
+  if (pushData.orderId) {
+    startOrderTracking(pushData.orderId);
+    // Wait a moment for socket to connect, then ask server to replay offer
+    setTimeout(async function() {
+      try {
+        await fetch(API_BASE + '/push/page-ready', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (state.user ? state.user.token : '') },
+          body: JSON.stringify({ callId: pushData.callId, orderId: pushData.orderId })
+        });
+      } catch(e) {}
+    }, 2000);
+  }
+}
+
+// ===== KEYBOARD =====
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-overlay.active').forEach(m => m.classList.remove('active'));
+    closeCart();
+  }
+});
+</script>
+
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-XXXXXXXXXX');
+</script>
+</body>
+</html>

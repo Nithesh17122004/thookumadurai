@@ -1,0 +1,59 @@
+C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\engineio\async_drivers\eventlet.py:1: EventletDeprecationWarning: 
+Eventlet is deprecated. It is currently being maintained in bugfix mode, and
+we strongly recommend against using it for new projects.
+
+If you are already using Eventlet, we recommend migrating to a different
+framework.  For more detail see
+https://eventlet.readthedocs.io/en/latest/asyncio/migration.html
+
+  from eventlet.green.threading import Event
+2026-06-14 15:20:32,845 [INFO] MongoDB connected
+2026-06-14 15:20:36,886 [WARNING] Redis failed: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+2026-06-14 15:20:36,955 [INFO] Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2026-06-14 15:20:36,956 [INFO] Added job "Check orders with no rider and process refunds" to job store "default"
+2026-06-14 15:20:36,956 [INFO] Scheduler started
+2026-06-14 15:20:36,956 [INFO] Auto-refund scheduler started (checking every 60s)
+2026-06-14 15:20:36,984 [INFO] Starting Thooku Madurai API on :5000 with SocketIO (threading)
+2026-06-14 15:21:09,409 [INFO] MongoDB connected
+2026-06-14 15:21:13,450 [WARNING] Redis failed: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+2026-06-14 15:21:13,450 [INFO] Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2026-06-14 15:21:13,450 [INFO] Added job "Check orders with no rider and process refunds" to job store "default"
+2026-06-14 15:21:13,450 [INFO] Scheduler started
+2026-06-14 15:21:13,450 [INFO] Auto-refund scheduler started (checking every 60s)
+2026-06-14 15:21:36,996 [INFO] Running job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:21:36 IST)" (scheduled at 2026-06-14 15:21:36.955473+05:30)
+2026-06-14 15:21:37,184 [INFO] Job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:22:36 IST)" executed successfully
+2026-06-14 15:22:13,456 [INFO] Running job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:22:13 IST)" (scheduled at 2026-06-14 15:22:13.450360+05:30)
+2026-06-14 15:22:14,020 [INFO] Job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:23:13 IST)" executed successfully
+2026-06-14 15:22:36,956 [INFO] Running job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:23:36 IST)" (scheduled at 2026-06-14 15:22:36.955473+05:30)
+2026-06-14 15:22:37,132 [INFO] Job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:23:36 IST)" executed successfully
+2026-06-14 15:23:13,454 [INFO] Running job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:24:13 IST)" (scheduled at 2026-06-14 15:23:13.450360+05:30)
+2026-06-14 15:23:13,626 [INFO] Job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:24:13 IST)" executed successfully
+2026-06-14 15:23:36,969 [INFO] Running job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:24:36 IST)" (scheduled at 2026-06-14 15:23:36.955473+05:30)
+2026-06-14 15:23:37,525 [INFO] Re-assigned order TM-823295 to rider a46850cd-a517-4ed8-b87f-f9b0c35cd109 via scheduler retry
+2026-06-14 15:23:37,530 [INFO] Job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:24:36 IST)" executed successfully
+2026-06-14 15:24:13,452 [INFO] Running job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:25:13 IST)" (scheduled at 2026-06-14 15:24:13.450360+05:30)
+2026-06-14 15:24:13,609 [INFO] Job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:25:13 IST)" executed successfully
+2026-06-14 15:24:36,961 [INFO] Running job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:25:36 IST)" (scheduled at 2026-06-14 15:24:36.955473+05:30)
+2026-06-14 15:24:37,139 [INFO] Job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:25:36 IST)" executed successfully
+2026-06-14 15:25:13,451 [INFO] Running job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:26:13 IST)" (scheduled at 2026-06-14 15:25:13.450360+05:30)
+2026-06-14 15:25:13,615 [INFO] Job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:26:13 IST)" executed successfully
+2026-06-14 15:25:36,956 [INFO] Running job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:26:36 IST)" (scheduled at 2026-06-14 15:25:36.955473+05:30)
+2026-06-14 15:25:37,129 [INFO] Job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:26:36 IST)" executed successfully
+2026-06-14 15:26:13,461 [INFO] Running job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:27:13 IST)" (scheduled at 2026-06-14 15:26:13.450360+05:30)
+2026-06-14 15:26:13,666 [INFO] Job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:27:13 IST)" executed successfully
+2026-06-14 15:26:36,968 [INFO] Running job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:27:36 IST)" (scheduled at 2026-06-14 15:26:36.955473+05:30)
+2026-06-14 15:26:37,144 [INFO] Job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:27:36 IST)" executed successfully
+2026-06-14 15:27:13,453 [INFO] Running job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:28:13 IST)" (scheduled at 2026-06-14 15:27:13.450360+05:30)
+2026-06-14 15:27:13,620 [INFO] Job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:28:13 IST)" executed successfully
+2026-06-14 15:27:36,957 [INFO] Running job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:28:36 IST)" (scheduled at 2026-06-14 15:27:36.955473+05:30)
+2026-06-14 15:27:37,150 [INFO] Job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:28:36 IST)" executed successfully
+2026-06-14 15:28:13,452 [INFO] Running job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:29:13 IST)" (scheduled at 2026-06-14 15:28:13.450360+05:30)
+2026-06-14 15:28:13,619 [INFO] Job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:29:13 IST)" executed successfully
+2026-06-14 15:28:36,967 [INFO] Running job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:29:36 IST)" (scheduled at 2026-06-14 15:28:36.955473+05:30)
+2026-06-14 15:28:37,130 [INFO] Job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:29:36 IST)" executed successfully
+2026-06-14 15:29:13,452 [INFO] Running job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:30:13 IST)" (scheduled at 2026-06-14 15:29:13.450360+05:30)
+2026-06-14 15:29:13,632 [INFO] Job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:30:13 IST)" executed successfully
+2026-06-14 15:29:36,959 [INFO] Running job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:30:36 IST)" (scheduled at 2026-06-14 15:29:36.955473+05:30)
+2026-06-14 15:29:37,147 [INFO] Job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:30:36 IST)" executed successfully
+2026-06-14 15:30:13,461 [INFO] Running job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:31:13 IST)" (scheduled at 2026-06-14 15:30:13.450360+05:30)
+2026-06-14 15:30:13,652 [INFO] Job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:31:13 IST)" executed successfully

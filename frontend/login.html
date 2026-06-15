@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Login to Thooku Madurai — Madurai's hyperlocal food delivery. Customer, Restaurant, Rider, Admin login.">
+  <meta name="robots" content="noindex">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <title>Login — Thooku Madurai</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍛</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <style>
+    :root {
+      --bg: #060f08;
+      --card: #0f2016;
+      --primary: #1b6b3a;
+      --accent: #4caf50;
+      --gold: #ffc107;
+      --text-muted: #81c784;
+      --text-dim: #4a7c59;
+      --border: rgba(76,175,80,0.18);
+      --surface-mid: #122019;
+      --radius: 14px;
+      --radius-sm: 8px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: #e8f5e9;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* ── Background ── */
+    .bg-layer {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(27,107,58,0.18) 0%, transparent 70%),
+                  radial-gradient(ellipse 60% 40% at 80% 80%, rgba(76,175,80,0.08) 0%, transparent 60%);
+    }
+    .bg-grid {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background-image: linear-gradient(rgba(76,175,80,0.04) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(76,175,80,0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    /* ── Wrapper ── */
+    .login-wrapper {
+      position: relative; z-index: 10;
+      width: 100%; max-width: 480px;
+      padding: 24px 16px;
+    }
+
+    /* ── Brand ── */
+    .brand {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .brand-emoji { font-size: 52px; margin-bottom: 10px; display: block; animation: pulse 2s ease infinite; }
+    .brand-name {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 800; font-size: 28px;
+      background: linear-gradient(135deg, #4caf50, #81c784);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      letter-spacing: 2px;
+    }
+    .brand-sub { font-size: 12px; color: var(--text-dim); letter-spacing: 3px; margin-top: 4px; }
+
+    /* ── Card ── */
+    .login-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(76,175,80,0.08);
+    }
+
+    /* ── Role Tabs ── */
+    .role-tabs {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      background: var(--surface-mid);
+      border-bottom: 1px solid var(--border);
+    }
+    .role-tab {
+      padding: 14px 4px;
+      text-align: center;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-dim);
+      letter-spacing: 0.5px;
+      transition: all 0.2s;
+      border-bottom: 3px solid transparent;
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      user-select: none;
+    }
+    .role-tab i { font-size: 16px; }
+    .role-tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+      background: rgba(76,175,80,0.06);
+    }
+    .role-tab:hover:not(.active) { color: var(--text-muted); background: rgba(76,175,80,0.04); }
+
+    /* ── Panel ── */
+    .tab-content { padding: 28px 24px 24px; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    .panel-title {
+      font-family: 'Poppins', sans-serif;
+      font-size: 20px; font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .panel-subtitle { font-size: 13px; color: var(--text-muted); margin-bottom: 24px; }
+
+    /* ── Form ── */
+    .form-group { margin-bottom: 16px; }
+    .form-label {
+      display: block; font-size: 12px; font-weight: 600;
+      color: var(--text-muted); margin-bottom: 6px;
+      letter-spacing: 0.5px; text-transform: uppercase;
+    }
+    .form-control {
+      width: 100%; background: #0a1a0e;
+      border: 1px solid var(--border); border-radius: var(--radius-sm);
+      color: #e8f5e9; font-size: 15px; font-family: 'Inter', sans-serif;
+      padding: 12px 14px; outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .form-control:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(76,175,80,0.12); }
+    .form-control::placeholder { color: var(--text-dim); }
+    .form-control:-webkit-autofill {
+      -webkit-box-shadow: 0 0 0 30px #0a1a0e inset;
+      -webkit-text-fill-color: #e8f5e9;
+    }
+
+    .input-group { display: flex; gap: 0; }
+    .input-prefix {
+      background: #0a1a0e; border: 1px solid var(--border);
+      border-right: none; border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+      padding: 12px 14px; color: var(--text-muted); font-size: 14px;
+      white-space: nowrap; display: flex; align-items: center;
+    }
+    .input-group .form-control { border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+
+    .password-wrapper { position: relative; }
+    .password-wrapper .form-control { padding-right: 44px; }
+    .password-toggle {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; color: var(--text-dim); cursor: pointer;
+      font-size: 15px; padding: 4px; transition: color 0.2s;
+    }
+    .password-toggle:hover { color: var(--accent); }
+
+    /* ── OTP ── */
+    .otp-row {
+      display: flex; gap: 8px; justify-content: center; margin: 20px 0;
+    }
+    .otp-digit {
+      width: 48px; height: 56px; text-align: center; font-size: 22px;
+      font-weight: 700; background: #0a1a0e;
+      border: 1px solid var(--border); border-radius: var(--radius-sm);
+      color: #e8f5e9; outline: none; transition: all 0.2s;
+    }
+    .otp-digit:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(76,175,80,0.15); }
+
+    /* ── Buttons ── */
+    .btn {
+      width: 100%; padding: 14px; border: none; border-radius: var(--radius-sm);
+      font-size: 15px; font-weight: 700; font-family: 'Inter', sans-serif;
+      cursor: pointer; transition: all 0.2s; display: flex; align-items: center;
+      justify-content: center; gap: 10px; letter-spacing: 0.3px;
+    }
+    .btn-accent {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: #fff;
+    }
+    .btn-accent:hover:not(:disabled) {
+      background: linear-gradient(135deg, #1f7a44, #57c15b);
+      transform: translateY(-1px); box-shadow: 0 8px 24px rgba(76,175,80,0.3);
+    }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; }
+
+    /* ── OTP Dev Hint ── */
+    .dev-hint {
+      margin-top: 12px; padding: 10px 14px;
+      background: rgba(255,193,7,0.08); border: 1px solid rgba(255,193,7,0.25);
+      border-radius: var(--radius-sm); font-size: 13px; color: var(--gold);
+      display: none;
+    }
+    .dev-hint.show { display: block; }
+
+    /* ── Step management ── */
+    .step { display: none; }
+    .step.active { display: block; }
+    .step-back {
+      background: none; border: none; color: var(--text-muted);
+      font-size: 13px; cursor: pointer; margin-bottom: 16px;
+      display: flex; align-items: center; gap: 6px; transition: color 0.2s;
+      font-family: 'Inter', sans-serif;
+    }
+    .step-back:hover { color: var(--accent); }
+
+    .resend-row { text-align: center; margin-top: 14px; font-size: 13px; color: var(--text-muted); }
+    .resend-btn {
+      background: none; border: none; color: var(--accent); font-weight: 700;
+      cursor: pointer; font-size: 13px; font-family: 'Inter', sans-serif;
+    }
+    .resend-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ── Prefill hint ── */
+    .prefill-row {
+      font-size: 11px; color: var(--text-dim); margin-top: 8px; text-align: right; cursor: pointer;
+    }
+    .prefill-row:hover { color: var(--accent); }
+
+    /* ── Toast ── */
+    .toast-container {
+      position: fixed; top: 20px; right: 20px; z-index: 9999;
+      display: flex; flex-direction: column; gap: 8px; pointer-events: none;
+    }
+    .toast {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 10px; padding: 12px 18px;
+      display: flex; align-items: center; gap: 10px;
+      font-size: 14px; font-weight: 500; min-width: 260px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      animation: slideIn 0.35s cubic-bezier(0.34,1.56,0.64,1) both;
+      pointer-events: auto;
+    }
+    .toast.success { border-left: 4px solid var(--accent); }
+    .toast.error { border-left: 4px solid #ef5350; }
+    .toast.warning { border-left: 4px solid var(--gold); }
+
+    /* ── Footer link ── */
+    .login-footer {
+      text-align: center; margin-top: 20px;
+      font-size: 12px; color: var(--text-dim);
+    }
+    .login-footer a { color: var(--accent); text-decoration: none; }
+
+    /* ── Animations ── */
+    @keyframes pulse {
+      0%,100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+    }
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to   { transform: translateX(0);    opacity: 1; }
+    }
+
+    @media (max-width: 480px) {
+      .role-tab { font-size: 10px; padding: 12px 2px; }
+      .otp-digit { width: 42px; height: 50px; font-size: 18px; }
+      .tab-content { padding: 20px 16px; }
+    }
+  </style>
+</head>
+<body>
+<div class="bg-layer"></div>
+<div class="bg-grid"></div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<div class="login-wrapper">
+  <!-- Brand -->
+  <div class="brand">
+    <img src="img/logo.png" alt="Thooku Madurai Logo" style="width:90px;height:90px;object-fit:contain;margin-bottom:10px;filter:drop-shadow(0 4px 16px rgba(76,175,80,0.4));animation:pulse 2s ease infinite;">
+    <div class="brand-name">THOOKU MADURAI</div>
+    <div class="brand-sub">MADURAI'S OWN FOOD DELIVERY</div>
+  </div>
+
+  <!-- Card -->
+  <div class="login-card">
+    <!-- Role Tabs -->
+    <div class="role-tabs" role="tablist">
+      <div class="role-tab active" role="tab" id="tab-customer" aria-selected="true" aria-controls="panel-customer" onclick="switchTab('customer')">
+        <i class="fas fa-user"></i> Customer
+      </div>
+      <div class="role-tab" role="tab" id="tab-restaurant" aria-selected="false" aria-controls="panel-restaurant" onclick="switchTab('restaurant')">
+        <i class="fas fa-store"></i> Restaurant
+      </div>
+      <div class="role-tab" role="tab" id="tab-rider" aria-selected="false" aria-controls="panel-rider" onclick="switchTab('rider')">
+        <i class="fas fa-motorcycle"></i> Rider
+      </div>
+      <div class="role-tab" role="tab" id="tab-admin" aria-selected="false" aria-controls="panel-admin" onclick="switchTab('admin')">
+        <i class="fas fa-shield-halved"></i> Admin
+      </div>
+    </div>
+
+    <div class="tab-content">
+
+      <!-- ── CUSTOMER PANEL ── -->
+      <div class="tab-panel active" id="panel-customer" role="tabpanel" aria-labelledby="tab-customer">
+        <p class="panel-title">Welcome to Thooku Madurai 🍛</p>
+        <p class="panel-subtitle">Sign in with Google to start ordering</p>
+
+        <div id="g_id_onload"
+          data-client_id="849711418902-7reguj59f9au1c48ko8boh3eaprp0rng.apps.googleusercontent.com"
+          data-context="signin"
+          data-ux_mode="popup"
+          data-callback="handleGoogleLogin"
+          data-auto_prompt="false">
+        </div>
+        <div class="g_id_signin"
+          data-type="standard"
+          data-shape="rectangular"
+          data-theme="outline"
+          data-text="signin_with"
+          data-size="large"
+          data-logo_alignment="left"
+          style="width:100%;margin-top:12px">
+        </div>
+        <p style="text-align:center;font-size:12px;color:var(--text-dim);margin-top:16px">
+          By continuing, you agree to our <a href="#" style="color:var(--accent)">Terms</a> &amp; <a href="#" style="color:var(--accent)">Privacy Policy</a>
+        </p>
+      </div>
+
+      <!-- ── RESTAURANT PANEL ── -->
+      <div class="tab-panel" id="panel-restaurant" role="tabpanel" aria-labelledby="tab-restaurant">
+        <p class="panel-title">Restaurant Portal 🏪</p>
+        <p class="panel-subtitle">Login with your restaurant credentials</p>
+        <div class="form-group">
+          <label class="form-label" for="restUsername">Username</label>
+          <input type="text" class="form-control" id="restUsername" placeholder="restaurant_username"
+                 autocomplete="username" onkeypress="if(event.key==='Enter') document.getElementById('restPassword').focus()">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="restPassword">Password</label>
+          <div class="password-wrapper">
+            <input type="password" class="form-control" id="restPassword" placeholder="Enter password"
+                   autocomplete="current-password" onkeypress="if(event.key==='Enter') loginRestaurant()">
+            <button class="password-toggle" type="button" onclick="togglePassword('restPassword', this)"><i class="fas fa-eye"></i></button>
+          </div>
+        </div>
+        <button class="btn btn-accent" id="restLoginBtn" onclick="loginRestaurant()">
+          <i class="fas fa-sign-in-alt"></i> Login as Restaurant
+        </button>
+      </div>
+
+      <!-- ── RIDER PANEL ── -->
+      <div class="tab-panel" id="panel-rider" role="tabpanel" aria-labelledby="tab-rider">
+        <p class="panel-title">Rider Portal 🏍️</p>
+        <p class="panel-subtitle">Login with your rider credentials</p>
+        <div class="form-group">
+          <label class="form-label" for="riderUsername">Username</label>
+          <input type="text" class="form-control" id="riderUsername" placeholder="rider_username"
+                 autocomplete="username" onkeypress="if(event.key==='Enter') document.getElementById('riderPassword').focus()">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="riderPassword">Password</label>
+          <div class="password-wrapper">
+            <input type="password" class="form-control" id="riderPassword" placeholder="Enter password"
+                   autocomplete="current-password" onkeypress="if(event.key==='Enter') loginRider()">
+            <button class="password-toggle" type="button" onclick="togglePassword('riderPassword', this)"><i class="fas fa-eye"></i></button>
+          </div>
+        </div>
+        <button class="btn btn-accent" id="riderLoginBtn" onclick="loginRider()">
+          <i class="fas fa-sign-in-alt"></i> Login as Rider
+        </button>
+      </div>
+
+      <!-- ── SUPER ADMIN PANEL ── -->
+      <div class="tab-panel" id="panel-admin" role="tabpanel" aria-labelledby="tab-admin">
+        <p class="panel-title">Super Admin 🛡️</p>
+        <p class="panel-subtitle">Platform administration portal</p>
+        <div class="form-group">
+          <label class="form-label" for="adminEmail">Email Address</label>
+          <input type="email" class="form-control" id="adminEmail" placeholder="admin@thookumadurai.in"
+                 value="" autocomplete="email"
+                 onkeypress="if(event.key==='Enter') document.getElementById('adminPassword').focus()">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="adminPassword">Password</label>
+          <div class="password-wrapper">
+            <input type="password" class="form-control" id="adminPassword" placeholder="Admin password"
+                   value="" autocomplete="current-password"
+                   onkeypress="if(event.key==='Enter') loginAdmin()">
+            <button class="password-toggle" type="button" onclick="togglePassword('adminPassword', this)"><i class="fas fa-eye"></i></button>
+          </div>
+        </div>
+        <button class="btn btn-accent" id="adminLoginBtn" onclick="loginAdmin()">
+          <i class="fas fa-shield-halved"></i> Admin Login
+        </button>
+      </div>
+
+    </div><!-- /tab-content -->
+  </div><!-- /login-card -->
+
+  <div class="login-footer">
+    <a href="#">Help</a>
+  </div>
+</div>
+
+<script>
+const API_BASE = 'http://127.0.0.1:5000/api/v1';
+
+// ── Tab switching ──
+function switchTab(role) {
+  document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + role).classList.add('active');
+  document.getElementById('panel-' + role).classList.add('active');
+}
+
+// ── Password toggle ──
+function togglePassword(inputId, btn) {
+  const inp = document.getElementById(inputId);
+  const isHidden = inp.type === 'password';
+  inp.type = isHidden ? 'text' : 'password';
+  btn.querySelector('i').className = isHidden ? 'fas fa-eye-slash' : 'fas fa-eye';
+}
+
+// ── Go back (step) ──
+function goBack(prefix) {
+  document.getElementById(prefix + '-step2').classList.remove('active');
+  document.getElementById(prefix + '-step1').classList.add('active');
+}
+
+// ── OTP Input wiring ──
+function wireOTPInputs(prefix) {
+  [1,2,3,4,5,6].forEach(n => {
+    const inp = document.getElementById(prefix + n);
+    if (!inp) return;
+    inp.addEventListener('input', () => {
+      inp.value = inp.value.replace(/\D/g, '').slice(-1);
+      if (inp.value && n < 6) document.getElementById(prefix + (n+1)).focus();
+    });
+    inp.addEventListener('keydown', e => {
+      if (e.key === 'Backspace' && !inp.value && n > 1) {
+        document.getElementById(prefix + (n-1)).focus();
+      }
+    });
+    inp.addEventListener('paste', e => {
+      e.preventDefault();
+      const text = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g,'').slice(0,6);
+      text.split('').forEach((ch, i) => {
+        const el = document.getElementById(prefix + (i+1));
+        if (el) el.value = ch;
+      });
+      const last = document.getElementById(prefix + Math.min(text.length, 6));
+      if (last) last.focus();
+    });
+  });
+}
+wireOTPInputs('cotp');
+
+// ═══════════════════════════
+// CUSTOMER: Google Login
+// ═══════════════════════════
+async function handleGoogleLogin(response) {
+  if (!response || !response.credential) {
+    showToast('Google sign-in failed', 'error');
+    return;
+  }
+  const btn = document.getElementById('googleSignInBtn');
+  if (btn) setLoading(btn, true, '<i class="fas fa-spinner fa-spin"></i> Signing in...');
+  try {
+    const res = await fetch(API_BASE + '/auth/google', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ credential: response.credential, client_id: '849711418902-7reguj59f9au1c48ko8boh3eaprp0rng.apps.googleusercontent.com' })
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error(data.message || 'Google login failed');
+    const auth = {
+      id: data.data.user.email,
+      phone: data.data.user.phone || '',
+      name: data.data.user.name || 'User',
+      role: 'customer',
+      token: data.data.token
+    };
+    localStorage.setItem('tm_auth', JSON.stringify(auth));
+    showToast('Welcome, ' + auth.name + '!', 'success');
+    setTimeout(() => window.location.href = 'index.html', 800);
+  } catch (err) {
+    showToast(err.message, 'error');
+    if (btn) setLoading(btn, false, '<i class="fas fa-sign-in-alt"></i> Sign in with Google');
+  }
+}
+
+// ═══════════════════════════
+// RESTAURANT Login
+// ═══════════════════════════
+async function loginRestaurant() {
+  const username = document.getElementById('restUsername').value.trim();
+  const password = document.getElementById('restPassword').value.trim();
+  if (!username || !password) { showToast('Please enter username and password', 'error'); return; }
+  const btn = document.getElementById('restLoginBtn');
+  setLoading(btn, true, '<i class="fas fa-spinner fa-spin"></i> Logging in...');
+  try {
+    const res = await fetch(`${API_BASE}/auth/restaurant-login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Invalid credentials');
+    // API returns {success, token, user} at top level
+    const auth = {
+      id: data.user?.id,
+      name: data.user?.name || username,
+      role: 'restaurant',
+      restaurant_id: data.user?.restaurant_id,
+      token: data.token
+    };
+    localStorage.setItem('tm_auth', JSON.stringify(auth));
+    showToast('Welcome, ' + auth.name, 'success');
+    setTimeout(() => window.location.href = 'restaurant-dashboard.html', 800);
+  } catch (err) {
+    showToast(err.message, 'error');
+    setLoading(btn, false, '<i class="fas fa-sign-in-alt"></i> Login as Restaurant');
+  }
+}
+
+// ═══════════════════════════
+// RIDER Login
+// ═══════════════════════════
+async function loginRider() {
+  const username = document.getElementById('riderUsername').value.trim();
+  const password = document.getElementById('riderPassword').value.trim();
+  if (!username || !password) { showToast('Please enter username and password', 'error'); return; }
+  const btn = document.getElementById('riderLoginBtn');
+  setLoading(btn, true, '<i class="fas fa-spinner fa-spin"></i> Logging in...');
+  try {
+    const res = await fetch(`${API_BASE}/auth/rider-login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Invalid credentials');
+    // API returns {success, token, user} at top level
+    const auth = {
+      id: data.user?.id,
+      name: data.user?.name || username,
+      role: 'rider',
+      rider_id: data.user?.rider_id,
+      phone: data.user?.phone || '',
+      token: data.token
+    };
+    localStorage.setItem('tm_auth', JSON.stringify(auth));
+    showToast('Welcome, ' + auth.name + '!', 'success');
+    setTimeout(() => window.location.href = 'rider-dashboard.html', 800);
+  } catch (err) {
+    showToast(err.message, 'error');
+    setLoading(btn, false, '<i class="fas fa-sign-in-alt"></i> Login as Rider');
+  }
+}
+
+// ═══════════════════════════
+// ADMIN Login
+// ═══════════════════════════
+async function loginAdmin() {
+  const email = document.getElementById('adminEmail').value.trim();
+  const password = document.getElementById('adminPassword').value.trim();
+  if (!email || !password) { showToast('Please enter email and password', 'error'); return; }
+  const btn = document.getElementById('adminLoginBtn');
+  setLoading(btn, true, '<i class="fas fa-spinner fa-spin"></i> Authenticating...');
+  try {
+    const res = await fetch(`${API_BASE}/auth/admin-login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Invalid admin credentials');
+    // API returns {success, token, user} at top level
+    const auth = {
+      id: data.user?.id,
+      name: data.user?.name || 'Super Admin',
+      email,
+      role: 'superadmin',
+      token: data.token
+    };
+    localStorage.setItem('tm_auth', JSON.stringify(auth));
+    showToast('Admin access granted!', 'success');
+    setTimeout(() => window.location.href = 'admin-panel.html', 800);
+  } catch (err) {
+    showToast(err.message, 'error');
+    setLoading(btn, false, '<i class="fas fa-shield-halved"></i> Admin Login');
+  }
+}
+
+// ═══════════════════════════
+// UTILS
+// ═══════════════════════════
+function setLoading(btn, loading, html) {
+  btn.disabled = loading;
+  btn.innerHTML = html;
+}
+
+function showToast(message, type = 'success') {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  const icon = { success: '✅', error: '❌', warning: '⚠️' }[type] || '📌';
+  toast.className = `toast ${type}`;
+  toast.innerHTML = `<span>${icon}</span><span>${message}</span>`;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.style.animation = 'slideIn 0.3s ease reverse';
+    setTimeout(() => toast.remove(), 300);
+  }, 3500);
+}
+
+// Redirect if already logged in
+(function() {
+  const auth = JSON.parse(localStorage.getItem('tm_auth') || '{}');
+  if (auth.token) {
+    const redirectMap = {
+      customer: 'index.html',
+      restaurant: 'restaurant-dashboard.html',
+      rider: 'rider-dashboard.html',
+      superadmin: 'admin-panel.html'
+    };
+    const dest = redirectMap[auth.role];
+    if (dest) window.location.href = dest;
+  }
+})();
+</script>
+</body>
+</html>

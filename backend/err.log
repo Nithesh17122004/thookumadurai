@@ -1,0 +1,266 @@
+C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\engineio\async_drivers\eventlet.py:1: EventletDeprecationWarning: 
+Eventlet is deprecated. It is currently being maintained in bugfix mode, and
+we strongly recommend against using it for new projects.
+
+If you are already using Eventlet, we recommend migrating to a different
+framework.  For more detail see
+https://eventlet.readthedocs.io/en/latest/asyncio/migration.html
+
+  from eventlet.green.threading import Event
+2026-06-14 15:13:38,823 [INFO] MongoDB connected
+2026-06-14 15:13:42,905 [WARNING] Redis failed: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+2026-06-14 15:13:42,974 [INFO] Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2026-06-14 15:13:42,974 [INFO] Added job "Check orders with no rider and process refunds" to job store "default"
+2026-06-14 15:13:42,974 [INFO] Scheduler started
+2026-06-14 15:13:42,980 [INFO] Auto-refund scheduler started (checking every 60s)
+2026-06-14 15:13:43,023 [INFO] Starting Thooku Madurai API on :5000 with SocketIO (threading)
+2026-06-14 15:14:09,102 [INFO] MongoDB connected
+2026-06-14 15:14:13,160 [WARNING] Redis failed: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+2026-06-14 15:14:13,161 [INFO] Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2026-06-14 15:14:13,162 [INFO] Added job "Check orders with no rider and process refunds" to job store "default"
+2026-06-14 15:14:13,162 [INFO] Scheduler started
+2026-06-14 15:14:13,163 [INFO] Auto-refund scheduler started (checking every 60s)
+2026-06-14 15:14:42,975 [INFO] Running job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:14:42 IST)" (scheduled at 2026-06-14 15:14:42.974340+05:30)
+2026-06-14 15:14:43,170 [INFO] Job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:15:42 IST)" executed successfully
+2026-06-14 15:15:13,162 [INFO] Running job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:15:13 IST)" (scheduled at 2026-06-14 15:15:13.161627+05:30)
+2026-06-14 15:15:13,836 [INFO] Job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:16:13 IST)" executed successfully
+2026-06-14 15:15:42,979 [INFO] Running job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:16:42 IST)" (scheduled at 2026-06-14 15:15:42.974340+05:30)
+2026-06-14 15:15:43,169 [INFO] Job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:16:42 IST)" executed successfully
+2026-06-14 15:16:13,167 [INFO] Running job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:17:13 IST)" (scheduled at 2026-06-14 15:16:13.161627+05:30)
+2026-06-14 15:16:13,333 [INFO] Job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:17:13 IST)" executed successfully
+2026-06-14 15:16:42,974 [INFO] Running job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:17:42 IST)" (scheduled at 2026-06-14 15:16:42.974340+05:30)
+2026-06-14 15:16:43,161 [INFO] Job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:17:42 IST)" executed successfully
+2026-06-14 15:17:13,164 [INFO] Running job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:18:13 IST)" (scheduled at 2026-06-14 15:17:13.161627+05:30)
+2026-06-14 15:17:13,341 [INFO] Job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:18:13 IST)" executed successfully
+Traceback (most recent call last):
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\eventlet\hubs\hub.py", line 471, in fire_timers
+    timer()
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\eventlet\hubs\timer.py", line 59, in __call__
+    cb(*args, **kw)
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\eventlet\greenthread.py", line 272, in main
+    result = function(*args, **kwargs)
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\socketio\server.py", line 597, in _handle_event_internal
+    r = server._trigger_event(data[0], namespace, sid, *data[1:])
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\socketio\server.py", line 623, in _trigger_event
+    return handler(*args)
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\flask_socketio\__init__.py", line 282, in _handler
+    return self._handle_event(handler, message, namespace, sid,
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\flask_socketio\__init__.py", line 827, in _handle_event
+    ret = handler(*args)
+  File "D:\new\abc\backend\api\v1\tracking.py", line 282, in on_call_offer
+    socketio.emit('call_offer', data, room=f'order_{oid}', skip_sender=True)
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\flask_socketio\__init__.py", line 462, in emit
+    self.server.emit(event, *args, namespace=namespace, to=to,
+TypeError: Server.emit() got an unexpected keyword argument 'skip_sender'
+Traceback (most recent call last):
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\eventlet\hubs\hub.py", line 471, in fire_timers
+    timer()
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\eventlet\hubs\timer.py", line 59, in __call__
+    cb(*args, **kw)
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\eventlet\greenthread.py", line 272, in main
+    result = function(*args, **kwargs)
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\socketio\server.py", line 597, in _handle_event_internal
+    r = server._trigger_event(data[0], namespace, sid, *data[1:])
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\socketio\server.py", line 623, in _trigger_event
+    return handler(*args)
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\flask_socketio\__init__.py", line 282, in _handler
+    return self._handle_event(handler, message, namespace, sid,
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\flask_socketio\__init__.py", line 827, in _handle_event
+    ret = handler(*args)
+  File "D:\new\abc\backend\api\v1\tracking.py", line 282, in on_call_offer
+    socketio.emit('call_offer', data, room=f'order_{oid}', skip_sender=True)
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\flask_socketio\__init__.py", line 462, in emit
+    self.server.emit(event, *args, namespace=namespace, to=to,
+TypeError: Server.emit() got an unexpected keyword argument 'skip_sender'
+Traceback (most recent call last):
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\eventlet\hubs\hub.py", line 471, in fire_timers
+    timer()
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\eventlet\hubs\timer.py", line 59, in __call__
+    cb(*args, **kw)
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\eventlet\greenthread.py", line 272, in main
+    result = function(*args, **kwargs)
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\socketio\server.py", line 597, in _handle_event_internal
+    r = server._trigger_event(data[0], namespace, sid, *data[1:])
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\socketio\server.py", line 623, in _trigger_event
+    return handler(*args)
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\flask_socketio\__init__.py", line 282, in _handler
+    return self._handle_event(handler, message, namespace, sid,
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\flask_socketio\__init__.py", line 827, in _handle_event
+    ret = handler(*args)
+  File "D:\new\abc\backend\api\v1\tracking.py", line 288, in on_call_answer
+    socketio.emit('call_answer', data, room=f'order_{oid}', skip_sender=True)
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\flask_socketio\__init__.py", line 462, in emit
+    self.server.emit(event, *args, namespace=namespace, to=to,
+TypeError: Server.emit() got an unexpected keyword argument 'skip_sender'
+Traceback (most recent call last):
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\eventlet\hubs\hub.py", line 471, in fire_timers
+    timer()
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\eventlet\hubs\timer.py", line 59, in __call__
+    cb(*args, **kw)
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\eventlet\greenthread.py", line 272, in main
+    result = function(*args, **kwargs)
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\socketio\server.py", line 597, in _handle_event_internal
+    r = server._trigger_event(data[0], namespace, sid, *data[1:])
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\socketio\server.py", line 623, in _trigger_event
+    return handler(*args)
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\flask_socketio\__init__.py", line 282, in _handler
+    return self._handle_event(handler, message, namespace, sid,
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\flask_socketio\__init__.py", line 827, in _handle_event
+    ret = handler(*args)
+  File "D:\new\abc\backend\api\v1\tracking.py", line 294, in on_ice_candidate
+    socketio.emit('ice_candidate', data, room=f'order_{oid}', skip_sender=True)
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\flask_socketio\__init__.py", line 462, in emit
+    self.server.emit(event, *args, namespace=namespace, to=to,
+TypeError: Server.emit() got an unexpected keyword argument 'skip_sender'
+2026-06-14 15:17:42,978 [INFO] Running job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:18:42 IST)" (scheduled at 2026-06-14 15:17:42.974340+05:30)
+2026-06-14 15:17:43,160 [INFO] Job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:18:42 IST)" executed successfully
+Traceback (most recent call last):
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\eventlet\hubs\hub.py", line 471, in fire_timers
+    timer()
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\eventlet\hubs\timer.py", line 59, in __call__
+    cb(*args, **kw)
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\eventlet\greenthread.py", line 272, in main
+    result = function(*args, **kwargs)
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\socketio\server.py", line 597, in _handle_event_internal
+    r = server._trigger_event(data[0], namespace, sid, *data[1:])
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\socketio\server.py", line 623, in _trigger_event
+    return handler(*args)
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\flask_socketio\__init__.py", line 282, in _handler
+    return self._handle_event(handler, message, namespace, sid,
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\flask_socketio\__init__.py", line 827, in _handle_event
+    ret = handler(*args)
+  File "D:\new\abc\backend\api\v1\tracking.py", line 282, in on_call_offer
+    socketio.emit('call_offer', data, room=f'order_{oid}', skip_sender=True)
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\flask_socketio\__init__.py", line 462, in emit
+    self.server.emit(event, *args, namespace=namespace, to=to,
+TypeError: Server.emit() got an unexpected keyword argument 'skip_sender'
+Traceback (most recent call last):
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\eventlet\hubs\hub.py", line 471, in fire_timers
+    timer()
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\eventlet\hubs\timer.py", line 59, in __call__
+    cb(*args, **kw)
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\eventlet\greenthread.py", line 272, in main
+    result = function(*args, **kwargs)
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\socketio\server.py", line 597, in _handle_event_internal
+    r = server._trigger_event(data[0], namespace, sid, *data[1:])
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\socketio\server.py", line 623, in _trigger_event
+    return handler(*args)
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\flask_socketio\__init__.py", line 282, in _handler
+    return self._handle_event(handler, message, namespace, sid,
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\flask_socketio\__init__.py", line 827, in _handle_event
+    ret = handler(*args)
+  File "D:\new\abc\backend\api\v1\tracking.py", line 288, in on_call_answer
+    socketio.emit('call_answer', data, room=f'order_{oid}', skip_sender=True)
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\flask_socketio\__init__.py", line 462, in emit
+    self.server.emit(event, *args, namespace=namespace, to=to,
+TypeError: Server.emit() got an unexpected keyword argument 'skip_sender'
+Traceback (most recent call last):
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\eventlet\hubs\hub.py", line 471, in fire_timers
+    timer()
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\eventlet\hubs\timer.py", line 59, in __call__
+    cb(*args, **kw)
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\eventlet\greenthread.py", line 272, in main
+    result = function(*args, **kwargs)
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\socketio\server.py", line 597, in _handle_event_internal
+    r = server._trigger_event(data[0], namespace, sid, *data[1:])
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\socketio\server.py", line 623, in _trigger_event
+    return handler(*args)
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\flask_socketio\__init__.py", line 282, in _handler
+    return self._handle_event(handler, message, namespace, sid,
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\flask_socketio\__init__.py", line 827, in _handle_event
+    ret = handler(*args)
+  File "D:\new\abc\backend\api\v1\tracking.py", line 294, in on_ice_candidate
+    socketio.emit('ice_candidate', data, room=f'order_{oid}', skip_sender=True)
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\flask_socketio\__init__.py", line 462, in emit
+    self.server.emit(event, *args, namespace=namespace, to=to,
+TypeError: Server.emit() got an unexpected keyword argument 'skip_sender'
+2026-06-14 15:18:13,164 [INFO] Running job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:19:13 IST)" (scheduled at 2026-06-14 15:18:13.161627+05:30)
+2026-06-14 15:18:13,345 [INFO] Job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:19:13 IST)" executed successfully
+2026-06-14 15:18:42,979 [INFO] Running job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:19:42 IST)" (scheduled at 2026-06-14 15:18:42.974340+05:30)
+2026-06-14 15:18:43,201 [INFO] Job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:19:42 IST)" executed successfully
+Traceback (most recent call last):
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\eventlet\hubs\hub.py", line 471, in fire_timers
+    timer()
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\eventlet\hubs\timer.py", line 59, in __call__
+    cb(*args, **kw)
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\eventlet\greenthread.py", line 272, in main
+    result = function(*args, **kwargs)
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\socketio\server.py", line 597, in _handle_event_internal
+    r = server._trigger_event(data[0], namespace, sid, *data[1:])
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\socketio\server.py", line 623, in _trigger_event
+    return handler(*args)
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\flask_socketio\__init__.py", line 282, in _handler
+    return self._handle_event(handler, message, namespace, sid,
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\flask_socketio\__init__.py", line 827, in _handle_event
+    ret = handler(*args)
+  File "D:\new\abc\backend\api\v1\tracking.py", line 282, in on_call_offer
+    socketio.emit('call_offer', data, room=f'order_{oid}', skip_sender=True)
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\flask_socketio\__init__.py", line 462, in emit
+    self.server.emit(event, *args, namespace=namespace, to=to,
+TypeError: Server.emit() got an unexpected keyword argument 'skip_sender'
+Traceback (most recent call last):
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\eventlet\hubs\hub.py", line 471, in fire_timers
+    timer()
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\eventlet\hubs\timer.py", line 59, in __call__
+    cb(*args, **kw)
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\eventlet\greenthread.py", line 272, in main
+    result = function(*args, **kwargs)
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\socketio\server.py", line 597, in _handle_event_internal
+    r = server._trigger_event(data[0], namespace, sid, *data[1:])
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\socketio\server.py", line 623, in _trigger_event
+    return handler(*args)
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\flask_socketio\__init__.py", line 282, in _handler
+    return self._handle_event(handler, message, namespace, sid,
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\flask_socketio\__init__.py", line 827, in _handle_event
+    ret = handler(*args)
+  File "D:\new\abc\backend\api\v1\tracking.py", line 288, in on_call_answer
+    socketio.emit('call_answer', data, room=f'order_{oid}', skip_sender=True)
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\flask_socketio\__init__.py", line 462, in emit
+    self.server.emit(event, *args, namespace=namespace, to=to,
+TypeError: Server.emit() got an unexpected keyword argument 'skip_sender'
+Traceback (most recent call last):
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\eventlet\hubs\hub.py", line 471, in fire_timers
+    timer()
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\eventlet\hubs\timer.py", line 59, in __call__
+    cb(*args, **kw)
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\eventlet\greenthread.py", line 272, in main
+    result = function(*args, **kwargs)
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\socketio\server.py", line 597, in _handle_event_internal
+    r = server._trigger_event(data[0], namespace, sid, *data[1:])
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\socketio\server.py", line 623, in _trigger_event
+    return handler(*args)
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\flask_socketio\__init__.py", line 282, in _handler
+    return self._handle_event(handler, message, namespace, sid,
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\flask_socketio\__init__.py", line 827, in _handle_event
+    ret = handler(*args)
+  File "D:\new\abc\backend\api\v1\tracking.py", line 294, in on_ice_candidate
+    socketio.emit('ice_candidate', data, room=f'order_{oid}', skip_sender=True)
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\flask_socketio\__init__.py", line 462, in emit
+    self.server.emit(event, *args, namespace=namespace, to=to,
+TypeError: Server.emit() got an unexpected keyword argument 'skip_sender'
+Traceback (most recent call last):
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\eventlet\hubs\hub.py", line 471, in fire_timers
+    timer()
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\eventlet\hubs\timer.py", line 59, in __call__
+    cb(*args, **kw)
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\eventlet\greenthread.py", line 272, in main
+    result = function(*args, **kwargs)
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\socketio\server.py", line 597, in _handle_event_internal
+    r = server._trigger_event(data[0], namespace, sid, *data[1:])
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\socketio\server.py", line 623, in _trigger_event
+    return handler(*args)
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\flask_socketio\__init__.py", line 282, in _handler
+    return self._handle_event(handler, message, namespace, sid,
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\flask_socketio\__init__.py", line 827, in _handle_event
+    ret = handler(*args)
+  File "D:\new\abc\backend\api\v1\tracking.py", line 306, in on_call_decline
+    socketio.emit('call_decline', data, room=f'order_{oid}', skip_sender=True)
+  File "C:\Users\NITHESHWAR\AppData\Local\Programs\Python\Python310\lib\site-packages\flask_socketio\__init__.py", line 462, in emit
+    self.server.emit(event, *args, namespace=namespace, to=to,
+TypeError: Server.emit() got an unexpected keyword argument 'skip_sender'
+2026-06-14 15:19:13,164 [INFO] Running job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:20:13 IST)" (scheduled at 2026-06-14 15:19:13.161627+05:30)
+2026-06-14 15:19:13,351 [INFO] Job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:20:13 IST)" executed successfully
+2026-06-14 15:19:42,976 [INFO] Running job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:20:42 IST)" (scheduled at 2026-06-14 15:19:42.974340+05:30)
+2026-06-14 15:19:43,199 [INFO] Job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:20:42 IST)" executed successfully
+2026-06-14 15:20:13,166 [INFO] Running job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:21:13 IST)" (scheduled at 2026-06-14 15:20:13.161627+05:30)
+2026-06-14 15:20:13,362 [INFO] Job "Check orders with no rider and process refunds (trigger: interval[0:01:00], next run at: 2026-06-14 15:21:13 IST)" executed successfully

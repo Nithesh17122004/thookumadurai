@@ -1,0 +1,12 @@
+{
+  "name": "Thooku Madurai",
+  "short_name": "Thooku",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8b500",
+  "theme_color": "#f8b500",
+  "icons": [
+    { "src": "/icon-72.png", "sizes": "72x72", "type": "image/png" },
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" }
+  ]
+}
