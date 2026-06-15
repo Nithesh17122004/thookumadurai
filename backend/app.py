@@ -1,3 +1,6 @@
+import eventlet
+eventlet.monkey_patch()
+
 # ============================================================
 # THOOKU MADURAI — FLASK BACKEND
 # REST API + WebSocket (Socket.IO) + Redis live tracking
