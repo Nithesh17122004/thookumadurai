@@ -18,3 +18,5 @@ eventlet==0.36.1
 pywebpush==1.14.1
 python-engineio==4.13.2
 python-socketio==5.16.2
+google-auth==2.37.0
+google-auth-oauthlib==1.2.1
