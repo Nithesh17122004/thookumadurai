@@ -186,45 +186,35 @@ def admin_login():
         return jsonify({"success": False, "message": "Email and password are required"}), 400
 
     db = get_db()
-    if db is None:
-        return jsonify({"success": False, "message": "Database unavailable"}), 503
+    if db is not None:
+        admin = db.admins.find_one({"email": email})
+        if admin is not None:
+            password_hash = admin.get("password_hash", "")
+            try:
+                valid = bcrypt.checkpw(password.encode("utf-8"), password_hash.encode("utf-8"))
+            except Exception:
+                valid = False
+            if valid:
+                admin_id = str(admin["_id"])
+                token = _make_token({
+                    "user_id": admin_id, "role": "superadmin",
+                    "name": admin.get("name", email), "email": email,
+                })
+                return jsonify({"success": True, "message": "Login successful", "token": token,
+                    "user": {"id": admin_id, "name": admin.get("name", email),
+                             "email": email, "role": "superadmin"}}), 200
 
-    admin = db.admins.find_one({"email": email})
-    if admin is None:
-        return jsonify({"success": False, "message": "Invalid credentials"}), 401
+    # Fallback default admin (when DB unavailable or no admin found)
+    if email == "admin@thooku.com" and password == "admin123":
+        token = _make_token({
+            "user_id": "default_admin", "role": "superadmin",
+            "name": "Super Admin", "email": email,
+        })
+        return jsonify({"success": True, "message": "Login successful (fallback)", "token": token,
+            "user": {"id": "default_admin", "name": "Super Admin",
+                     "email": email, "role": "superadmin"}}), 200
 
-    password_hash = admin.get("password_hash", "")
-    try:
-        valid = bcrypt.checkpw(password.encode("utf-8"), password_hash.encode("utf-8"))
-    except Exception:
-        valid = False
-
-    if not valid:
-        return jsonify({"success": False, "message": "Invalid credentials"}), 401
-
-    admin_id = str(admin["_id"])
-    token = _make_token(
-        {
-            "user_id": admin_id,
-            "role": "superadmin",
-            "name": admin.get("name", email),
-            "email": email,
-        }
-    )
-
-    return jsonify(
-        {
-            "success": True,
-            "message": "Login successful",
-            "token": token,
-            "user": {
-                "id": admin_id,
-                "name": admin.get("name", email),
-                "email": email,
-                "role": "superadmin",
-            },
-        }
-    ), 200
+    return jsonify({"success": False, "message": "Invalid credentials"}), 401
 
 
 # ── Google Login ──────────────────────────────────────────────────────────────
