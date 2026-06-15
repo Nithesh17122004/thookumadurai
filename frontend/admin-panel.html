@@ -806,7 +806,7 @@
 // ═══════════════════════════════════════
 // AUTH
 // ═══════════════════════════════════════
-const API_BASE = 'http://127.0.0.1:5000/api/v1';
+const API_BASE = 'https://thookumadurai.onrender.com/api/v1';
 const auth = JSON.parse(localStorage.getItem('tm_auth') || '{}');
 if (!auth.token || auth.role !== 'superadmin') {
   window.location.href = 'login.html';
@@ -932,7 +932,7 @@ function adminAutoDetectLocation() {
       document.getElementById('rest-lng').value = lng;
       if (status) status.textContent = 'GPS: ' + lat.toFixed(5) + ', ' + lng.toFixed(5) + ' — fetching address...';
       // Try backend geocode first
-      fetch('http://127.0.0.1:5000/api/v1/tracking/geocode',
+      fetch('https://thookumadurai.onrender.com/api/v1/tracking/geocode',
         {method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
          body:JSON.stringify({lat:lat,lng:lng})})
         .then(function(r){return r.json();})

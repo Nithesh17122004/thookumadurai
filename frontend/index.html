@@ -782,7 +782,7 @@
 // =========================================
 
 // ===== CONSTANTS =====
-const API_BASE = 'http://127.0.0.1:5000/api/v1';
+const API_BASE = 'https://thookumadurai.onrender.com/api/v1';
 let DELIVERY_BASE_FEE = 30;
 let PLATFORM_FEE = 20;
 let SUPPORT_PHONE = '044-2200-1234';
@@ -1911,7 +1911,7 @@ async function startOrderTracking(orderId) {
   // Connect Socket.IO
   try {
     if (_trackSocket) _trackSocket.disconnect();
-    _trackSocket = io('http://127.0.0.1:5000', { transports: ['websocket','polling'] });
+    _trackSocket = io('https://thookumadurai.onrender.com', { transports: ['websocket','polling'] });
     _trackSocket.on('connect', () => _trackSocket.emit('join_order', { order_id: orderId }));
     _trackSocket.on('location_update', (data) => moveRiderMarker(data.lat, data.lng, data.heading));
     attachCallSocketHandlers(_trackSocket);

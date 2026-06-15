@@ -546,7 +546,7 @@ input,select,textarea{font-family:'Inter',sans-serif}
 /* ============================================================
    STATE & CONFIG
    ============================================================ */
-var API   = 'http://127.0.0.1:5000/api/v1';
+var API   = 'https://thookumadurai.onrender.com/api/v1';
 var auth  = (function(){try{return JSON.parse(localStorage.getItem('tm_auth')||'{}');}catch(e){return window._TM_FALLBACK||{};}})();
 var token = auth.token || '';
 var RID   = auth.restaurant_id || auth.id || '';

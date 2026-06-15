@@ -1,6 +1,6 @@
 // Thooku Madurai — Service Worker for Web Push
-const API_BASE = 'http://127.0.0.1:5000';
-const API_BASE_SOCKET = 'http://127.0.0.1:5000';
+const API_BASE = 'https://thookumadurai.onrender.com';
+const API_BASE_SOCKET = 'https://thookumadurai.onrender.com';
 
 function isCustomer() { return !self.location.pathname.startsWith('/rider-dashboard'); }
 

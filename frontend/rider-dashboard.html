@@ -451,7 +451,7 @@
 // ============================================================
 // CONFIG
 // ============================================================
-const API_BASE = 'http://127.0.0.1:5000/api/v1';
+const API_BASE = 'https://thookumadurai.onrender.com/api/v1';
 const authData = JSON.parse(localStorage.getItem('tm_auth') || '{}');
 const token    = authData.token || '';
 const HEADERS  = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
@@ -600,7 +600,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Socket.IO for real-time updates
   try {
-    socket = io('http://127.0.0.1:5000', { transports: ['websocket', 'polling'], timeout: 5000 });
+    socket = io('https://thookumadurai.onrender.com', { transports: ['websocket', 'polling'], timeout: 5000 });
     socket.on('connect', () => {
       if (RIDER_ID) socket.emit('join_rider', { rider_id: RIDER_ID });
     });
