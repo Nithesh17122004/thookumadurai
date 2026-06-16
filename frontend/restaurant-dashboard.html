@@ -310,6 +310,7 @@ input,select,textarea{font-family:'Inter',sans-serif}
     <div class="topbar-right">
       <span class="live-dot"></span>
       <span class="topbar-time" id="topbarTime"></span>
+      <button onclick="localStorage.removeItem('tm_auth');window.location.href='login.html'" style="background:none;border:1px solid var(--border);border-radius:8px;padding:6px 10px;color:var(--dim);cursor:pointer;font-size:12px;display:flex;align-items:center;gap:4px" title="Logout"><i class="fas fa-sign-out-alt"></i></button>
     </div>
   </div>
 

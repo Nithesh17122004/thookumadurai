@@ -1025,32 +1025,27 @@ function renderRestaurants(data) {
     const isOpen = r.is_open !== undefined ? r.is_open : r.isOpen;
     const isVeg = r.is_veg || r.isVeg || false;
     const tags = r.tags || [];
+    const distance = r.distance ? (r.distance < 1 ? (r.distance*1000).toFixed(0)+'m' : r.distance.toFixed(1)+'km') : '';
     return `
     <article class="restaurant-card animate-fadeup" style="animation-delay:${i*0.05}s"
       onclick="openRestaurant('${id}')"
       role="button" tabindex="0" aria-label="Open ${r.name}"
       onkeypress="if(event.key==='Enter') openRestaurant('${id}')">
-      <div class="restaurant-img-placeholder">
-        <span style="font-size:56px">${cuisineEmoji(r.cuisine)}</span>
-      </div>
-      ${isVeg ? '<div class="restaurant-badge badge-pure-veg">🟢 Pure Veg</div>' : ''}
-      <div class="restaurant-badge ${isOpen ? 'badge-open' : 'badge-closed'}" style="top:${isVeg?'44px':'12px'}">
-        ${isOpen ? '● Open' : '● Closed'}
-      </div>
-      <button class="fav-btn" onclick="toggleFav(event,'${id}')" id="fav-${id}" aria-label="Add to favourites">♡</button>
-      <div class="restaurant-info">
-        <div class="restaurant-name">${r.name}</div>
-        <div class="restaurant-cuisine">${r.cuisine || ''}</div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
-          ${tags.map(t => `<span class="chip chip-green">${t}</span>`).join('')}
+      <div class="restaurant-card-top">
+        <div class="restaurant-emoji">${cuisineEmoji(r.cuisine)}</div>
+        <div class="restaurant-card-info">
+          <div class="restaurant-name">${r.name}</div>
+          <div class="restaurant-cuisine">${r.cuisine || ''}</div>
+          <div class="restaurant-rating-line">
+            <span class="rating-star"><i class="fas fa-star" style="color:#ffc107;font-size:11px"></i> ${r.rating || '—'}</span>
+            <span class="restaurant-dot">•</span>
+            <span>${r.eta || '30-40 min'}</span>
+            ${distance ? `<span class="restaurant-dot">•</span><span>${distance}</span>` : ''}
+          </div>
         </div>
-        <div class="restaurant-meta">
-          <span class="rating">⭐ ${r.rating || '—'} <span style="color:var(--text-dim);font-weight:400">(${r.total_orders || r.reviews || 0})</span></span>
-          <span class="eta">🕐 ${r.eta || '30-40 min'}</span>
-          <span class="delivery-fee">🚴 From ₹${DELIVERY_BASE_FEE || 30}</span>
-        </div>
-        ${r.area ? `<div style="font-size:12px;color:var(--text-dim);margin-top:6px">📍 ${r.area}</div>` : ''}
       </div>
+      ${isVeg ? '<div class="rest-veg-tag"><i class="fas fa-leaf"></i> Pure Veg</div>' : ''}
+      ${tags.length ? `<div class="rest-tags">${tags.map(t => `<span class="rest-tag">${t}</span>`).join('')}</div>` : ''}
     </article>`;
   }).join('');
   const countEl = document.getElementById('restaurantCount');
