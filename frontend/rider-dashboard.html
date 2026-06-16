@@ -862,6 +862,16 @@ function hideIncomingCall() {
   if (overlay) overlay.style.display = 'none';
 }
 
+function playRemoteStream(stream) {
+  if (!stream) return;
+  try {
+    if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (_audioCtx.state === 'suspended') _audioCtx.resume();
+    var src = _audioCtx.createMediaStreamSource(stream);
+    src.connect(_audioCtx.destination);
+  } catch(e) { console.warn('AudioContext play error:', e); }
+}
+
 function showCallOverlay(name, status) {
   hideIncomingCall();
   const o = document.getElementById('callOverlay');
@@ -924,14 +934,7 @@ async function answerCall() {
     callStream = stream;
     pc = createPeerConnection(callOrderId, function(remoteStream) {
       if (callFallbackTimer) { clearTimeout(callFallbackTimer); callFallbackTimer = null; }
-      if (_audioCtx && _audioCtx.state === 'suspended') _audioCtx.resume();
-      const audio = new Audio();
-      audio.setAttribute('playsinline', '');
-      audio.autoplay = true;
-      audio.muted = false;
-      audio.volume = 1.0;
-      audio.srcObject = remoteStream;
-      audio.play().catch(function(e){ console.warn('Audio play:', e); });
+      playRemoteStream(remoteStream);
       startCallTimer();
     });
     stream.getTracks().forEach(function(t) { pc.addTrack(t, stream); });
@@ -966,14 +969,7 @@ async function callCustomer(orderId) {
     callStream = stream;
     pc = createPeerConnection(orderId, function(remoteStream) {
       if (callFallbackTimer) { clearTimeout(callFallbackTimer); callFallbackTimer = null; }
-      if (_audioCtx && _audioCtx.state === 'suspended') _audioCtx.resume();
-      const audio = new Audio();
-      audio.setAttribute('playsinline', '');
-      audio.autoplay = true;
-      audio.muted = false;
-      audio.volume = 1.0;
-      audio.srcObject = remoteStream;
-      audio.play().catch(function(e){ console.warn('Audio play:', e); });
+      playRemoteStream(remoteStream);
       startCallTimer();
     });
     stream.getTracks().forEach(function(t) { pc.addTrack(t, stream); });
