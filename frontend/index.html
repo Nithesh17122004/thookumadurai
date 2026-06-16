@@ -1999,7 +1999,10 @@ function logout() {
 }
 
 function getCallConfig() {
-  return { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
+  return { iceServers: [
+    { urls: ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302', 'stun:stun3.l.google.com:19302'] },
+    { urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' }
+  ]};
 }
 
 function createPeerConnection(orderId, onRemoteStream) {
@@ -2008,6 +2011,16 @@ function createPeerConnection(orderId, onRemoteStream) {
   p.onicecandidate = function(e) {
     if (e.candidate && callSocket) {
       callSocket.emit('ice_candidate', { order_id: orderId, candidate: e.candidate });
+    }
+  };
+  p.oniceconnectionstatechange = function() {
+    console.log('ICE state:', p.iceConnectionState, 'for order', orderId);
+    if (p.iceConnectionState === 'connected' || p.iceConnectionState === 'completed') {
+      document.getElementById('callOverlayIcon').textContent = '🔊';
+      startCallTimer();
+    }
+    if (p.iceConnectionState === 'failed') {
+      showToast('Call connection failed. Check network or try again.', 'error');
     }
   };
   p.ontrack = function(e) {

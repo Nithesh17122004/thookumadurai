@@ -553,13 +553,26 @@ function unlockAudio(){
   if(_audioCtx.state==='suspended') _audioCtx.resume();
 }
 
-function getCallConfig(){ return { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }; }
+function getCallConfig(){ return { iceServers: [
+  { urls: ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302', 'stun:stun3.l.google.com:19302'] },
+  { urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' }
+]}; }
 
 function createPeerConnection(oid, onRemoteStream){
   var cfg = getCallConfig();
   var p = new RTCPeerConnection(cfg);
   p.onicecandidate = function(e){
     if(e.candidate && socket) socket.emit('ice_candidate',{order_id:oid,candidate:e.candidate});
+  };
+  p.oniceconnectionstatechange = function(){
+    console.log('ICE state:', p.iceConnectionState, 'for order', oid);
+    if(p.iceConnectionState === 'connected' || p.iceConnectionState === 'completed'){
+      document.getElementById('callOverlayIcon').textContent = '🔊';
+      startCallTimer();
+    }
+    if(p.iceConnectionState === 'failed'){
+      showToast('Call connection failed. Check network or try again.', 'error');
+    }
   };
   p.ontrack = function(e){ if(onRemoteStream) onRemoteStream(e.streams[0]); };
   return p;
