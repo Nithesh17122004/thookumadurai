@@ -2,12 +2,17 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Rider Dashboard — Thooku Madurai</title>
-  <meta name="robots" content="noindex">
+  <link rel="icon" href="img/logo.png" type="image/png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+  .logout-corner{position:fixed;top:14px;right:14px;z-index:9999;background:#0f2016;border:1px solid rgba(76,175,80,.14);border-radius:10px;padding:8px 14px;cursor:pointer;font-size:13px;color:#81c784;display:flex;align-items:center;gap:6px;font-family:'Inter',sans-serif}
+  .logout-corner:hover{background:rgba(239,83,80,.1);color:#ef5350}@media(max-width:480px){.logout-corner{top:8px;right:8px;padding:6px 10px;font-size:11px}}
+  </style>
   <link rel="stylesheet" href="css/main.css">
   <script src="js/auth-guard.js"></script>
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
@@ -172,6 +177,7 @@
         <div class="rider-name" id="riderNameHeader">Loading...</div>
         <div class="rider-id-text" id="riderIdHeader">TM-R-001</div>
       </div>
+      <button onclick="logout()" style="background:none;border:1px solid rgba(239,83,80,.3);border-radius:8px;padding:6px 10px;color:#ef5350;cursor:pointer;font-size:11px;display:flex;align-items:center;gap:4px" title="Logout"><i class="fas fa-sign-out-alt"></i></button>
       <div class="rider-avatar" id="riderAvatarEl">🏍️</div>
     </div>
   </div>
@@ -465,6 +471,11 @@ let socket = null;
 let pendingCallOffer = null;
 let HISTORY_ORDERS = [];
 
+function logout() {
+  localStorage.removeItem('tm_auth');
+  window.location.href = 'login.html';
+}
+
 function formatAddr(addr) {
   if (!addr || typeof addr !== 'object') return '—';
   return [addr.street, addr.area, addr.city].filter(Boolean).join(', ');
@@ -483,6 +494,7 @@ async function loadRiderOrders() {
     if (active) {
       activeOrder = active;
       currentOrderId = active._id;
+      if (socket && socket.connected) socket.emit('join_order', { order_id: active._id });
       const pickupEl = document.getElementById('incomingPickup');
       const dropEl = document.getElementById('incomingDrop');
       if (pickupEl) pickupEl.textContent = active.restaurant_name || 'Restaurant';
@@ -791,6 +803,16 @@ let callStartTime = null;
 let callMuted = false;
 let callStream = null;
 let callFallbackTimer = null;
+let _audioCtx = null;
+
+function unlockAudio() {
+  if (!_audioCtx) {
+    _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if (_audioCtx.state === 'suspended') {
+    _audioCtx.resume();
+  }
+}
 
 function getCallConfig() {
   return { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
@@ -878,6 +900,7 @@ function toggleMute() {
 
 async function answerCall() {
   if (!callOrderId) return;
+  unlockAudio();
   hideIncomingCall();
   showCallOverlay(callTargetName || 'Customer', 'Connecting...');
   try {
@@ -885,9 +908,14 @@ async function answerCall() {
     callStream = stream;
     pc = createPeerConnection(callOrderId, function(remoteStream) {
       if (callFallbackTimer) { clearTimeout(callFallbackTimer); callFallbackTimer = null; }
+      if (_audioCtx && _audioCtx.state === 'suspended') _audioCtx.resume();
       const audio = new Audio();
+      audio.setAttribute('playsinline', '');
+      audio.autoplay = true;
+      audio.muted = false;
+      audio.volume = 1.0;
       audio.srcObject = remoteStream;
-      audio.play().catch(function(){});
+      audio.play().catch(function(e){ console.warn('Audio play:', e); });
       startCallTimer();
     });
     stream.getTracks().forEach(function(t) { pc.addTrack(t, stream); });
@@ -913,6 +941,7 @@ function declineCall() {
 
 async function callCustomer(orderId) {
   if (!orderId) { showToast('No active order to call', 'warning'); return; }
+  unlockAudio();
   callOrderId = orderId;
   callTargetName = document.getElementById('activeDrop')?.textContent || 'Customer';
   showCallOverlay(callTargetName, 'Ringing...');
@@ -921,9 +950,14 @@ async function callCustomer(orderId) {
     callStream = stream;
     pc = createPeerConnection(orderId, function(remoteStream) {
       if (callFallbackTimer) { clearTimeout(callFallbackTimer); callFallbackTimer = null; }
+      if (_audioCtx && _audioCtx.state === 'suspended') _audioCtx.resume();
       const audio = new Audio();
+      audio.setAttribute('playsinline', '');
+      audio.autoplay = true;
+      audio.muted = false;
+      audio.volume = 1.0;
       audio.srcObject = remoteStream;
-      audio.play().catch(function(){});
+      audio.play().catch(function(e){ console.warn('Audio play:', e); });
       startCallTimer();
     });
     stream.getTracks().forEach(function(t) { pc.addTrack(t, stream); });

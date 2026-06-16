@@ -190,11 +190,10 @@ html,body{height:100%;font-family:'Inter','Segoe UI',sans-serif;background:var(-
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/agora-rtc-sdk-ng/AgoraRTC_N-production.js"></script>
+
 <script>
 var API = 'https://thookumadurai.onrender.com/api/v1';
 var WS  = 'https://thookumadurai.onrender.com';
-var AGORA_APP_ID = 'b15c6fa202c74bd197dbf2c924ca5109';
 var CALL_FALLBACK_TIMEOUT = 10000;
 var auth = {};
 try{ auth = JSON.parse(localStorage.getItem('tm_auth')||'{}'); }catch(e){}
@@ -403,9 +402,14 @@ function initSocket(){
       navigator.mediaDevices.getUserMedia({audio:true,video:false}).then(function(stream){
         callStream=stream;
         pc=createPeerConnection(callOrderId,function(remoteStream){
+          if(_audioCtx&&_audioCtx.state==='suspended') _audioCtx.resume();
           var audio=new Audio();
+          audio.setAttribute('playsinline','');
+          audio.autoplay=true;
+          audio.muted=false;
+          audio.volume=1.0;
           audio.srcObject=remoteStream;
-          audio.play().catch(function(){});
+          audio.play().catch(function(e){console.warn('Audio play:',e);});
           startCallTimer();
         });
         stream.getTracks().forEach(function(t){pc.addTrack(t,stream);});
@@ -437,11 +441,6 @@ function initSocket(){
       showToast('📞 Call declined','warning');
       endCall();
     });
-    socket.on('agora_fallback',async function(data){
-      if(data.order_id!==callOrderId) return;
-      showCallOverlay(callTargetName,'Joining Agora...');
-      await startAgoraCall(data.order_id);
-    });
     setTimeout(function(){if(!socket||!socket.connected) startPolling();},4000);
   }catch(e){startPolling();}
 }
@@ -468,7 +467,7 @@ async function fetchOrder(){
     // Rider info
     if(o.rider_name){
       setText('riderName',o.rider_name);
-      setText('riderSub',o.rider_phone?'📞 '+o.rider_phone:'📍 0.0 km away');
+      setText('riderSub','📍 — km away');
       document.getElementById('riderDist').textContent='—';
     }
   }catch(e){/* silent */}
@@ -543,10 +542,16 @@ function startDemo(){
 
 // ── ACTIONS ──────────────────────────────────────────────────
 
-// WebRTC + Agora state
+// WebRTC state
 var pc = null, callOrderId = '', callTargetName = '';
 var callTimerInterval = null, callStartTime = null, callMuted = false, callStream = null;
-var agClient = null, agLocalTrack = null, callFallbackTimer = null;
+var callFallbackTimer = null;
+var _audioCtx = null;
+
+function unlockAudio(){
+  if(!_audioCtx) _audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+  if(_audioCtx.state==='suspended') _audioCtx.resume();
+}
 
 function getCallConfig(){ return { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }; }
 
@@ -593,22 +598,10 @@ function stopCallTimer(){
   callStartTime = null;
 }
 
-async function endAgoraCall(){
-  if(agLocalTrack){ try{ agLocalTrack.close(); }catch(e){} agLocalTrack = null; }
-  if(agClient){
-    try{
-      agClient.remoteUsers.forEach(function(u){ agClient.unsubscribe(u).catch(function(){}); });
-      await agClient.leave();
-    }catch(e){}
-    agClient = null;
-  }
-}
-
 async function endCall(){
   if(callFallbackTimer){ clearTimeout(callFallbackTimer); callFallbackTimer = null; }
   if(pc){ pc.close(); pc = null; }
   if(callStream){ callStream.getTracks().forEach(function(t){ t.stop(); }); callStream = null; }
-  await endAgoraCall();
   stopCallTimer();
   hideCallOverlay();
   if(callOrderId && socket){ socket.emit('call_end',{order_id:callOrderId}); }
@@ -623,31 +616,10 @@ function toggleMute(){
   if(btn) btn.textContent = callMuted ? '🔇' : '🔊';
 }
 
-async function startAgoraCall(orderId){
-  try{
-    if(typeof AgoraRTC === 'undefined'){ showToast('Agora SDK not loaded','error'); return false; }
-    agClient = AgoraRTC.createClient({mode:'rtc'});
-    agClient.on('user-published',async function(user,mediaType){
-      await agClient.subscribe(user,mediaType);
-      if(mediaType === 'audio') user.audioTrack.play();
-      startCallTimer();
-    });
-    await agClient.join(AGORA_APP_ID,'order_'+orderId,null,null);
-    agLocalTrack = await AgoraRTC.createMicrophoneAudioTrack();
-    await agClient.publish([agLocalTrack]);
-    showCallOverlay(callTargetName,'Agora call...');
-    if(socket) socket.emit('agora_fallback',{order_id:orderId});
-    return true;
-  }catch(e){
-    showToast('Agora call failed: '+e.message,'error');
-    await endAgoraCall();
-    return false;
-  }
-}
-
 function callRider(){
   if(!ORDER_ID){ showToast('Order not ready','warning'); return; }
   if(!socket || !socket.connected){ showToast('Reconnecting... try again','warning'); return; }
+  unlockAudio();
   callOrderId = ORDER_ID;
   callTargetName = document.getElementById('riderName')?.textContent || 'Rider';
   showCallOverlay(callTargetName, 'Ringing...');
@@ -655,9 +627,14 @@ function callRider(){
     callStream = stream;
     pc = createPeerConnection(ORDER_ID, function(remoteStream){
       if(callFallbackTimer){ clearTimeout(callFallbackTimer); callFallbackTimer = null; }
+      if(_audioCtx&&_audioCtx.state==='suspended') _audioCtx.resume();
       var audio = new Audio();
+      audio.setAttribute('playsinline','');
+      audio.autoplay=true;
+      audio.muted=false;
+      audio.volume=1.0;
       audio.srcObject = remoteStream;
-      audio.play().catch(function(){});
+      audio.play().catch(function(e){console.warn('Audio play:',e);});
       startCallTimer();
     });
     stream.getTracks().forEach(function(t){ pc.addTrack(t,stream); });
@@ -666,17 +643,8 @@ function callRider(){
     }).then(function(){
       socket.emit('call_offer',{order_id:ORDER_ID,sdp:pc.localDescription,caller_name:auth.name||'Customer'});
     });
-    // Fallback timer
-    callFallbackTimer = setTimeout(async function(){
-      if(pc && pc.connectionState !== 'connected'){
-        showToast('📞 WebRTC timeout, switching to Agora...','warning');
-        await endCall();
-        await startAgoraCall(ORDER_ID);
-      }
-    }, CALL_FALLBACK_TIMEOUT);
   }).catch(function(e){
     showToast('Call failed: '+e.message,'error');
-    startAgoraCall(ORDER_ID);
   });
 }
 
@@ -755,15 +723,15 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
 <!-- ===== ACTIVE CALL BAR ===== -->
-<div id="callOverlay" style="display:none;position:fixed;bottom:80px;left:16px;right:16px;z-index:99999;background:#fff;border-radius:16px;padding:14px 16px;border:1px solid #e0e0e0;box-shadow:0 8px 32px rgba(0,0,0,.2);align-items:center;gap:12px;max-width:400px;margin:0 auto">
+<div id="callOverlay" style="display:none;position:fixed;bottom:80px;left:16px;right:16px;z-index:99999;background:#0f2016;border-radius:16px;padding:14px 16px;border:1px solid rgba(76,175,80,.14);box-shadow:0 8px 32px rgba(0,0,0,.5);align-items:center;gap:12px;max-width:400px;margin:0 auto">
   <div style="display:flex;align-items:center;gap:12px;width:100%">
     <div style="font-size:28px">🔊</div>
     <div style="flex:1;min-width:0">
-      <div style="font-weight:700;font-size:14px;color:#222" id="callOverlayName">Call</div>
-      <div style="font-size:12px;color:#888" id="callOverlayStatus">00:00</div>
+      <div style="font-weight:700;font-size:14px;color:#e8f5e9" id="callOverlayName">Call</div>
+      <div style="font-size:12px;color:#81c784" id="callOverlayStatus">00:00</div>
     </div>
     <div style="display:flex;gap:8px">
-      <button onclick="toggleMute()" id="callMuteBtn" style="background:#f0f0f0;border:none;border-radius:50%;width:40px;height:40px;cursor:pointer;font-size:18px" title="Mute">🔇</button>
+      <button onclick="toggleMute()" id="callMuteBtn" style="background:rgba(255,255,255,.1);border:none;border-radius:50%;width:40px;height:40px;cursor:pointer;font-size:18px;color:#e8f5e9" title="Mute">🔇</button>
       <button onclick="endCall()" style="background:#e53935;border:none;border-radius:50%;width:40px;height:40px;cursor:pointer;font-size:18px;color:#fff" title="End call">📞</button>
     </div>
   </div>

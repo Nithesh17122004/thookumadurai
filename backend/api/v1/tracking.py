@@ -280,6 +280,15 @@ def register_socketio_handlers(socketio):
         oid = data.get('order_id', '')
         if oid:
             socketio.emit('call_offer', data, room=f'order_{oid}', include_self=False)
+        # Also relay to rider room if available
+        db = current_app.extensions.get("mongo_db")
+        if db is not None and oid:
+            try:
+                order = db.orders.find_one({'_id': oid}, {'rider_id': 1})
+                if order and order.get('rider_id'):
+                    socketio.emit('call_offer', data, room=f'rider_{order["rider_id"]}', include_self=False)
+            except Exception:
+                pass
         # Store SDP for push-replay
         try:
             from api.v1.push_notifications import store_sdp_offer
@@ -303,35 +312,34 @@ def register_socketio_handlers(socketio):
         except Exception:
             pass
 
-    @socketio.on('call_answer')
-    def on_call_answer(data):
+    def _relay_to_order_and_rider(event, data):
         oid = data.get('order_id', '')
         if oid:
-            socketio.emit('call_answer', data, room=f'order_{oid}', include_self=False)
+            socketio.emit(event, data, room=f'order_{oid}', include_self=False)
+            db = current_app.extensions.get("mongo_db")
+            if db is not None:
+                try:
+                    order = db.orders.find_one({'_id': oid}, {'rider_id': 1})
+                    if order and order.get('rider_id'):
+                        socketio.emit(event, data, room=f'rider_{order["rider_id"]}', include_self=False)
+                except Exception:
+                    pass
+
+    @socketio.on('call_answer')
+    def on_call_answer(data):
+        _relay_to_order_and_rider('call_answer', data)
 
     @socketio.on('ice_candidate')
     def on_ice_candidate(data):
-        oid = data.get('order_id', '')
-        if oid:
-            socketio.emit('ice_candidate', data, room=f'order_{oid}', include_self=False)
+        _relay_to_order_and_rider('ice_candidate', data)
 
     @socketio.on('call_end')
     def on_call_end(data):
-        oid = data.get('order_id', '')
-        if oid:
-            socketio.emit('call_end', data, room=f'order_{oid}')
+        _relay_to_order_and_rider('call_end', data)
 
     @socketio.on('call_decline')
     def on_call_decline(data):
-        oid = data.get('order_id', '')
-        if oid:
-            socketio.emit('call_decline', data, room=f'order_{oid}', include_self=False)
-
-    @socketio.on('agora_fallback')
-    def on_agora_fallback(data):
-        oid = data.get('order_id', '')
-        if oid:
-            socketio.emit('agora_fallback', data, room=f'order_{oid}', include_self=False)
+        _relay_to_order_and_rider('call_decline', data)
 
 
 # ── Analytics ─────────────────────────────────────────────────────────────

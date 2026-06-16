@@ -88,6 +88,17 @@
     <button class="btn-primary btn-sm" onclick="openModal('loginModal')" id="loginBtn">
       <i class="fas fa-user"></i> Login
     </button>
+    <div class="user-menu" id="userMenu" style="display:none;position:relative">
+      <button class="btn-primary btn-sm" onclick="toggleUserDropdown()" id="userBtn">
+        <i class="fas fa-user-check"></i> <span id="userNameDisplay">User</span>
+      </button>
+      <div id="userDropdown" style="display:none;position:absolute;top:100%;right:0;background:#0f2016;border:1px solid rgba(76,175,80,.14);border-radius:10px;padding:6px;min-width:160px;z-index:999;margin-top:6px;box-shadow:0 8px 24px rgba(0,0,0,.4)">
+        <div style="padding:10px 12px;border-bottom:1px solid rgba(76,175,80,.1);font-size:12px;color:#81c784" id="userEmailDisplay"></div>
+        <div style="padding:8px 12px;cursor:pointer;font-size:13px;border-radius:6px;color:#ef5350;display:flex;align-items:center;gap:8px" onclick="logout()" onmouseover="this.style.background='rgba(239,83,80,.1)'" onmouseout="this.style.background='transparent'">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </div>
+      </div>
+    </div>
     <div class="navbar-toggler" id="navToggler" onclick="toggleNav()">
       <span></span><span></span><span></span>
     </div>
@@ -108,7 +119,7 @@
         Real Restaurants.<br>
         <span style="color:var(--text-muted); font-size:0.7em;">Delivered to Your Door.</span>
       </h1>
-      <p>Order from local restaurants in Madurai with <strong style="color:var(--accent)">exact menu prices</strong> — no inflation, no hidden charges. Just food + delivery fee + ₹20 platform fee.</p>
+      <p>Order from local restaurants in Madurai with <strong style="color:var(--accent)">exact menu prices</strong> — no inflation, no hidden charges. Just food + delivery fee (₹15/km) + ₹10 platform fee.</p>
 
       <div class="hero-actions">
         <button class="btn-accent btn-lg" onclick="scrollToRestaurants()" id="orderNowBtn">
@@ -784,7 +795,7 @@
 // ===== CONSTANTS =====
 const API_BASE = 'https://thookumadurai.onrender.com/api/v1';
 let DELIVERY_BASE_FEE = 30;
-let PLATFORM_FEE = 20;
+let PLATFORM_FEE = 10;
 let SUPPORT_PHONE = '044-2200-1234';
 let g_calcDistance = 0;
 let g_calcDeliveryFee = 30;
@@ -801,19 +812,19 @@ function calcDeliveryDistance(rLat, rLng, cLat, cLng) {
 }
 
 function deliveryFeeSlab(dist) {
-  if (dist <= 2) return 30;
-  if (dist <= 4) return 40;
-  if (dist <= 6) return 50;
-  if (dist <= 8) return 60;
-  return 70;
+  if (dist <= 1.5) return 15;
+  if (dist <= 3) return 20;
+  if (dist <= 5) return 25;
+  if (dist <= 7) return 30;
+  return 35;
 }
 
 function slabRange(dist) {
-  if (dist <= 2) return '0–2 km · ₹30';
-  if (dist <= 4) return '2–4 km · ₹40';
-  if (dist <= 6) return '4–6 km · ₹50';
-  if (dist <= 8) return '6–8 km · ₹60';
-  return '8+ km · ₹70';
+  if (dist <= 1.5) return '0–1.5 km · ₹15';
+  if (dist <= 3) return '1.5–3 km · ₹20';
+  if (dist <= 5) return '3–5 km · ₹25';
+  if (dist <= 7) return '5–7 km · ₹30';
+  return '7+ km · ₹35';
 }
 
 // ===== STATE =====
@@ -840,7 +851,7 @@ async function loadPlatformSettings() {
     if (!res.ok || !data.success) return;
     const d = data.data || {};
     DELIVERY_BASE_FEE = Number(d.delivery_base_fee ?? 30);
-    PLATFORM_FEE = Number(d.platform_fee ?? 20);
+    PLATFORM_FEE = Number(d.platform_fee ?? 10);
     if (d.support_phone) {
       SUPPORT_PHONE = d.support_phone;
       const sp = document.getElementById('supportPhoneText');
@@ -868,8 +879,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const auth = JSON.parse(savedAuth);
     if (auth.token && auth.role === 'customer') {
       state.user = auth;
-      const btn = document.getElementById('loginBtn');
-      if (btn) btn.innerHTML = `<i class="fas fa-user-check"></i> ${(auth.name||'').substring(0,8)}...`;
+      document.getElementById('loginBtn').style.display = 'none';
+      document.getElementById('userMenu').style.display = '';
+      document.getElementById('userNameDisplay').textContent = (auth.name||'').substring(0,12);
+      document.getElementById('userEmailDisplay').textContent = auth.email || '';
       const ordNav = document.getElementById('nav-orders');
       if (ordNav) ordNav.style.display = 'inline-flex';
     }
@@ -1967,6 +1980,28 @@ let callMuted = false;
 let callStream = null;
 let callSocket = null;
 let callFallbackTimer = null;
+let _audioCtx = null;
+
+function unlockAudio() {
+  if (!_audioCtx) {
+    _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if (_audioCtx.state === 'suspended') {
+    _audioCtx.resume();
+  }
+}
+
+function toggleUserDropdown() {
+  var dd = document.getElementById('userDropdown');
+  if (dd) dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
+}
+
+function logout() {
+  localStorage.removeItem('tm_auth');
+  localStorage.removeItem('tm_last_order');
+  showToast('Logged out', 'success');
+  setTimeout(function(){ window.location.reload(); }, 500);
+}
 
 function getCallConfig() {
   return { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
@@ -2050,6 +2085,7 @@ async function callRiderMasked() {
     showToast('Reconnecting... try again', 'warning');
     return;
   }
+  unlockAudio();
   callSocket = _trackSocket;
   const oid = state.trackingOrderId;
   callOrderId = oid;
@@ -2060,9 +2096,14 @@ async function callRiderMasked() {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
     callStream = stream;
     pc = createPeerConnection(oid, function(remoteStream) {
+      if (_audioCtx && _audioCtx.state === 'suspended') _audioCtx.resume();
       const audio = new Audio();
+      audio.setAttribute('playsinline', '');
+      audio.autoplay = true;
+      audio.muted = false;
+      audio.volume = 1.0;
       audio.srcObject = remoteStream;
-      audio.play().catch(function(){});
+      audio.play().catch(function(e){ console.warn('Audio play:', e); });
       document.getElementById('callOverlayIcon').textContent = '🔊';
       startCallTimer();
     });
@@ -2109,9 +2150,14 @@ function attachCallSocketHandlers(sock) {
         callStream = stream;
         pc = createPeerConnection(callOrderId, function(remoteStream) {
           if (callFallbackTimer) { clearTimeout(callFallbackTimer); callFallbackTimer = null; }
+          if (_audioCtx && _audioCtx.state === 'suspended') _audioCtx.resume();
           const audio = new Audio();
+          audio.setAttribute('playsinline', '');
+          audio.autoplay = true;
+          audio.muted = false;
+          audio.volume = 1.0;
           audio.srcObject = remoteStream;
-          audio.play().catch(function(){});
+          audio.play().catch(function(e){ console.warn('Audio play:', e); });
           document.getElementById('callOverlayIcon').textContent = '🔊';
           startCallTimer();
         });
