@@ -217,6 +217,30 @@ var DEMO_REST = {lat:9.9310,lng:78.1200};
 var DEMO_CUST = {lat:9.9180,lng:78.1350};
 var demoRider = {lat:9.9280,lng:78.1220};
 
+// ── OSRM ROUTE FETCH ──────────────────────────────────────────
+var _routeFetching = false;
+function fetchRoute(lat1,lng1,lat2,lng2){
+  if(_routeFetching) return;
+  _routeFetching = true;
+  fetch('https://router.project-osrm.org/route/v1/driving/'+lng1+','+lat1+';'+lng2+','+lat2+'?overview=full&geometries=geojson')
+    .then(function(r){return r.json();})
+    .then(function(data){
+      _routeFetching = false;
+      if(data.code==='Ok'&&data.routes&&data.routes.length>0){
+        var coords = data.routes[0].geometry.coordinates.map(function(c){return [c[1],c[0]];});
+        if(routeLine){routeLine.setLatLngs(coords);routeLine.setStyle({color:'#ff9800',weight:3,opacity:.7});}
+        var dist = data.routes[0].distance/1000;
+        var eta = Math.max(1,Math.round(dist/0.5));
+        setText('metricDist',dist.toFixed(1));
+        setText('metricEta',eta);
+        setText('riderDist',dist.toFixed(1));
+        var b=document.getElementById('etaBadge');
+        if(b) b.textContent='⏱ '+eta+' min';
+      }
+    })
+    .catch(function(){_routeFetching=false;});
+}
+
 // ── MAP INIT ─────────────────────────────────────────────────
 
 function initMap(rLat,rLng,cLat,cLng) {
@@ -250,10 +274,11 @@ function initMap(rLat,rLng,cLat,cLng) {
 
   currentRiderPos = {lat:rLat,lng:rLng};
   routeLine = L.polyline([[rLat,rLng],[cLat,cLng]],
-    {color:'#ff9800',weight:2,dashArray:'6,8',opacity:.5}).addTo(map);
+    {color:'#ff9800',weight:3,opacity:.7}).addTo(map);
 
   map.fitBounds([[rLat,rLng],[cLat,cLng]],{padding:[50,50]});
   updateDistance(rLat,rLng,cLat,cLng);
+  fetchRoute(rLat,rLng,cLat,cLng);
 }
 
 function makeIcon(emoji,size,bg,label){
@@ -290,6 +315,7 @@ function animateRider(newLat,newLng){
         var c=customerMarker.getLatLng();
         var r=restaurantMarker.getLatLng();
         updateDistance(newLat,newLng,c.lat,c.lng);
+        fetchRoute(newLat,newLng,c.lat,c.lng);
         // Re-fit bounds to keep all three markers visible
         map.fitBounds([[newLat,newLng],[c.lat,c.lng],[r.lat,r.lng]],{padding:[50,50],maxZoom:16});
       }

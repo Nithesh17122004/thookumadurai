@@ -714,16 +714,22 @@
 <div class="toast-container" id="toastContainer" aria-live="polite"></div>
 
 <!-- ===== CALL OVERLAY (WebRTC) ===== -->
-<div id="callOverlay" style="display:none;position:fixed;bottom:80px;right:16px;z-index:9999;background:#fff;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,.2);padding:16px;width:300px;border:1px solid #e0e0e0">
-  <div style="display:flex;align-items:center;gap:12px">
-    <div style="font-size:32px" id="callOverlayIcon">📞</div>
-    <div style="flex:1">
-      <div style="font-weight:700;font-size:14px" id="callOverlayName">Connecting...</div>
-      <div style="font-size:12px;color:#888" id="callOverlayStatus">Ringing</div>
+<div id="callOverlay" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:20px">
+  <div style="background:#0f2016;border-radius:20px;padding:32px;text-align:center;max-width:340px;width:100%;border:1px solid rgba(76,175,80,.14)">
+    <div style="font-size:56px;margin-bottom:12px" id="callOverlayIcon">📞</div>
+    <div style="font-size:22px;font-weight:800;margin-bottom:4px;color:#4caf50" id="callOverlayName">Connecting...</div>
+    <div style="font-size:13px;color:#4a7c59;margin-bottom:24px" id="callOverlayStatus">Calling...</div>
+    <div id="callOverlayButtons">
+      <div id="incomingCallControls" style="display:none;gap:16px;justify-content:center">
+        <button onclick="answerIncomingCall()" style="background:#4caf50;border:none;border-radius:50%;width:60px;height:60px;cursor:pointer;font-size:28px;color:#fff;box-shadow:0 4px 16px rgba(76,175,80,.4)" title="Answer">📞</button>
+        <button onclick="declineIncomingCall()" style="background:#e53935;border:none;border-radius:50%;width:60px;height:60px;cursor:pointer;font-size:28px;color:#fff;box-shadow:0 4px 16px rgba(229,57,53,.4)" title="Decline">📞</button>
+      </div>
+      <div id="activeCallControls" style="display:none;gap:16px;justify-content:center">
+        <button onclick="endCall()" style="background:#e53935;border:none;border-radius:50%;width:60px;height:60px;cursor:pointer;font-size:28px;color:#fff;box-shadow:0 4px 16px rgba(229,57,53,.4)" title="End call">📞</button>
+      </div>
     </div>
-    <div style="display:flex;gap:6px">
-      <button id="callMuteBtn" onclick="toggleMute()" style="background:#f0f0f0;border:none;border-radius:50%;width:36px;height:36px;cursor:pointer;font-size:16px" title="Mute">🔇</button>
-      <button onclick="endCall()" style="background:#e53935;border:none;border-radius:50%;width:36px;height:36px;cursor:pointer;font-size:16px;color:#fff" title="End call">📞</button>
+    <div id="callMuteRow" style="display:none;margin-top:12px">
+      <button id="callMuteBtn" onclick="toggleMute()" style="background:rgba(76,175,80,.15);border:1px solid rgba(76,175,80,.3);border-radius:12px;padding:8px 20px;cursor:pointer;font-size:14px;color:#e8f5e9">🔊 Mute</button>
     </div>
   </div>
 </div>
@@ -800,7 +806,7 @@ let SUPPORT_PHONE = '044-2200-1234';
 let g_calcDistance = 0;
 let g_calcDeliveryFee = 30;
 
-// Haversine distance from restaurant to customer (km)
+// Haversine distance (fallback)
 function calcDeliveryDistance(rLat, rLng, cLat, cLng) {
   var R = 6371;
   var dLat = (cLat - rLat) * Math.PI / 180;
@@ -809,6 +815,18 @@ function calcDeliveryDistance(rLat, rLng, cLat, cLng) {
           Math.cos(rLat*Math.PI/180)*Math.cos(cLat*Math.PI/180)*
           Math.sin(dLng/2)*Math.sin(dLng/2);
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+// OSRM road distance
+async function getRoadDistance(rLat, rLng, cLat, cLng) {
+  try {
+    var res = await fetch('https://router.project-osrm.org/route/v1/driving/' + rLng + ',' + rLat + ';' + cLng + ',' + cLat + '?overview=false');
+    var data = await res.json();
+    if (data.code === 'Ok' && data.routes && data.routes.length > 0) {
+      return data.routes[0].distance / 1000;
+    }
+  } catch(e) { console.warn('OSRM error, fallback to straight line:', e); }
+  return calcDeliveryDistance(rLat, rLng, cLat, cLng);
 }
 
 function deliveryFeeSlab(dist) {
@@ -1263,7 +1281,7 @@ function addToCart(item) {
   showToast(`Added ${item.name} to cart`, 'success');
 }
 
-function updateCartUI() {
+async function updateCartUI() {
   const count = state.cart.reduce((s, c) => s + c.qty, 0);
   const subtotal = state.cart.reduce((s, c) => s + c.price * c.qty, 0);
 
@@ -1291,6 +1309,13 @@ function updateCartUI() {
   if (rLat && rLng && cLat && cLng) {
     dist = calcDeliveryDistance(rLat, rLng, cLat, cLng);
     delivery = deliveryFeeSlab(dist);
+    getRoadDistance(rLat, rLng, cLat, cLng).then(function(rd) {
+      if (rd !== dist) {
+        g_calcDistance = rd;
+        g_calcDeliveryFee = deliveryFeeSlab(rd);
+        updateCartUI();
+      }
+    });
   }
   g_calcDistance = dist;
   g_calcDeliveryFee = delivery;
@@ -1544,7 +1569,7 @@ async function saveCurrentAddress() {
   return addr;
 }
 
-function updateBill() {
+async function updateBill() {
   const subtotal = state.cart.reduce((s, c) => s + c.price * c.qty, 0);
 
   // Calculate delivery fee based on restaurant→customer distance
@@ -1572,6 +1597,13 @@ function updateBill() {
   if (rLat && rLng && cLat && cLng) {
     dist = calcDeliveryDistance(rLat, rLng, cLat, cLng);
     delivery = deliveryFeeSlab(dist);
+    getRoadDistance(rLat, rLng, cLat, cLng).then(function(rd) {
+      if (rd !== dist) {
+        g_calcDistance = rd;
+        g_calcDeliveryFee = deliveryFeeSlab(rd);
+        updateBill();
+      }
+    });
   }
   g_calcDistance = dist;
   g_calcDeliveryFee = delivery;
@@ -1976,6 +2008,31 @@ let callStream = null;
 let callSocket = null;
 let callFallbackTimer = null;
 let _audioCtx = null;
+let _ringtoneInterval = null;
+let pendingOffer = null;
+
+function playRingtone() {
+  stopRingtone();
+  if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (_audioCtx.state === 'suspended') _audioCtx.resume();
+  _ringtoneInterval = setInterval(function() {
+    try {
+      if (!_audioCtx) return;
+      var osc = _audioCtx.createOscillator();
+      var gain = _audioCtx.createGain();
+      gain.gain.value = 0.3;
+      osc.type = 'sine';
+      osc.frequency.value = 440;
+      osc.connect(gain);
+      gain.connect(_audioCtx.destination);
+      osc.start();
+      osc.stop(_audioCtx.currentTime + 0.4);
+    } catch(e) {}
+  }, 800);
+}
+function stopRingtone() {
+  if (_ringtoneInterval) { clearInterval(_ringtoneInterval); _ringtoneInterval = null; }
+}
 
 function unlockAudio() {
   if (!_audioCtx) {
@@ -2039,16 +2096,22 @@ function playRemoteStream(stream) {
   } catch(e) { console.warn('AudioContext play error:', e); }
 }
 
-function showCallOverlay(name, status) {
+function showCallOverlay(name, status, isIncoming) {
   const o = document.getElementById('callOverlay');
-  if (o) {
-    o.style.display = 'block';
-    const nameEl = document.getElementById('callOverlayName');
-    const statusEl = document.getElementById('callOverlayStatus');
-    if (nameEl) nameEl.textContent = name || 'Call';
-    if (statusEl) statusEl.textContent = status || 'Connected';
-    document.getElementById('callOverlayIcon').textContent = '📞';
-  }
+  if (!o) return;
+  o.style.display = 'flex';
+  const nameEl = document.getElementById('callOverlayName');
+  const statusEl = document.getElementById('callOverlayStatus');
+  if (nameEl) nameEl.textContent = name || 'Call';
+  if (statusEl) statusEl.textContent = status || 'Connected';
+  document.getElementById('callOverlayIcon').textContent = '📞';
+  var inc = document.getElementById('incomingCallControls');
+  var act = document.getElementById('activeCallControls');
+  var mut = document.getElementById('callMuteRow');
+  if (inc) inc.style.display = isIncoming ? 'flex' : 'none';
+  if (act) act.style.display = isIncoming ? 'none' : 'flex';
+  if (mut) mut.style.display = isIncoming ? 'none' : 'block';
+  if (isIncoming) playRingtone();
 }
 
 function hideCallOverlay() {
@@ -2074,10 +2137,51 @@ function stopCallTimer() {
   callStartTime = null;
 }
 
+async function answerIncomingCall() {
+  stopRingtone();
+  if (!callOrderId || !pendingOffer) return;
+  unlockAudio();
+  var oid = callOrderId;
+  var offer = pendingOffer;
+  pendingOffer = null;
+  try {
+    var stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+    callStream = stream;
+    pc = createPeerConnection(oid, function(remoteStream) {
+      if (callFallbackTimer) { clearTimeout(callFallbackTimer); callFallbackTimer = null; }
+      playRemoteStream(remoteStream);
+      document.getElementById('callOverlayIcon').textContent = '🔊';
+      startCallTimer();
+    });
+    stream.getTracks().forEach(function(t) { pc.addTrack(t, stream); });
+    await pc.setRemoteDescription(new RTCSessionDescription(offer));
+    var answer = await pc.createAnswer();
+    await pc.setLocalDescription(answer);
+    if (callSocket) callSocket.emit('call_answer', { order_id: oid, sdp: answer });
+    showCallOverlay(callTargetName, 'Connecting...', false);
+  } catch(e) {
+    showToast('Call error: ' + e.message, 'error');
+    endCall();
+  }
+}
+function declineIncomingCall() {
+  stopRingtone();
+  if (callOrderId && callSocket) callSocket.emit('call_decline', { order_id: callOrderId });
+  if (pc) { pc.close(); pc = null; }
+  if (callStream) { callStream.getTracks().forEach(function(t) { t.stop(); }); callStream = null; }
+  pendingOffer = null;
+  stopCallTimer();
+  hideCallOverlay();
+  callOrderId = '';
+  callTargetName = '';
+}
+
 async function endCall() {
+  stopRingtone();
   if (callFallbackTimer) { clearTimeout(callFallbackTimer); callFallbackTimer = null; }
   if (pc) { pc.close(); pc = null; }
   if (callStream) { callStream.getTracks().forEach(function(t) { t.stop(); }); callStream = null; }
+  pendingOffer = null;
   stopCallTimer();
   hideCallOverlay();
   if (callOrderId && callSocket) {
@@ -2152,28 +2256,11 @@ function attachCallSocketHandlers(sock) {
   callSocket = sock;
   sock.on('call_offer', async function(data) {
     if (callOrderId && data.order_id !== callOrderId) return;
-    if (!pc) {
+    if (!pc && !pendingOffer) {
       callOrderId = data.order_id;
       callTargetName = data.caller_name || 'Customer';
-      showCallOverlay(callTargetName, 'Incoming...');
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-        callStream = stream;
-        pc = createPeerConnection(callOrderId, function(remoteStream) {
-          if (callFallbackTimer) { clearTimeout(callFallbackTimer); callFallbackTimer = null; }
-          playRemoteStream(remoteStream);
-          document.getElementById('callOverlayIcon').textContent = '🔊';
-          startCallTimer();
-        });
-        stream.getTracks().forEach(function(t) { pc.addTrack(t, stream); });
-        await pc.setRemoteDescription(new RTCSessionDescription(data.sdp));
-        const answer = await pc.createAnswer();
-        await pc.setLocalDescription(answer);
-        sock.emit('call_answer', { order_id: callOrderId, sdp: answer });
-      } catch(e) {
-        showToast('Call error: ' + e.message, 'error');
-        endCall();
-      }
+      pendingOffer = data.sdp;
+      showCallOverlay(callTargetName, 'Incoming call...', true);
     }
   });
   sock.on('call_answer', async function(data) {

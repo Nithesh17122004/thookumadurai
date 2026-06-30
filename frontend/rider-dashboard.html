@@ -807,6 +807,31 @@ let callMuted = false;
 let callStream = null;
 let callFallbackTimer = null;
 let _audioCtx = null;
+let _ringtoneInterval = null;
+let pendingOffer = null;
+
+function playRingtone() {
+  stopRingtone();
+  if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (_audioCtx.state === 'suspended') _audioCtx.resume();
+  _ringtoneInterval = setInterval(function() {
+    try {
+      if (!_audioCtx) return;
+      var osc = _audioCtx.createOscillator();
+      var gain = _audioCtx.createGain();
+      gain.gain.value = 0.3;
+      osc.type = 'sine';
+      osc.frequency.value = 440;
+      osc.connect(gain);
+      gain.connect(_audioCtx.destination);
+      osc.start();
+      osc.stop(_audioCtx.currentTime + 0.4);
+    } catch(e) {}
+  }, 800);
+}
+function stopRingtone() {
+  if (_ringtoneInterval) { clearInterval(_ringtoneInterval); _ringtoneInterval = null; }
+}
 
 function unlockAudio() {
   if (!_audioCtx) {
@@ -855,11 +880,13 @@ function showIncomingCall(data) {
   document.getElementById('incomingCallOrder').textContent = 'Order #' + (data.order_id || '').substring(0,8);
   callOrderId = data.order_id;
   overlay.style.display = 'flex';
+  playRingtone();
 }
 
 function hideIncomingCall() {
   const overlay = document.getElementById('incomingCallOverlay');
   if (overlay) overlay.style.display = 'none';
+  stopRingtone();
 }
 
 function playRemoteStream(stream) {
