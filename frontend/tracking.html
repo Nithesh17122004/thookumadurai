@@ -574,8 +574,9 @@ function unlockAudio(){
 
 function getCallConfig(){ return { iceServers: [
   { urls: ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302', 'stun:stun3.l.google.com:19302'] },
-  { urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' }
-]}; }
+  { urls: ['turn:openrelay.metered.ca:80', 'turn:openrelay.metered.ca:443'], username: 'openrelayproject', credential: 'openrelayproject' },
+  { urls: ['turns:openrelay.metered.ca:443', 'turn:openrelay.metered.ca:443?transport=tcp'], username: 'openrelayproject', credential: 'openrelayproject' }
+], iceCandidatePoolSize:10 };
 
 function createPeerConnection(oid, onRemoteStream){
   var cfg = getCallConfig();
@@ -585,12 +586,18 @@ function createPeerConnection(oid, onRemoteStream){
   };
   p.oniceconnectionstatechange = function(){
     console.log('ICE state:', p.iceConnectionState, 'for order', oid);
+    var statusEl=document.getElementById('callOverlayStatus');
     if(p.iceConnectionState === 'connected' || p.iceConnectionState === 'completed'){
       document.getElementById('callOverlayIcon').textContent = '🔊';
+      if(statusEl) statusEl.textContent='Connected';
       startCallTimer();
-    }
-    if(p.iceConnectionState === 'failed'){
-      showToast('Call connection failed. Check network or try again.', 'error');
+    } else if(p.iceConnectionState === 'checking'){
+      if(statusEl) statusEl.textContent='Connecting...';
+    } else if(p.iceConnectionState === 'disconnected'){
+      if(statusEl) statusEl.textContent='Reconnecting...';
+    } else if(p.iceConnectionState === 'failed'){
+      if(statusEl) statusEl.textContent='Call failed';
+      showToast('Call connection failed. Check network.', 'error');
     }
   };
   p.ontrack = function(e){ if(onRemoteStream) onRemoteStream(e.streams[0]); };
