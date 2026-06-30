@@ -150,7 +150,7 @@
       </div>
     </div>
 
-    <div id="heroFeatured" style="position:absolute;right:5%;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:12px;opacity:0.85" class="d-none d-xl-flex"></div>
+    <div id="heroFeatured" style="display:none;position:absolute;right:5%;top:50%;transform:translateY(-50%);flex-direction:column;gap:12px;opacity:0.85"></div>
   </div>
 </section>
 
@@ -179,8 +179,8 @@
       <div class="feature-card">
         <div class="feature-icon">📱</div>
         <div class="feature-title">Platform Fee</div>
-        <div class="feature-desc">Fixed ₹20 per order. No hidden charges. This is how we keep the service running.</div>
-        <div style="margin-top:12px;font-size:18px;font-weight:800;color:var(--accent)">₹20 Fixed</div>
+        <div class="feature-desc">Fixed ₹10 per order. No hidden charges. This is how we keep the service running.</div>
+        <div style="margin-top:12px;font-size:18px;font-weight:800;color:var(--accent)">₹10 Fixed</div>
       </div>
       <div class="feature-card">
         <div class="feature-icon">📲</div>
@@ -199,7 +199,7 @@
       <i class="fas fa-search"></i>
       <input type="text" id="searchInput" placeholder="Search restaurants, biryani, meals, tiffin..." autocomplete="off" aria-label="Search food or restaurants">
       <button class="search-btn" onclick="performSearch()" id="searchBtn">
-        <i class="fas fa-search"></i> Search
+        <i class="fas fa-search"></i> <span>Search</span>
       </button>
     </div>
   </div>
@@ -903,6 +903,8 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('userEmailDisplay').textContent = auth.email || '';
       const ordNav = document.getElementById('nav-orders');
       if (ordNav) ordNav.style.display = 'inline-flex';
+      const mobOrders = document.getElementById('mobileOrdersBtn');
+      if (mobOrders) mobOrders.style.display = '';
     }
   }
 
@@ -974,31 +976,34 @@ async function detectLocation() {
 // ===== RESTAURANTS — LOAD FROM API =====
 async function loadRestaurantsFromAPI() {
   const grid = document.getElementById('restaurantGrid');
-  // Keep skeleton visible during load
   try {
-    const res = await fetch(`${API_BASE}/restaurants`);
-    const data = await res.json();
+    // 10s timeout to prevent infinite loading
+    var controller = new AbortController();
+    var timer = setTimeout(function() { controller.abort(); }, 10000);
+    var res = await fetch(API_BASE + '/restaurants', { signal: controller.signal });
+    clearTimeout(timer);
+    var data = await res.json();
     if (!res.ok) throw new Error(data.message || 'Failed to load restaurants');
-    const list = data.data?.restaurants || data.data || [];
+    var list = data.data?.restaurants || data.data || [];
     state.allRestaurants = list;
     renderRestaurants(list);
     renderHeroFeatured(list);
     updateHeroStats(list.length);
     if (state.cart.length) updateCartUI();
-    const countEl = document.getElementById('restaurantCount');
-    if (countEl) countEl.textContent = `(${list.length} restaurant${list.length!==1?'s':''})`;
+    var countEl = document.getElementById('restaurantCount');
+    if (countEl) countEl.textContent = '(' + list.length + ' restaurant' + (list.length !== 1 ? 's' : '') + ')';
   } catch (err) {
     console.warn('API Error:', err.message);
-    // Show empty state
-    if (grid) grid.innerHTML = `
-      <div style="grid-column:1/-1;text-align:center;padding:80px 20px;color:#666">
-        <div style="font-size:64px;margin-bottom:16px">🏪</div>
-        <div style="font-size:20px;font-weight:700;margin-bottom:8px">No Restaurants Yet</div>
-        <div style="font-size:14px;color:#999">Admin is setting up restaurants. Check back soon!</div>
-      </div>`;
     state.allRestaurants = [];
     updateHeroStats(0);
-    const countEl = document.getElementById('restaurantCount');
+    if (grid) {
+      if (err.name === 'AbortError') {
+        grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px 20px;color:#666"><div style="font-size:48px;margin-bottom:12px">📡</div><div style="font-size:18px;font-weight:700;margin-bottom:6px">Connection Issue</div><div style="font-size:13px;color:#999">Could not reach the server. <a href="#" onclick="location.reload()" style="color:#4caf50;text-decoration:underline">Tap to retry</a></div></div>';
+      } else {
+        grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px 20px;color:#666"><div style="font-size:48px;margin-bottom:12px">🏪</div><div style="font-size:18px;font-weight:700;margin-bottom:6px">No Restaurants Yet</div><div style="font-size:13px;color:#999">Admin is setting up restaurants. Check back soon!</div></div>';
+      }
+    }
+    var countEl = document.getElementById('restaurantCount');
     if (countEl) countEl.textContent = '';
   }
 }
@@ -1326,6 +1331,8 @@ async function updateCartUI() {
   const floatingCart = document.getElementById('floatingCart');
   if (cartCount) cartCount.textContent = count;
   if (floatingCart) floatingCart.style.display = count > 0 ? 'flex' : 'none';
+  const mobileBadge = document.getElementById('mobileCartBadge');
+  if (mobileBadge) { mobileBadge.textContent = count; mobileBadge.style.display = count > 0 ? 'flex' : 'none'; }
 
   const setSafe = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
   setSafe('cartSubtotal', '₹' + subtotal);
@@ -2043,6 +2050,11 @@ function unlockAudio() {
   }
 }
 
+function setActiveMobileNav(el) {
+  document.querySelectorAll('.mobile-nav-item').forEach(function(n){ n.classList.remove('active'); });
+  if (el) el.classList.add('active');
+}
+
 function toggleUserDropdown() {
   var dd = document.getElementById('userDropdown');
   if (dd) dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
@@ -2612,6 +2624,33 @@ document.addEventListener('keydown', e => {
   }
 });
 </script>
+
+<!-- ===== MOBILE BOTTOM NAV ===== -->
+<nav class="mobile-bottom-nav" id="mobileBottomNav" aria-label="Mobile navigation">
+  <button class="mobile-nav-item active" onclick="scrollToRestaurants();setActiveMobileNav(this)" data-target="restaurants">
+    <i class="fas fa-utensils"></i>
+    <span>Eat</span>
+  </button>
+  <button class="mobile-nav-item" onclick="document.getElementById('searchInput').focus();window.scrollTo({top:document.getElementById('searchSection').offsetTop-70,behavior:'smooth'});setActiveMobileNav(this)" data-target="search">
+    <i class="fas fa-search"></i>
+    <span>Search</span>
+  </button>
+  <button class="mobile-nav-item" onclick="toggleCart();setActiveMobileNav(this)" data-target="cart" id="mobileCartBtn">
+    <div class="mobile-nav-item-wrap">
+      <i class="fas fa-shopping-bag"></i>
+      <span>Cart</span>
+      <span class="mobile-nav-badge" id="mobileCartBadge" style="display:none">0</span>
+    </div>
+  </button>
+  <button class="mobile-nav-item" onclick="loadOrderHistory();document.getElementById('orders').scrollIntoView({behavior:'smooth'});setActiveMobileNav(this)" data-target="orders" id="mobileOrdersBtn" style="display:none">
+    <i class="fas fa-receipt"></i>
+    <span>Orders</span>
+  </button>
+  <button class="mobile-nav-item" onclick="document.getElementById('userBtn').click();setActiveMobileNav(this)" data-target="account">
+    <i class="fas fa-user"></i>
+    <span>Profile</span>
+  </button>
+</nav>
 
 <!-- Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
