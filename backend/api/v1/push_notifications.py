@@ -11,6 +11,9 @@ VAPID_PRIVATE_KEY = os.environ.get('VAPID_PRIVATE_KEY') or _KEY_FILE
 VAPID_PUBLIC_KEY = os.getenv('VAPID_PUBLIC_KEY', '')
 VAPID_CLAIMS = {"sub": "mailto:admin@thooku.com"}
 
+# In-memory SDP store (fallback when MongoDB is unavailable)
+_sdp_store = {}
+
 def _get_db():
     return current_app.extensions.get("mongo_db")
 
@@ -56,20 +59,21 @@ def subscribe():
 
 def store_sdp_offer(call_id, sdp, caller_id, callee_id, order_id):
     db = _get_db()
-    if db is None:
-        return
-    db.call_offers.replace_one(
-        {'call_id': call_id},
-        {
-            'call_id': call_id,
-            'sdp': sdp,
-            'caller_id': caller_id,
-            'callee_id': callee_id,
-            'order_id': order_id,
-            'expires_at': datetime.utcnow() + timedelta(seconds=60)
-        },
-        upsert=True
-    )
+    doc = {
+        'call_id': call_id,
+        'sdp': sdp,
+        'caller_id': caller_id,
+        'callee_id': callee_id,
+        'order_id': order_id,
+        'expires_at': datetime.utcnow() + timedelta(seconds=120)
+    }
+    # Always store in memory (works without MongoDB)
+    _sdp_store[call_id] = doc
+    if db is not None:
+        try:
+            db.call_offers.replace_one({'call_id': call_id}, doc, upsert=True)
+        except Exception:
+            pass
 
 @push_bp.route('/api/v1/push/page-ready', methods=['POST'])
 @_auth
@@ -78,9 +82,16 @@ def page_ready():
     order_id = request.json.get('orderId')
     db = _get_db()
     sio = _get_socketio()
-    if db is None:
-        return jsonify({'error': 'Database unavailable'}), 503
-    doc = db.call_offers.find_one({'call_id': call_id})
+    doc = None
+    # Try in-memory store first (works without MongoDB)
+    if call_id in _sdp_store:
+        doc = _sdp_store[call_id]
+    # Fallback to MongoDB
+    if doc is None and db is not None:
+        try:
+            doc = db.call_offers.find_one({'call_id': call_id})
+        except Exception:
+            pass
     if not doc:
         return jsonify({'error': 'offer expired or not found'}), 404
     sio.emit('call_offer', {
@@ -92,7 +103,7 @@ def page_ready():
         'callerId': doc['caller_id'],
         'calleeId': doc['callee_id'],
         'replay': True
-    }, room=doc['order_id'])
+    }, room='order_' + doc['order_id'])
     # Also emit to rider room if callee_id looks like a rider
     if doc.get('callee_id'):
         sio.emit('call_offer', {
@@ -186,7 +197,12 @@ def call_declined():
         sio.emit('call_decline', {
             'callId': data.get('callId'),
             'orderId': data.get('orderId')
-        }, room=data.get('orderId'))
+        }, room='order_' + data['orderId'])
+        if data.get('calleeId'):
+            sio.emit('call_decline', {
+                'callId': data.get('callId'),
+                'orderId': data.get('orderId')
+            }, room='rider_' + data['calleeId'])
     return jsonify({'status': 'declined'})
 
 def _send_push_to_all(subscriptions, payload):

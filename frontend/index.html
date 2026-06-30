@@ -2088,12 +2088,27 @@ function createPeerConnection(orderId, onRemoteStream) {
 
 function playRemoteStream(stream) {
   if (!stream) return;
+  if (!stream.getAudioTracks().length) { console.warn('No audio tracks in remote stream'); return; }
   try {
-    if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (!_audioCtx || _audioCtx.state === 'closed') _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     if (_audioCtx.state === 'suspended') _audioCtx.resume();
     var src = _audioCtx.createMediaStreamSource(stream);
     src.connect(_audioCtx.destination);
-  } catch(e) { console.warn('AudioContext play error:', e); }
+  } catch(e) { console.warn('AudioContext error:', e); }
+  try {
+    var audio = document.getElementById('callAudio');
+    if (!audio) {
+      audio = new Audio();
+      audio.id = 'callAudio';
+      audio.setAttribute('playsinline', '');
+      audio.style.display = 'none';
+      document.body.appendChild(audio);
+    }
+    audio.muted = false;
+    audio.volume = 1.0;
+    audio.srcObject = stream;
+    audio.play().catch(function(e){ console.warn('Audio element play error:', e); });
+  } catch(e) { /* ignore */ }
 }
 
 function showCallOverlay(name, status, isIncoming) {
@@ -2566,16 +2581,20 @@ async function _tryHandleIncomingCall(pushData) {
   // Open tracking modal first (connects socket)
   if (pushData.orderId) {
     startOrderTracking(pushData.orderId);
-    // Wait a moment for socket to connect, then ask server to replay offer
-    setTimeout(async function() {
-      try {
-        await fetch(API_BASE + '/push/page-ready', {
+    // Wait for socket to connect, then ask server to replay offer
+    var maxWait = Date.now() + 8000;
+    function tryPageReady() {
+      if (_trackSocket && _trackSocket.connected) {
+        fetch(API_BASE + '/push/page-ready', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (state.user ? state.user.token : '') },
           body: JSON.stringify({ callId: pushData.callId, orderId: pushData.orderId })
-        });
-      } catch(e) {}
-    }, 2000);
+        }).catch(function(){});
+      } else if (Date.now() < maxWait) {
+        setTimeout(tryPageReady, 300);
+      }
+    }
+    setTimeout(tryPageReady, 500);
   }
 }
 
