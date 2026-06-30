@@ -518,22 +518,10 @@ async function loadRiderOrders() {
       return;
     }
 
-    // No active delivery — check for available orders to claim
-    const available = orders.find(o => o.status === 'accepted' && !o.rider_id);
-    if (available && isOnline) {
-      currentOrderId = available._id;
-      activeOrder = available;
-      const pickupEl = document.getElementById('incomingPickup');
-      const dropEl = document.getElementById('incomingDrop');
-      if (pickupEl) pickupEl.textContent = available.restaurant_name || 'Restaurant';
-      if (dropEl) dropEl.textContent = formatAddr(available.delivery_address);
-      document.getElementById('incomingCard').style.display = 'block';
+    // No active delivery — only show incoming card if this rider was offered via socket
+    // (sequential offers come via socket event 'delivery_offer', not by polling)
+    if (!document.getElementById('incomingCard').style.display || document.getElementById('incomingCard').style.display === 'none') {
       document.getElementById('activeCard').style.display = 'none';
-      startAcceptCountdown();
-    } else {
-      document.getElementById('incomingCard').style.display = 'none';
-      document.getElementById('activeCard').style.display = 'none';
-      currentOrderId = null;
     }
 
     HISTORY_ORDERS = orders.filter(o => ['delivered', 'cancelled'].includes(o.status)).map(o => ({
@@ -622,6 +610,24 @@ document.addEventListener('DOMContentLoaded', () => {
     socket.on('new_order', (data) => {
       if (data.order_id) loadRiderOrders();
     });
+    // Sequential delivery offer — targeted to this specific rider
+    socket.on('delivery_offer', (data) => {
+      if (data.order_id) {
+        currentOrderId = data.order_id;
+        activeOrder = data;
+        const pickupEl = document.getElementById('incomingPickup');
+        const dropEl = document.getElementById('incomingDrop');
+        if (pickupEl) pickupEl.textContent = data.restaurant_name || 'Restaurant';
+        if (dropEl) dropEl.textContent = data.delivery_address ? formatAddr(data.delivery_address) : '📍 Customer address';
+        var inc = document.getElementById('incomingCard');
+        if (inc) { inc.style.display = 'block'; }
+        var act = document.getElementById('activeCard');
+        if (act) { act.style.display = 'none'; }
+        showToast('📦 New delivery offer! You have 30s to accept.', 'warning');
+        startAcceptCountdown();
+        playRingtone();
+      }
+    });
     socket.on('order_taken', (data) => {
       if (currentOrderId && data.order_id === currentOrderId) {
         document.getElementById('incomingCard').style.display = 'none';
@@ -703,7 +709,12 @@ function startAcceptCountdown() {
     if (secs <= 0) {
       clearInterval(countdownTimer);
       document.getElementById('incomingCard').style.display = 'none';
-      showToast('Request expired — order reassigned to another rider', 'warning');
+      showToast('⏰ Timeout — order offered to another rider', 'warning');
+      // Notify backend this rider timed out
+      if (currentOrderId) {
+        fetch(API_BASE + '/orders/' + currentOrderId + '/rider-timeout', { method: 'POST', headers: HEADERS }).catch(function(){});
+        currentOrderId = null;
+      }
     }
   }, 1000);
 }
@@ -847,6 +858,7 @@ function getCallConfig() {
     { urls: ['turn:openrelay.metered.ca:80', 'turn:openrelay.metered.ca:443'], username: 'openrelayproject', credential: 'openrelayproject' },
     { urls: ['turns:openrelay.metered.ca:443', 'turn:openrelay.metered.ca:443?transport=tcp'], username: 'openrelayproject', credential: 'openrelayproject' }
   ], iceCandidatePoolSize: 10 };
+}
 
 function createPeerConnection(orderId, onRemoteStream) {
   const cfg = getCallConfig();

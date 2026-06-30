@@ -161,6 +161,111 @@ def _assign_rider(db, order_id: str, restaurant_lat: float, restaurant_lng: floa
     return rider
 
 
+# ── Sequential rider offer ────────────────────────────────────────────────────
+
+def _offer_to_next_rider(db, order_id):
+    """Offer order to the next eligible rider in sequence (nearest first)."""
+    order = db.orders.find_one({"_id": order_id})
+    if not order:
+        return {"success": False, "reason": "Order not found"}
+
+    if order.get("rider_id"):
+        return {"success": False, "reason": "Already has a rider"}
+
+    if order.get("status") not in ("accepted",):
+        return {"success": False, "reason": f"Order status is '{order.get('status')}'"}
+
+    restaurant = db.restaurants.find_one({"_id": order.get("restaurant_id", "")})
+    if not restaurant:
+        return {"success": False, "reason": "Restaurant not found"}
+
+    rest_lat = float(restaurant.get("lat", 0))
+    rest_lng = float(restaurant.get("lng", 0))
+    rejected_ids = order.get("rejected_rider_ids", []) or []
+
+    all_online = list(db.delivery_partners.find({"is_online": True, "is_available": True}))
+
+    def dist(rider):
+        loc = rider.get("current_location", {})
+        return _haversine(rest_lat, rest_lng, float(loc.get("lat", 0)), float(loc.get("lng", 0)))
+
+    eligible = []
+    for rider in all_online:
+        rider_id = str(rider["_id"])
+        if rider_id in rejected_ids:
+            continue
+        d = dist(rider)
+        if d <= MAX_ASSIGN_RADIUS_KM and _rider_active_count(db, rider_id) < MAX_CONCURRENT_ORDERS:
+            eligible.append((rider, d))
+
+    eligible.sort(key=lambda x: x[1])
+
+    if eligible:
+        next_rider, distance = eligible[0]
+        next_rider_id = str(next_rider["_id"])
+        now = int(time.time())
+
+        db.orders.update_one(
+            {"_id": order_id},
+            {
+                "$set": {
+                    "offered_rider_id": next_rider_id,
+                    "last_offer_time": now,
+                    "no_riders_left": False,
+                }
+            },
+        )
+
+        try:
+            from app import socketio
+            socketio.emit("delivery_offer", {
+                "order_id": order_id,
+                "restaurant_name": order.get("restaurant_name", ""),
+                "restaurant_lat": rest_lat,
+                "restaurant_lng": rest_lng,
+                "delivery_address": order.get("delivery_address", {}),
+                "items": order.get("items", []),
+                "total": order.get("total", 0),
+                "distance_km": round(distance, 2),
+                "offer_timeout": 30,
+            }, room=f"rider_{next_rider_id}")
+        except Exception:
+            pass
+
+        return {"success": True, "rider_id": next_rider_id, "rider_name": next_rider.get("name", "")}
+
+    # No eligible riders found — check if any riders exist nearby at all
+    any_nearby = [
+        r for r in all_online
+        if dist(r) <= MAX_ASSIGN_RADIUS_KM
+        and _rider_active_count(db, str(r["_id"])) < MAX_CONCURRENT_ORDERS
+    ]
+
+    if not any_nearby:
+        db.orders.update_one(
+            {"_id": order_id},
+            {"$set": {"no_riders_left": True}}
+        )
+        try:
+            from app import socketio
+            socketio.emit("order_status_update", {
+                "order_id": order_id,
+                "status": "accepted",
+                "no_riders_left": True,
+                "message": "No delivery partners available in your area. We'll keep looking!",
+            }, room=f"order_{order_id}")
+        except Exception:
+            pass
+        return {"success": False, "reason": "no_riders_available"}
+    else:
+        # All nearby riders have rejected — reset for next retry cycle
+        db.orders.update_one(
+            {"_id": order_id},
+            {"$set": {"rejected_rider_ids": []}}
+        )
+        return {"success": False, "reason": "all_rejected_reset"}
+
+
 # ── Get available riders count ───────────────────────────────────────────────
 
 @orders_bp.route("/available-riders-count", methods=["GET"])
@@ -236,7 +341,7 @@ def place_order():
 
     # Determine delivery fee by slab
     delivery_fee = _delivery_fee_slab(distance_km)
-    platform_fee = 20
+    platform_fee = 10
 
     items = []
     item_total = 0.0
@@ -290,6 +395,9 @@ def place_order():
         "rejected_rider_ids": [],
         "no_rider_refund_processed": False,
         "no_rider_notified_at": None,
+        "no_riders_left": False,
+        "offered_rider_id": None,
+        "last_offer_time": None,
     }
     db.orders.insert_one(order_doc)
 
@@ -342,8 +450,10 @@ def stream_order(order_id):
             payload = {
                 'status': order.get('status'),
                 'rider_name': order.get('rider_name'),
+                'rider_id': order.get('rider_id'),
                 'payment_status': order.get('payment_status'),
                 'no_rider_refund_processed': order.get('no_rider_refund_processed', False),
+                'no_riders_left': order.get('no_riders_left', False),
             }
             yield "data: " + json.dumps(payload) + "\n\n"
             if order.get("status") in ("delivered", "cancelled"):
@@ -416,32 +526,13 @@ def accept_order(order_id):
         {"$set": {"status": "accepted", "accepted_at": int(time.time())}},
     )
 
-    restaurant = db.restaurants.find_one({"_id": order["restaurant_id"]})
-    restaurant_lat = float((restaurant or {}).get("lat", 0))
-    restaurant_lng = float((restaurant or {}).get("lng", 0))
-
-    available_riders = list(db.delivery_partners.find({"is_online": True, "is_available": True}))
-
-    if available_riders:
-        try:
-            from app import socketio
-            socketio.emit("new_order", {
-                "order_id": order_id,
-                "restaurant_name": order.get("restaurant_name", ""),
-                "restaurant_lat": restaurant_lat,
-                "restaurant_lng": restaurant_lng,
-                "delivery_address": order.get("delivery_address", {}),
-                "items": order.get("items", []),
-                "total": order.get("total", 0),
-            }, room="riders")
-        except Exception:
-            pass
+    offer_result = _offer_to_next_rider(db, order_id)
 
     return jsonify({"success": True, "data": {
         "order_id": order_id,
         "status": "accepted",
-        "riders_available": len(available_riders),
-        "message": "Order accepted. Notifying available riders."
+        "offer": offer_result,
+        "message": "Order accepted. Offering to nearest available rider."
     }}), 200
 
 
@@ -570,8 +661,8 @@ def reject_delivery(order_id):
     if order is None:
         return jsonify({"success": False, "message": "Order not found"}), 404
 
-    if order.get("rider_id") != rider_id:
-        return jsonify({"success": False, "message": "This order is not assigned to you"}), 403
+    if order.get("offered_rider_id") != rider_id and order.get("rider_id") != rider_id:
+        return jsonify({"success": False, "message": "This order was not offered to you"}), 403
 
     # Free the rejecting rider
     db.delivery_partners.update_one({"_id": rider_id}, {"$set": {"is_available": True}})
@@ -581,7 +672,7 @@ def reject_delivery(order_id):
     if rider_id not in rejected_ids:
         rejected_ids.append(rider_id)
 
-    # Clear current rider from order
+    # Clear current offer/rider from order
     db.orders.update_one(
         {"_id": order_id},
         {
@@ -591,61 +682,107 @@ def reject_delivery(order_id):
                 "rider_phone": None,
                 "status": "accepted",
                 "rejected_rider_ids": rejected_ids,
+                "offered_rider_id": None,
             }
         },
     )
 
-    # Try to find next available rider (excluding all rejected ones)
-    restaurant = db.restaurants.find_one({"_id": order.get("restaurant_id", "")})
-    restaurant_lat = float((restaurant or {}).get("lat", 0))
-    restaurant_lng = float((restaurant or {}).get("lng", 0))
+    offer_result = _offer_to_next_rider(db, order_id)
 
-    next_rider = _find_next_available_rider(db, restaurant_lat, restaurant_lng, exclude_ids=rejected_ids)
+    response_data = {
+        "order_id": order_id,
+        "rejected_by": rider_id,
+        "rejected_count": len(rejected_ids),
+        "offer": offer_result,
+    }
 
-    response_data = {"order_id": order_id, "rejected_by": rider_id, "rejected_count": len(rejected_ids)}
-
-    if next_rider:
-        next_rider_id = str(next_rider["_id"])
-
-        db.orders.update_one(
-            {"_id": order_id},
-            {
-                "$set": {
-                    "rider_id": next_rider_id,
-                    "rider_name": next_rider.get("name", ""),
-                    "rider_phone": next_rider.get("phone", ""),
-                    "status": "preparing",
-                    "rider_assigned_at": int(time.time()),
-                }
-            },
-        )
-        db.delivery_partners.update_one({"_id": next_rider_id}, {"$set": {"is_available": False}})
-
-        response_data["new_rider"] = {
-            "rider_id": next_rider_id,
-            "rider_name": next_rider.get("name", ""),
-        }
-        response_data["status"] = "preparing"
+    if offer_result.get("success"):
         response_data["message"] = f"Re-assigned to next rider ({len(rejected_ids)} rejected so far)"
-
-        # Notify next rider
-        try:
-            from app import socketio
-            socketio.emit("delivery_assigned", {
-                "order_id": order_id,
-                "restaurant_name": order.get("restaurant_name", ""),
-                "delivery_address": order.get("delivery_address", {}),
-                "items": order.get("items", []),
-                "total": order.get("total", 0),
-            }, room=f"rider_{next_rider_id}")
-        except Exception:
-            pass
-    else:
-        response_data["message"] = "No more riders available. Order will be auto-refunded if no rider takes it within 30 min."
-        response_data["status"] = "accepted"
+    elif offer_result.get("reason") == "no_riders_available":
+        response_data["message"] = "No riders available. Will keep trying."
         response_data["no_riders_left"] = True
+    else:
+        response_data["message"] = "All nearby riders rejected. Will retry in 2 minutes."
 
     return jsonify({"success": True, "data": response_data}), 200
+
+
+# ── Rider timeout (same as reject, triggered by frontend countdown) ───────────
+
+@orders_bp.route("/<order_id>/rider-timeout", methods=["POST"])
+def rider_timeout(order_id):
+    db = get_db()
+    if db is None:
+        return jsonify({"success": False, "message": "Database unavailable"}), 503
+
+    order = db.orders.find_one({"_id": order_id})
+    if order is None:
+        return jsonify({"success": False, "message": "Order not found"}), 404
+
+    offered_rider_id = order.get("offered_rider_id")
+    if not offered_rider_id:
+        return jsonify({"success": False, "message": "No rider currently offered"}), 400
+
+    # Add timed-out rider to rejected list
+    rejected_ids = order.get("rejected_rider_ids", []) or []
+    if offered_rider_id not in rejected_ids:
+        rejected_ids.append(offered_rider_id)
+
+    # Free the rider
+    db.delivery_partners.update_one({"_id": offered_rider_id}, {"$set": {"is_available": True}})
+
+    # Clear offer
+    db.orders.update_one(
+        {"_id": order_id},
+        {
+            "$set": {
+                "offered_rider_id": None,
+                "rejected_rider_ids": rejected_ids,
+            }
+        },
+    )
+
+    offer_result = _offer_to_next_rider(db, order_id)
+
+    return jsonify({"success": True, "data": {
+        "order_id": order_id,
+        "timed_out_rider": offered_rider_id,
+        "offer": offer_result,
+    }}), 200
+
+
+# ── Scheduled retry for rider assignment ─────────────────────────────────────
+
+def retry_rider_assignment():
+    """
+    Called periodically by APScheduler.
+    Finds orders where all offers timed out (>2 min ago) and retries.
+    """
+    db = get_db()
+    if db is None:
+        return
+
+    now = int(time.time())
+    cutoff = now - 120
+
+    orders = list(db.orders.find({
+        "status": "accepted",
+        "rider_id": None,
+        "$or": [
+            {"last_offer_time": {"$lt": cutoff}},
+            {"last_offer_time": {"$exists": False}},
+        ],
+    }))
+
+    for order in orders:
+        order_id = order["_id"]
+        # Clear rejected list for a fresh round
+        db.orders.update_one(
+            {"_id": order_id},
+            {"$set": {"rejected_rider_ids": []}}
+        )
+        _offer_to_next_rider(db, order_id)
+        logger.info("Retried rider assignment for order %s", order_id)
 
 
 # ── Auto-refund check (called by scheduler) ──────────────────────────────────
@@ -766,53 +903,7 @@ def process_auto_refunds():
         except Exception:
             pass
 
-    # Re-notify available riders for pending/accepted orders that still have no rider
-    # (only for recent orders, <30 min, to try getting a rider)
-    recent_no_rider = list(db.orders.find({
-        "status": {"$in": ["pending", "accepted"]},
-        "rider_id": None,
-        "no_rider_refund_processed": {"$ne": True},
-        "created_at": {"$gt": cutoff},
-    }))
-
-    available_riders = list(db.delivery_partners.find({"is_online": True, "is_available": True}))
-
-    for order in recent_no_rider[:5]:  # limit to avoid spam
-        if available_riders:
-            restaurant = db.restaurants.find_one({"_id": order.get("restaurant_id", "")})
-            rest_lat = float((restaurant or {}).get("lat", 0))
-            rest_lng = float((restaurant or {}).get("lng", 0))
-
-            rejected = order.get("rejected_rider_ids", []) or []
-            next_rider = _find_next_available_rider(db, rest_lat, rest_lng, exclude_ids=rejected)
-
-            if next_rider:
-                nid = str(next_rider["_id"])
-                db.orders.update_one(
-                    {"_id": order["_id"]},
-                    {
-                        "$set": {
-                            "rider_id": nid,
-                            "rider_name": next_rider.get("name", ""),
-                            "rider_phone": next_rider.get("phone", ""),
-                            "status": "preparing",
-                            "rider_assigned_at": int(time.time()),
-                        }
-                    },
-                )
-                db.delivery_partners.update_one({"_id": nid}, {"$set": {"is_available": False}})
-                try:
-                    from app import socketio
-                    socketio.emit("delivery_assigned", {
-                        "order_id": order["_id"],
-                        "restaurant_name": order.get("restaurant_name", ""),
-                        "delivery_address": order.get("delivery_address", {}),
-                        "items": order.get("items", []),
-                        "total": order.get("total", 0),
-                    }, room=f"rider_{nid}")
-                except Exception:
-                    pass
-                logger.info("Re-assigned order %s to rider %s via scheduler retry", order["_id"], nid)
+    # (Rider retry is now handled by retry_rider_assignment() via separate scheduler)
 
 
 # ── Customer: cancel order (before rider assigned) ───────────────────────────

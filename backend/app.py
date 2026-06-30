@@ -101,8 +101,29 @@ try:
         name='Check orders with no rider and process refunds',
         replace_existing=True,
     )
+    # Import the rider retry function
+    from api.v1.orders import retry_rider_assignment
+
+    def scheduled_rider_retry():
+        """Retry rider assignment for timed-out offers."""
+        with app.app_context():
+            try:
+                retry_rider_assignment()
+                logger.debug("Rider assignment retry complete")
+            except Exception as e:
+                logger.error(f"Rider assignment retry error: {e}")
+
+    scheduler.add_job(
+        func=scheduled_rider_retry,
+        trigger='interval',
+        seconds=60,
+        id='rider_retry_job',
+        name='Retry rider assignment for timed-out offers',
+        replace_existing=True,
+    )
     scheduler.start()
     logger.info("Auto-refund scheduler started (checking every 60s)")
+    logger.info("Rider retry scheduler started (checking every 60s)")
 except ImportError:
     logger.warning("APScheduler not installed — auto-refund disabled")
 except Exception as e:

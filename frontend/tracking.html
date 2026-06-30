@@ -14,6 +14,9 @@
   --muted:#81c784;--dim:#4a7c59;--text:#e8f5e9;--radius:14px;
 }
 html,body{height:100%;font-family:'Inter','Segoe UI',sans-serif;background:var(--bg);color:var(--text);overflow:hidden}
+input,select,textarea{background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:14px;width:100%;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+::placeholder{color:var(--dim)}
 .app{display:flex;flex-direction:column;height:100vh;position:relative}
 
 /* TOP BAR */
@@ -129,8 +132,10 @@ html,body{height:100%;font-family:'Inter','Segoe UI',sans-serif;background:var(-
   <div class="progress-bar">
     <div class="steps-row" id="stepsRow">
       <div class="step-item done" id="s-confirmed"><div class="step-circle">✓</div><div class="step-label">Confirmed</div></div>
+      <div class="step-item" id="s-restaurant"><div class="step-circle">🍽</div><div class="step-label">Restaurant</div></div>
+      <div class="step-item" id="s-rider-find"><div class="step-circle">🔍</div><div class="step-label">Finding Rider</div></div>
       <div class="step-item" id="s-preparing"><div class="step-circle">🍳</div><div class="step-label">Preparing</div></div>
-      <div class="step-item" id="s-rider"><div class="step-circle">🛵</div><div class="step-label">Rider</div></div>
+      <div class="step-item" id="s-rider-go"><div class="step-circle">🛵</div><div class="step-label">Rider</div></div>
       <div class="step-item" id="s-picked"><div class="step-circle">📦</div><div class="step-label">Picked Up</div></div>
       <div class="step-item" id="s-delivered"><div class="step-circle">🏠</div><div class="step-label">Delivered</div></div>
     </div>
@@ -245,9 +250,17 @@ function fetchRoute(lat1,lng1,lat2,lng2){
 
 function initMap(rLat,rLng,cLat,cLng) {
   map = L.map('map',{zoomControl:false,attributionControl:false});
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-    {subdomains:'abcd',maxZoom:19}).addTo(map);
+  var tile = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+    {subdomains:'abcd',maxZoom:19});
+  tile.addTo(map);
+  // Fallback if CartoDB tiles fail
+  tile.on('tileerror', function() {
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+      {maxZoom:19,attribution:'© OSM'}).addTo(map);
+  });
   L.control.zoom({position:'bottomright'}).addTo(map);
+  // Fix black map if container was hidden
+  setTimeout(function(){ map.invalidateSize(); }, 200);
 
   // Locate me button
   var locateBtn = L.control({position:'topright'});
@@ -343,25 +356,39 @@ function haversine(lat1,lng1,lat2,lng2){
 // ── STATUS STEPS ─────────────────────────────────────────────
 
 var STATUS_MAP = {
-  'pending':0,'confirmed':1,'accepted':1,'preparing':2,
-  'ready_for_pickup':2,'out_for_delivery':3,'picked_up':3,'delivered':4
+  'pending':0,'confirmed':1,'accepted':1,'preparing':3,
+  'ready_for_pickup':3,'out_for_delivery':4,'picked_up':5,'delivered':6
 };
-var STEP_IDS = ['s-confirmed','s-preparing','s-rider','s-picked','s-delivered'];
+// override: when order has rider_id, accepted maps to step 2
+function getActiveStep(status, order) {
+  var idx = STATUS_MAP[status] ?? 0;
+  if (status === 'accepted' && order && order.rider_id) idx = 2;
+  if (status === 'accepted' && order && !order.rider_id) idx = 1;
+  return idx;
+}
+var STEP_IDS = ['s-confirmed','s-restaurant','s-rider-find','s-preparing','s-rider-go','s-picked','s-delivered'];
 var STATUS_LABELS = {
-  'pending':'Order Placed','confirmed':'Confirmed','accepted':'Restaurant Accepted',
+  'pending':'Order Placed','confirmed':'Confirmed by Restaurant','accepted':'Looking for Rider',
   'preparing':'Preparing Your Food','ready_for_pickup':'Ready for Pickup',
   'out_for_delivery':'Rider is on the way!','picked_up':'Rider picked up',
   'delivered':'Delivered! Enjoy! 🎉'
 };
 
-function updateSteps(status){
-  var idx = STATUS_MAP[status] ?? 0;
+var _lastOrderData = null;
+function updateSteps(status, orderData){
+  var order = orderData || _lastOrderData || {};
+  _lastOrderData = order;
+  var idx = getActiveStep(status, order);
   STEP_IDS.forEach(function(id,i){
     var el=document.getElementById(id);
     if(!el) return;
     el.className='step-item'+(i<idx?' done':'')+(i===idx?' active':'');
   });
-  setText('statusText',STATUS_LABELS[status]||status);
+  var label = STATUS_LABELS[status]||status;
+  if (status === 'accepted' && order.rider_id) label = 'Rider assigned!';
+  if (status === 'accepted' && !order.rider_id) label = 'Looking for delivery partner...';
+  if (status === 'pending') label = 'Waiting for restaurant to accept...';
+  setText('statusText',label);
   if(status==='delivered'){
     showConfirmDelivery();
   }
@@ -411,7 +438,7 @@ function initSocket(){
     });
     socket.on('location_update',function(data){animateRider(data.lat,data.lng);});
     socket.on('order_status_update',function(data){
-      if(data.status) updateSteps(data.status);
+      if(data.status) updateSteps(data.status, data);
       if(data.message) showToast(data.message,'success');
     });
     socket.on('order_refunded',function(data){
@@ -481,13 +508,20 @@ async function fetchOrder(){
     var d=await res.json();
     if(!d.success) return;
     var o=d.data||{};
-    updateSteps(o.status);
+    updateSteps(o.status, o);
     setText('metricTotal','₹'+(o.total||0));
     // Rider info
     if(o.rider_name){
       setText('riderName',o.rider_name);
       setText('riderSub','📍 — km away');
       document.getElementById('riderDist').textContent='—';
+    }
+    // Handle no riders left
+    if (o.no_riders_left || o.no_riders_available) {
+      showRefundBanner('No delivery partners available nearby. We will keep trying every 2 minutes. Auto-refund in 30 min if no rider found.');
+    } else {
+      var rb = document.getElementById('refundBanner');
+      if (rb) rb.style.display = 'none';
     }
   }catch(e){/* silent */}
   // Also fetch tracking data
@@ -577,6 +611,7 @@ function getCallConfig(){ return { iceServers: [
   { urls: ['turn:openrelay.metered.ca:80', 'turn:openrelay.metered.ca:443'], username: 'openrelayproject', credential: 'openrelayproject' },
   { urls: ['turns:openrelay.metered.ca:443', 'turn:openrelay.metered.ca:443?transport=tcp'], username: 'openrelayproject', credential: 'openrelayproject' }
 ], iceCandidatePoolSize:10 };
+}
 
 function createPeerConnection(oid, onRemoteStream){
   var cfg = getCallConfig();
@@ -749,7 +784,7 @@ document.addEventListener('DOMContentLoaded',function(){
           if(addrStr) setText('riderSub','📍 '+addrStr);
         }
         setText('metricTotal','₹'+(o.total||0));
-        updateSteps(o.status);
+        updateSteps(o.status, o);
         setText('statusText','Tracking Order #'+ORDER_ID);
       } else {
         initMap(DEMO_REST.lat,DEMO_REST.lng,DEMO_CUST.lat,DEMO_CUST.lng);

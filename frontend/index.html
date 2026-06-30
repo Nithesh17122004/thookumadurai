@@ -603,13 +603,21 @@
           <div class="step-icon"><i class="fas fa-check"></i></div>
           <div class="step-info"><div class="step-title">Order Confirmed</div><div class="step-time">Payment received</div></div>
         </div>
+        <div class="tracking-step" id="tstep-r">
+          <div class="step-icon"><i class="fas fa-utensils"></i></div>
+          <div class="step-info"><div class="step-title">Restaurant Accepted</div><div class="step-time" id="tstep-r-time">Waiting for restaurant...</div></div>
+        </div>
+        <div class="tracking-step" id="tstep-lr">
+          <div class="step-icon"><i class="fas fa-search"></i></div>
+          <div class="step-info"><div class="step-title">Finding a Rider</div><div class="step-time" id="tstep-lr-time">Looking for nearby delivery partners...</div></div>
+        </div>
         <div class="tracking-step" id="tstep-1">
           <div class="step-icon"><i class="fas fa-fire"></i></div>
           <div class="step-info"><div class="step-title">Preparing Your Food</div><div class="step-time">Restaurant is cooking</div></div>
         </div>
         <div class="tracking-step" id="tstep-2">
           <div class="step-icon"><i class="fas fa-motorcycle"></i></div>
-          <div class="step-info"><div class="step-title">Rider Assigned</div><div class="step-time">Heading to restaurant</div></div>
+          <div class="step-info"><div class="step-title">Rider On The Way</div><div class="step-time">Heading to restaurant</div></div>
         </div>
         <div class="tracking-step" id="tstep-3">
           <div class="step-icon"><i class="fas fa-box"></i></div>
@@ -1948,8 +1956,13 @@ async function startOrderTracking(orderId) {
     try {
       _trackMap = L.map('trackingMap', { zoomControl: false, attributionControl: false })
         .setView([9.9252, 78.1198], 13);
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(_trackMap);
+      var _tile = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 });
+      _tile.addTo(_trackMap);
+      _tile.on('tileerror', function() {
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(_trackMap);
+      });
       L.control.zoom({ position: 'topright' }).addTo(_trackMap);
+      setTimeout(function(){ _trackMap.invalidateSize(); }, 300);
     } catch(e) { /* leaflet not loaded yet */ }
   } else {
     try { _trackMap.invalidateSize(); } catch(e){}
@@ -2427,25 +2440,48 @@ async function pollOrder(orderId) {
 
 function updateTrackingUI(order) {
   const status = order.status || 'pending';
-  const stepMap = { pending: 0, confirmed: 1, accepted: 1, preparing: 2, ready_for_pickup: 2, out_for_delivery: 3, picked_up: 3, delivered: 4 };
-  const activeStep = stepMap[status] ?? 0;
-  for (let i = 0; i <= 4; i++) {
-    const el = document.getElementById('tstep-' + i);
+  const stepIds = ['tstep-0','tstep-r','tstep-lr','tstep-1','tstep-2','tstep-3','tstep-4'];
+  let activeStep = 0;
+  if (status === 'pending') activeStep = 0;
+  else if (status === 'accepted' && !order.rider_id && !order.rider_name) activeStep = 1;
+  else if (status === 'accepted' && order.rider_id) activeStep = 2;
+  else if (status === 'preparing') activeStep = 3;
+  else if (status === 'out_for_delivery' || status === 'picked_up') activeStep = 4;
+  else if (status === 'delivered') activeStep = 6;
+  else activeStep = 1;
+  for (let i = 0; i < stepIds.length; i++) {
+    const el = document.getElementById(stepIds[i]);
     if (!el) continue;
     el.className = 'tracking-step';
     if (i < activeStep) el.classList.add('completed');
     else if (i === activeStep) el.classList.add('active');
   }
+  // Step custom text
+  const rTime = document.getElementById('tstep-r-time');
+  if (rTime) rTime.textContent = status === 'accepted' ? 'Restaurant confirmed your order' : (status === 'pending' ? 'Waiting for restaurant...' : 'Restaurant accepted');
+  const lrTime = document.getElementById('tstep-lr-time');
+  if (lrTime) {
+    if (order.rider_name) lrTime.textContent = order.rider_name + ' assigned as your rider';
+    else if (status === 'accepted' && !order.rider_id) lrTime.textContent = 'Looking for nearby delivery partners...';
+    else lrTime.textContent = 'Delivery partner assigned';
+  }
   // ETA
   const etaEl = document.getElementById('trackingEta');
-  if (etaEl) etaEl.textContent = order.eta || (status === 'delivered' ? 'Delivered!' : 'ETA ~20 min');
+  if (etaEl) etaEl.textContent = order.eta || (status === 'delivered' ? 'Delivered!' : (status === 'pending' ? 'Waiting for restaurant...' : 'ETA ~20 min'));
+  // Looking for rider status - show search animation
+  const lrEl = document.getElementById('tstep-lr');
+  if (lrEl) {
+    var searchMsg = lrEl.querySelector('.step-time');
+    if (searchMsg && status === 'accepted' && !order.rider_name && order.no_riders_left) {
+      searchMsg.textContent = 'No riders nearby. Will retry every 2 min. Hang tight!';
+    }
+  }
   // Rider info
   const riderInfo = document.getElementById('riderInfo');
   if (riderInfo && order.rider_name) {
     riderInfo.style.display = 'flex';
     const nameEl = document.getElementById('riderInfoName');
     if (nameEl) nameEl.textContent = order.rider_name;
-    // Store rider_id for push calls
     if (order.rider_id) state.riderId = order.rider_id;
     if (order.rider) state.riderId = order.rider;
   }

@@ -189,6 +189,18 @@ def accept_delivery(order_id):
             "message": f"You already have {active_count} active orders. Max {MAX_CONCURRENT_ORDERS} allowed."
         }), 400
 
+    # Check if this rider was offered the order (sequential flow)
+    order = db.orders.find_one({"_id": order_id})
+    if order is None:
+        return jsonify({"success": False, "message": "Order not found"}), 404
+
+    offered_rider_id = order.get("offered_rider_id")
+    if offered_rider_id and offered_rider_id != rider_id:
+        return jsonify({"success": False, "message": "This order was offered to another rider"}), 403
+
+    if order.get("rider_id") and order.get("rider_id") != rider_id:
+        return jsonify({"success": False, "message": "Another rider already accepted this order"}), 409
+
     # Atomic claim: only succeeds if no rider assigned yet
     result = db.orders.find_one_and_update(
         {"_id": order_id, "rider_id": None, "status": "accepted"},
@@ -198,6 +210,8 @@ def accept_delivery(order_id):
             "rider_phone": rider.get("phone", request.rider_user.get("phone", "")),
             "status": "preparing",
             "rider_assigned_at": int(time.time()),
+            "offered_rider_id": None,
+            "no_riders_left": False,
         }}
     )
     if result is None:
@@ -240,21 +254,27 @@ def reject_delivery(order_id):
     db = get_db()
     if db is not None:
         db.delivery_partners.update_one({"_id": rider_id}, {"$set": {"is_available": True}})
-        # Only clear rider if this rider was assigned
-        db.orders.update_one(
-            {"_id": order_id, "rider_id": rider_id},
-            {"$set": {"rider_id": None, "rider_name": None, "rider_phone": None, "status": "accepted"}},
-        )
-        # Broadcast to other riders that this order is available
-        try:
-            from app import socketio
-            socketio.emit("new_order", {
-                "order_id": order_id,
-                "available": True,
-            }, room="riders")
-        except Exception:
-            pass
-    return jsonify({"success": True, "message": "Delivery rejected. Order is available for other riders."}), 200
+        order = db.orders.find_one({"_id": order_id})
+        if order and (order.get("rider_id") == rider_id or order.get("offered_rider_id") == rider_id):
+            rejected_ids = order.get("rejected_rider_ids", []) or []
+            if rider_id not in rejected_ids:
+                rejected_ids.append(rider_id)
+            db.orders.update_one(
+                {"_id": order_id},
+                {
+                    "$set": {
+                        "rider_id": None,
+                        "rider_name": None,
+                        "rider_phone": None,
+                        "status": "accepted",
+                        "rejected_rider_ids": rejected_ids,
+                        "offered_rider_id": None,
+                    }
+                },
+            )
+            from api.v1.orders import _offer_to_next_rider
+            _offer_to_next_rider(db, order_id)
+    return jsonify({"success": True, "message": "Delivery rejected."}), 200
 
 
 @riders_bp.route("/delivery/<order_id>/pickup", methods=["POST"])
